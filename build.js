@@ -7,7 +7,6 @@ import sharp from "sharp";
 import puppeteer from "puppeteer";
 import esbuild from "esbuild";
 import * as lightningcss from "lightningcss";
-import { marked } from "marked";
 import { getScenes } from "./scenes.js";
 import { html, css } from "./tags.js";
 import {
