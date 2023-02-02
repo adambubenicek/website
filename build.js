@@ -505,7 +505,10 @@ async function Scenes() {
       .sort((scene1, scene2) => scene1.width - scene2.width)
       .map(async (scene) => {
         const sceneClassName = classNames.make();
-        const parallaxAmount = Math.round(scene.width / 40);
+        const parallaxAmount = Math.round(
+          (scene.name === DEFAULT_SCENE_NAME ? scene.width / 2 : scene.width) /
+            40
+        );
 
         const mediaQuery =
           scene.name === DEFAULT_SCENE_NAME

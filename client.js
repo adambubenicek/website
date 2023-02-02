@@ -81,12 +81,14 @@ let currentScene = getCurrentScene();
  */
 function animateAlways(time) {
   const { parallaxAmount } = currentScene;
-  const newOffsetX = Math.sin((time * 2 * Math.PI) / 30000) * 0.5;
-  const newOffsetY = Math.cos((time * 2 * Math.PI) / 30000) * 0.5;
+  const orbitSpeed = (1 / (Math.PI * parallaxAmount)) * 0.02;
+
+  const newOffsetX = Math.sin(time * orbitSpeed) * 0.5;
+  const newOffsetY = Math.cos(time * orbitSpeed) * 0.5;
 
   for (let sceneObject of currentScene.objects) {
-    const x = newOffsetX * sceneObject.z * -parallaxAmount;
-    const y = newOffsetY * sceneObject.z * -parallaxAmount;
+    const x = newOffsetX * sceneObject.z * parallaxAmount;
+    const y = newOffsetY * sceneObject.z * parallaxAmount;
 
     sceneObject.element.style.transform = `translate3d(${x}px, ${y}px, 1px)`;
   }
