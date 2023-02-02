@@ -474,12 +474,10 @@ async function Background(props) {
  */
 async function Scenes() {
   const scenes = await getScenes();
-  const parallaxAmount = 16;
   const className = classNames.make();
   const thingClassName = classNames.make();
   const backgroundClassName = classNames.make();
 
-  scripts.addVariable("PARALLAX_AMOUNT", JSON.stringify(parallaxAmount));
   scripts.addVariable("SCENE_SELECTOR", JSON.stringify(`.${className}`));
   scripts.addVariable(
     "OBJECT_SELECTOR",
@@ -507,6 +505,7 @@ async function Scenes() {
       .sort((scene1, scene2) => scene1.width - scene2.width)
       .map(async (scene) => {
         const sceneClassName = classNames.make();
+        const parallaxAmount = Math.round(scene.width / 40);
 
         const mediaQuery =
           scene.name === DEFAULT_SCENE_NAME
@@ -536,6 +535,7 @@ async function Scenes() {
         return html`<div
           class="${className} ${sceneClassName}"
           data-media-query="${mediaQuery}"
+          data-parallax-amount="${parallaxAmount}"
         >
           ${await Background({ scene, className: backgroundClassName })}
           ${await Things({ scene, className: thingClassName })}

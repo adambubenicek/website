@@ -1,7 +1,4 @@
 // @ts-ignore
-const parallaxAmount = PARALLAX_AMOUNT;
-
-// @ts-ignore
 const sceneSelector = SCENE_SELECTOR;
 
 // @ts-ignore
@@ -11,6 +8,7 @@ const objectSelector = OBJECT_SELECTOR;
  * @typedef  ClientScene
  * @property {string} mediaQuery
  * @property {MediaQueryList} mediaQueryList
+ * @property {number} parallaxAmount
  * @property {Object[]} objects
  * @property {HTMLElement} objects[].element
  * @property {number} objects[].z
@@ -44,6 +42,9 @@ const scenes = Array.from(
   .map((sceneElement) => {
     const mediaQuery = /** @type {string} */ (sceneElement.dataset.mediaQuery);
     const mediaQueryList = window.matchMedia(mediaQuery);
+    const parallaxAmountString = /** @type {string} */ (
+      sceneElement.dataset.parallaxAmount
+    );
 
     mediaQueryList.addEventListener("change", () => {
       currentScene = getCurrentScene();
@@ -54,19 +55,20 @@ const scenes = Array.from(
         sceneElement.querySelectorAll(objectSelector)
       )
     ).map((sceneObjectElement) => {
-      const z = /** @type {string} */ (sceneObjectElement.dataset.z);
+      const zString = /** @type {string} */ (sceneObjectElement.dataset.z);
 
       return {
         element: sceneObjectElement,
         x: 0,
         y: 0,
-        z: parseFloat(z),
+        z: parseFloat(zString),
       };
     });
 
     return {
       mediaQueryList: mediaQueryList,
       mediaQuery,
+      parallaxAmount: parseInt(parallaxAmountString),
       objects,
     };
   })
@@ -78,8 +80,9 @@ let currentScene = getCurrentScene();
  * @param {DOMHighResTimeStamp} time
  */
 function animateAlways(time) {
-  let newOffsetX = Math.sin((time * 2 * Math.PI) / 30000) * 0.5;
-  let newOffsetY = Math.cos((time * 2 * Math.PI) / 30000) * 0.5;
+  const { parallaxAmount } = currentScene;
+  const newOffsetX = Math.sin((time * 2 * Math.PI) / 30000) * 0.5;
+  const newOffsetY = Math.cos((time * 2 * Math.PI) / 30000) * 0.5;
 
   for (let sceneObject of currentScene.objects) {
     const x = newOffsetX * sceneObject.z * -parallaxAmount;
