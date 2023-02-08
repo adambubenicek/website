@@ -5,7 +5,8 @@
     "clean": "node clean.js",
     "build": "node build.js",
     "build:dev": "NODE_ENV=development node build.js",
-    "serve": "node serve.js"
+    "serve": "node serve.js",
+    "format": "prettier --write ./*.js"
   },
   "devDependencies": {
     "esbuild": "^0.17.4",
