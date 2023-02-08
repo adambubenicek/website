@@ -649,7 +649,9 @@ await fs.cp(STATIC_DIR, PUBLIC_DIR, { recursive: true });
   });
 
   server.listen(3001, async () => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      executablePath: '/usr/bin/chromium'
+    });
     const page = await browser.newPage();
     await page.setViewport({ width: 1024, height: 1024 });
     await page.goto("http://localhost:3001");
