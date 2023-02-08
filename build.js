@@ -312,24 +312,23 @@ async function Links() {
         </svg>
         <span>Email</span>
       </a>
-      <a class="${className}" href="https://git.sr.ht/~adambubenicek">
+      <a class="${className}" href="https://gitlab.com/adambubenicek">
         <?xml version="1.0" encoding="UTF-8"?><svg
           width="16px"
           height="16px"
           stroke-width="1.9"
+          viewBox="0 0 24 24"
           stroke="currentcolor"
           fill="none"
-          viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
+            clip-rule="evenodd"
+            d="M17.057 2.544a.2.2 0 01.378-.008l3.114 8.31 1.398 3.73a.2.2 0 01-.07.232l-9.76 7.106a.2.2 0 01-.235 0l-9.76-7.106a.2.2 0 01-.069-.231l1.398-3.73.167-.45 2.944-7.861a.2.2 0 01.378.008l2.47 7.6a.2.2 0 00.19.137h4.8a.2.2 0 00.19-.138l2.467-7.599z"
             stroke-width="1.9"
-            stroke-linecap="round"
-            stroke-linejoin="round"
           ></path>
         </svg>
-        <span>Sourcehut</span>
+        <span>GitLab</span>
       </a>
     </div>
   `;
