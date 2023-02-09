@@ -650,7 +650,8 @@ await fs.cp(STATIC_DIR, PUBLIC_DIR, { recursive: true });
 
   server.listen(3001, async () => {
     const browser = await puppeteer.launch({
-      executablePath: '/usr/bin/chromium'
+      executablePath: '/usr/bin/chromium',
+      args: ["--no-sandbox"]
     });
     const page = await browser.newPage();
     await page.setViewport({ width: 1024, height: 1024 });
