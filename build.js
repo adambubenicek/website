@@ -369,7 +369,7 @@ async function Things(props) {
           const mediaQuery =
             scale === SCALE_MAX
               ? "screen"
-              : `screen and (max-resolution: ${(scale - SCALE_STEP) * 96}dpi)`;
+              : `screen and (max-resolution: ${scale * 96}dpi)`;
 
           styles.add(
             css`
