@@ -9,7 +9,7 @@ podman build . -t website
 podman run --rm -ti -p 3000:3000 website npm run build:dev && npm run serve
 ```
 
-## Resources Directory
+## Resources directory
 
 This git repo contains only sample graphic resources. To mount a `resources`
 directory with actuall assets, it can be mounted to the container as a subdirectory:
