@@ -1,8 +1,9 @@
 const canvas = document.querySelector("canvas");
-const gl = canvas.getContext("webgl");
+const gl = canvas.getContext("webgl2");
 
-const vertexShaderSource = `
-    attribute vec4 aVertexPosition;
+const vertexShaderSource = `#version 300 es
+    in vec4 aVertexPosition;
+
     void main() {
       gl_Position = aVertexPosition;
     }
@@ -18,9 +19,13 @@ if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
   throw error;
 }
 
-const fragmentShaderSource = `
+const fragmentShaderSource = `#version 300 es
+    precision highp float;
+
+    out vec4 outColor;
+
     void main() {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+      outColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
   `;
 
