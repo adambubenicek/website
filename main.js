@@ -2,10 +2,10 @@ const canvas = document.querySelector("canvas");
 const gl = canvas.getContext("webgl2");
 
 const vertexShaderSource = `#version 300 es
-    in vec4 aVertexPosition;
+    in vec4 position;
 
     void main() {
-      gl_Position = aVertexPosition;
+      gl_Position = position;
     }
   `;
 
@@ -50,16 +50,20 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
   throw error;
 }
 
+const positionAttributeLocation = gl.getAttribLocation(program, "position")
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5
 ]), gl.STATIC_DRAW);
 
-const positionLocation = gl.getAttribLocation(program, "aVertexPosition")
 
+const vao = gl.createVertexArray();
+gl.bindVertexArray(vao);
+
+gl.enableVertexAttribArray(positionAttributeLocation);
 gl.vertexAttribPointer(
-  positionLocation,
+  positionAttributeLocation,
   2,
   gl.FLOAT,
   false,
@@ -67,11 +71,8 @@ gl.vertexAttribPointer(
   0,
 );
 
-gl.enableVertexAttribArray(positionLocation);
-
-gl.enable(gl.DEPTH_TEST);
-gl.depthFunc(gl.LEQUAL);
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+gl.clear(gl.COLOR_BUFFER_BIT);
 
 gl.useProgram(program);
+gl.bindVertexArray(vao);
 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
