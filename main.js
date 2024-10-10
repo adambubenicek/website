@@ -44,6 +44,12 @@ gl.attachShader(program, vertexShader);
 gl.attachShader(program, fragmentShader);
 gl.linkProgram(program);
 
+if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+  const error = gl.getProgramInfoLog(program);
+  gl.deleteProgram(program);
+  throw error;
+}
+
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
