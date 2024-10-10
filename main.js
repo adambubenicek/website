@@ -50,26 +50,20 @@ if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
   throw error;
 }
 
-const positionAttributeLocation = gl.getAttribLocation(program, "position")
+const positionAttributeLocation = gl.getAttribLocation(program, "position");
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-  0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5
-]), gl.STATIC_DRAW);
-
+gl.bufferData(
+  gl.ARRAY_BUFFER,
+  new Float32Array([0.5, 0.5, -0.5, 0.5, 0.5, -0.5, -0.5, -0.5]),
+  gl.STATIC_DRAW,
+);
 
 const vao = gl.createVertexArray();
 gl.bindVertexArray(vao);
 
 gl.enableVertexAttribArray(positionAttributeLocation);
-gl.vertexAttribPointer(
-  positionAttributeLocation,
-  2,
-  gl.FLOAT,
-  false,
-  0,
-  0,
-);
+gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
 gl.clear(gl.COLOR_BUFFER_BIT);
 
