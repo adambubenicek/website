@@ -1,6 +1,7 @@
 const canvas = document.querySelector("canvas");
 const gl = canvas.getContext("webgl2");
 import * as twgl from "twgl.js";
+import { mat4, quat, vec2, vec3 } from "gl-matrix"
 
 const vertexShaderSource = `#version 300 es
     in vec3 position;
@@ -39,24 +40,30 @@ function render(time) {
 
   const uniforms = {
     time: time * 0.001,
-    projection: twgl.m4.identity(),
-    transform: twgl.m4.identity(),
+    projection: mat4.create(),
+    transform: mat4.create(),
   };
-  twgl.m4.ortho(
+
+  const rotation = quat.create()
+  quat.fromEuler(rotation, time * 0.1, time * 0.2, time * 0.3)
+
+  const translation = vec3.fromValues(100, 100, 0)
+  const scale = vec3.fromValues(50, 50, 0)
+
+  mat4.fromRotationTranslationScale(uniforms.transform, 
+    rotation,
+    translation,
+    scale
+  )
+  mat4.ortho(
+    uniforms.projection,
     0,
     gl.canvas.clientWidth,
     gl.canvas.clientHeight,
     0,
     -200,
     200,
-    uniforms.projection
   );
-
-  twgl.m4.translate(uniforms.transform, [100, 100, 0], uniforms.transform);
-  twgl.m4.scale(uniforms.transform, [50, 50, 50], uniforms.transform);
-  twgl.m4.rotateX(uniforms.transform, time * 0.001, uniforms.transform);
-  twgl.m4.rotateY(uniforms.transform, time * 0.001, uniforms.transform);
-  twgl.m4.rotateZ(uniforms.transform, time * 0.001, uniforms.transform);
 
   gl.useProgram(programInfo.program);
   twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);

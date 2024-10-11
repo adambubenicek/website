@@ -15,6 +15,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
+    "gl-matrix": "^3.4.3",
     "twgl.js": "^5.5.4"
   }
 }
