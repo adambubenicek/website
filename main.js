@@ -1,9 +1,35 @@
 const canvas = document.querySelector("canvas");
 const gl = canvas.getContext("webgl2");
-import * as twgl from "twgl.js";
-import { mat4, quat, vec2, vec3 } from "gl-matrix"
+import { mat4, quat, vec3 } from "gl-matrix"
 
-const vertexShaderSource = `#version 300 es
+function createShader(gl, type, source) {
+  const shader = gl.createShader(type)
+  gl.shaderSource(shader, source)
+  gl.compileShader(shader)
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    throw gl.getShaderInfoLog(shader);
+  }
+
+  return shader
+}
+
+function createProgram(gl, vertexShader, fragmentShader) {
+  const program = gl.createProgram();
+
+  gl.attachShader(program, vertexShader)
+  gl.attachShader(program, fragmentShader)
+
+  gl.linkProgram(program)
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    throw gl.getProgramInfoLog(program)
+  }
+
+  return program
+}
+
+const vertexShader = createShader(gl, gl.VERTEX_SHADER, `#version 300 es
     in vec3 position;
 
     uniform mat4 projection;
@@ -12,9 +38,9 @@ const vertexShaderSource = `#version 300 es
     void main() {
       gl_Position = projection * transform * vec4(position, 1.0);
     }
-  `;
+  `);
 
-const fragmentShaderSource = `#version 300 es
+const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, `#version 300 es
     precision highp float;
 
     out vec4 outColor;
@@ -22,22 +48,35 @@ const fragmentShaderSource = `#version 300 es
     void main() {
       outColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
-  `;
+  `);
 
-const programInfo = twgl.createProgramInfo(gl, [
-  vertexShaderSource,
-  fragmentShaderSource,
-]);
 
-const arrays = {
-  position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
-};
+const program = createProgram(gl, vertexShader, fragmentShader)
 
-const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
+const positionAttributeLocation = gl.getAttribLocation(program, "position")
+const projectionUniformLocation = gl.getUniformLocation(program, "projection")
+const transformUniformLocation = gl.getUniformLocation(program, "transform")
+
+const positionBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
+  [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+), gl.STATIC_DRAW)
+
+gl.vertexAttribPointer(
+  positionAttributeLocation,
+  3, // size
+  gl.FLOAT, // type
+  false, // normalize
+  0, // stride
+  0, // offset
+)
+gl.enableVertexAttribArray(positionAttributeLocation)
+
+gl.canvas.width = gl.canvas.clientWidth;
+gl.canvas.height = gl.canvas.clientHeight;
 
 function render(time) {
-  twgl.resizeCanvasToDisplaySize(gl.canvas);
-
   const uniforms = {
     time: time * 0.001,
     projection: mat4.create(),
@@ -65,10 +104,12 @@ function render(time) {
     200,
   );
 
-  gl.useProgram(programInfo.program);
-  twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-  twgl.setUniforms(programInfo, uniforms);
-  twgl.drawBufferInfo(gl, bufferInfo);
+  gl.useProgram(program);
+
+  gl.uniformMatrix4fv(projectionUniformLocation, false, uniforms.projection)
+  gl.uniformMatrix4fv(transformUniformLocation, false, uniforms.transform)
+
+  gl.drawArrays(gl.TRIANGLES, 0, 6)
 
   requestAnimationFrame(render);
 }
