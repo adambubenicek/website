@@ -32,18 +32,18 @@ function createProgram(gl, vertexShader, fragmentShader) {
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, `#version 300 es
     precision highp float;
 
-    in vec2 position;
-    in vec2 pointA;
-    in vec2 pointB;
+    in vec2 instancePosition;
+    in vec2 positionStart;
+    in vec2 positionEnd;
 
     uniform mat4 projection;
     uniform mat4 transform;
     uniform float width;
 
     void main() {
-      vec2 xBasis = pointB - pointA;
+      vec2 xBasis = positionEnd - positionStart;
       vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
-      vec2 point = pointA + xBasis * position.x + yBasis * width * position.y;
+      vec2 point = positionStart + xBasis * instancePosition.x + yBasis * width * instancePosition.y;
       gl_Position = projection * vec4(point, 0, 1);
     }
   `);
@@ -61,9 +61,9 @@ const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, `#version 300 es
 
 const program = createProgram(gl, vertexShader, fragmentShader)
 
-const positionAttributeLocation = gl.getAttribLocation(program, "position")
-const pointAAttributeLocation = gl.getAttribLocation(program, "pointA")
-const pointBAttributeLocation = gl.getAttribLocation(program, "pointB")
+const instancePositionAttributeLocation = gl.getAttribLocation(program, "instancePosition")
+const positionStartAttributeLocation = gl.getAttribLocation(program, "positionStart")
+const positionEndAttributeLocation = gl.getAttribLocation(program, "positionEnd")
 const projectionUniformLocation = gl.getUniformLocation(program, "projection")
 const transformUniformLocation = gl.getUniformLocation(program, "transform")
 const widthUniformLocation = gl.getUniformLocation(program, "width")
@@ -75,10 +75,10 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   100, 100, 100, 50
 ]), gl.STATIC_DRAW)
 
-gl.vertexAttribDivisor(pointAAttributeLocation, 1)
-gl.enableVertexAttribArray(pointAAttributeLocation)
+gl.vertexAttribDivisor(positionStartAttributeLocation, 1)
+gl.enableVertexAttribArray(positionStartAttributeLocation)
 gl.vertexAttribPointer(
-  pointAAttributeLocation,
+  positionStartAttributeLocation,
   2, // size
   gl.FLOAT, // type
   false, // normalize
@@ -86,10 +86,10 @@ gl.vertexAttribPointer(
   Float32Array.BYTES_PER_ELEMENT * 0, // offset
 )
 
-gl.vertexAttribDivisor(pointBAttributeLocation, 1)
-gl.enableVertexAttribArray(pointBAttributeLocation)
+gl.vertexAttribDivisor(positionEndAttributeLocation, 1)
+gl.enableVertexAttribArray(positionEndAttributeLocation)
 gl.vertexAttribPointer(
-  pointBAttributeLocation,
+  positionEndAttributeLocation,
   2, // size
   gl.FLOAT, // type
   false, // normalize
@@ -108,10 +108,10 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   0,  0.5
 ]), gl.STATIC_DRAW)
 
-gl.vertexAttribDivisor(positionAttributeLocation, 0)
-gl.enableVertexAttribArray(positionAttributeLocation)
+gl.vertexAttribDivisor(instancePositionAttributeLocation, 0)
+gl.enableVertexAttribArray(instancePositionAttributeLocation)
 gl.vertexAttribPointer(
-  positionAttributeLocation,
+  instancePositionAttributeLocation,
   2, // size
   gl.FLOAT, // type
   false, // normalize
