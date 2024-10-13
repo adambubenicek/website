@@ -32,7 +32,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
 const vertexShader = createShader(gl, gl.VERTEX_SHADER, `#version 300 es
     precision highp float;
 
-    in vec2 instancePosition;
+    in vec3 instancePosition;
     in vec2 positionStart;
     in vec2 positionEnd;
 
@@ -41,9 +41,11 @@ const vertexShader = createShader(gl, gl.VERTEX_SHADER, `#version 300 es
     uniform float width;
 
     void main() {
-      vec2 xBasis = positionEnd - positionStart;
-      vec2 yBasis = normalize(vec2(-xBasis.y, xBasis.x));
-      vec2 point = positionStart + xBasis * instancePosition.x + yBasis * width * instancePosition.y;
+      vec2 xBasis = normalize(positionEnd - positionStart);
+      vec2 yBasis = vec2(-xBasis.y, xBasis.x);
+      vec2 offsetA = positionStart + width * (instancePosition.x * xBasis + instancePosition.y * yBasis);
+      vec2 offsetB = positionEnd + width * (instancePosition.x * xBasis + instancePosition.y * yBasis);
+      vec2 point = mix(offsetA, offsetB, instancePosition.z);
       gl_Position = projection * vec4(point, 0, 1);
     }
   `);
@@ -72,7 +74,8 @@ const pointBuffer = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   50, 50, 100, 100,
-  100, 100, 100, 50
+  100, 100, 100, 50,
+  100, 50, 150, 90
 ]), gl.STATIC_DRAW)
 
 gl.vertexAttribDivisor(positionStartAttributeLocation, 1)
@@ -97,22 +100,41 @@ gl.vertexAttribPointer(
   Float32Array.BYTES_PER_ELEMENT * 2, // offset
 )
 
-const positionBuffer = gl.createBuffer()
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-  0, -0.5,
-  1, -0.5,
-  1,  0.5,
-  0, -0.5,
-  1,  0.5,
-  0,  0.5
-]), gl.STATIC_DRAW)
+const instancePositionArray = [
+  0, -0.5, 0,
+  0, -0.5, 1,
+  0, 0.5, 1,
+  0, -0.5, 0,
+  0, 0.5, 1,
+  0, 0.5, 0
+]
+
+const resolution = 4;
+for (let step = 0; step < resolution; step++) {
+  const theta0 = Math.PI / 2 + ((step + 0) * Math.PI) / resolution;
+  const theta1 = Math.PI / 2 + ((step + 1) * Math.PI) / resolution;
+  instancePositionArray.push(0, 0, 0);
+  instancePositionArray.push(0.5 * Math.cos(theta0), 0.5 * Math.sin(theta0), 0);
+  instancePositionArray.push(0.5 * Math.cos(theta1), 0.5 * Math.sin(theta1), 0);
+}
+
+for (let step = 0; step < resolution; step++) {
+  const theta0 = (3 * Math.PI) / 2 + ((step + 0) * Math.PI) / resolution;
+  const theta1 = (3 * Math.PI) / 2 + ((step + 1) * Math.PI) / resolution;
+  instancePositionArray.push(0, 0, 1);
+  instancePositionArray.push(0.5 * Math.cos(theta0), 0.5 * Math.sin(theta0), 1);
+  instancePositionArray.push(0.5 * Math.cos(theta1), 0.5 * Math.sin(theta1), 1);
+}
+
+const instancePositionBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, instancePositionBuffer)
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instancePositionArray), gl.STATIC_DRAW)
 
 gl.vertexAttribDivisor(instancePositionAttributeLocation, 0)
 gl.enableVertexAttribArray(instancePositionAttributeLocation)
 gl.vertexAttribPointer(
   instancePositionAttributeLocation,
-  2, // size
+  3, // size
   gl.FLOAT, // type
   false, // normalize
   0, // stride
@@ -154,9 +176,9 @@ function render(time) {
 
   gl.uniformMatrix4fv(projectionUniformLocation, false, uniforms.projection)
   gl.uniformMatrix4fv(transformUniformLocation, false, uniforms.transform)
-  gl.uniform1f(widthUniformLocation, 20)
+  gl.uniform1f(widthUniformLocation, 10)
 
-  gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, 2)
+  gl.drawArraysInstanced(gl.TRIANGLES, 0, instancePositionArray.length / 3, 3)
 
   requestAnimationFrame(render);
 }
