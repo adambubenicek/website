@@ -14,7 +14,7 @@ body {
   background-color: black;
   color: #888888;
   font-family: "Noto Sans Mono", monospace, ui-monospace; 
-  font-size: 16px;
+  font-size: 24px;
   height: 100%;
   --grid-size: round(up, 1ch, 2px);
 }
@@ -29,16 +29,8 @@ main {
 
 div {
   font-size: 1em;
+  padding-top: calc(var(--grid-size) * 0.5);
   line-height: calc(var(--grid-size) * 3);
   padding-left: var(--grid-size);
   letter-spacing: calc(var(--grid-size) - 1ch);
-}
-
-h1 {
-  font-size: 2em;
-  font-weight: 700;
-  padding-left: calc(var(--grid-size) / 2);
-  line-height: calc(var(--grid-size) * 3);
-  letter-spacing: calc(var(--grid-size) - 1ch);
-  margin-bottom: calc(var(--grid-size));
 }
