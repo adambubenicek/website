@@ -21,6 +21,8 @@ body {
   color: #b4b4b4;
   font-family: "Noto Sans Mono", monospace, ui-monospace; 
   font-size: 24px;
+  line-height: calc(var(--grid-size) * 3);
+  letter-spacing: calc(var(--grid-size) - 1ch);
 }
 
 main {
@@ -36,9 +38,12 @@ main {
   border: 1px solid #191919;
 }
 
-div {
-  font-size: 1em;
-  line-height: calc(var(--grid-size) * 3);
-  padding-left: var(--grid-size);
-  letter-spacing: calc(var(--grid-size) - 1ch);
+article {
+  padding: calc(var(--grid-size) * 3);
+}
+
+h1 {
+  display: inline;
+  font-size: inherit;
+  letter-spacing: inherit;
 }
