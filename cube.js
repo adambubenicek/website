@@ -161,7 +161,7 @@ outColor = color;
     quat.fromEuler(rotation, time * 0.01, time * 0.02, time * 0.03)
 
     const scale = vec3.fromValues(100, 100, 100)
-    const translation = vec3.fromValues(0, 0, 0)
+    const translation = vec3.fromValues(100, 100, 0)
 
     mat4.fromRotationTranslationScale(uniforms.transform, 
       rotation,
