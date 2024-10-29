@@ -1,125 +1,56 @@
-const gridWidth = 8
-const gridHeight = 8
-const gridSize = 60
+import { init } from './cube'
 
+const canvasEl = document.querySelector('canvas')
+const gridSizeEl = document.querySelector('#grid-size')
 
-// Single dimensional array representing the entire grid.
-// Each item is a single byte.
-//
-// 00000000
-// | | | |- left 
-// | | |- bottom 
-// | |- top 
-// |- right 
-//
-// 00 - empty
-// 01 - to this direction
-// 10 - from this direction
-const grid = new Uint8Array(gridWidth * gridHeight)
+const gl = canvasEl.getContext("webgl2");
 
-const originBoxX = 2
-const originBoxY = 2
-const originBoxWidth = 4
-const originBoxHeight = 4
+let dpr = window.devicePixelRatio;
+let canvasWidth, canvasHeight, gridSize;
 
-const direction = {
-  up: 6,
-  right: 4,
-  down: 2,
-  left: 0
-}
+const resizeObserver = new ResizeObserver(entries => {
+  for (const entry of entries) {
+    if (entry.target === canvasEl) {
+      let width, height;
 
-const values = {
-  empty: 0,
-  to: 1,
-  from: 2
-}
+      canvasWidth = entry.contentBoxSize[0].inlineSize;
+      canvasHeight = entry.contentBoxSize[0].blockSize;
 
-function printByte(val) {
-  return val.toString(2).padStart(8, '0')
-}
+      if (entry.devicePixelContentBoxSize) {
+        width = entry.devicePixelContentBoxSize[0].inlineSize;
+        height = entry.devicePixelContentBoxSize[0].blockSize;
 
-function grow(x, y, direction, value) {
-  const loc = y * gridWidth + x
-  const val = grid[loc]
+        if (canvasWidth > canvasHeight) {
+          dpr = width / canvasWidth;
+        } else {
+          dpr = height / canvasHeight;
+        }
+      } else {
+        width = Math.round(entry.contentBoxSize[0].inlineSize * window.devicePixelRatio)
+        height = Math.round(entry.contentBoxSize[0].blockSize * window.devicePixelRatio)
 
-  const mask = 3 << direction
+        dpr = window.devicePixelRatio;
+      }
 
-  grid[loc] = val & (~mask) | value << direction
-}
+      canvasEl.width = width;
+      canvasEl.height = height;
+      gl.viewport(0,0,width, height);
+    }
 
-grow(originBoxX, originBoxY, direction.down, values.from)
-grow(originBoxX, originBoxY, direction.right, values.to)
-
-grow(originBoxX + originBoxWidth, originBoxY, direction.left, values.from)
-grow(originBoxX + originBoxWidth, originBoxY, direction.down, values.to)
-
-grow(originBoxX + originBoxWidth, originBoxY + originBoxHeight, direction.up, values.from)
-grow(originBoxX + originBoxWidth, originBoxY + originBoxHeight, direction.left, values.to)
-
-grow(originBoxX, originBoxY + originBoxHeight, direction.right, values.from)
-grow(originBoxX, originBoxY + originBoxHeight, direction.up, values.to)
-
-for (let i = 1; i < originBoxWidth; i++) {
-  grow(originBoxX + i, originBoxY, direction.right, values.from)
-  grow(originBoxX + i, originBoxY, direction.left, values.to)
-  grow(originBoxX + i, originBoxY + originBoxHeight, direction.right, values.to)
-  grow(originBoxX + i, originBoxY + originBoxHeight, direction.left, values.from)
-}
-
-for (let i = 1; i < originBoxHeight; i++) {
-  grow(originBoxX, originBoxY + i, direction.down, values.from)
-  grow(originBoxX, originBoxY + i, direction.up, values.to)
-  grow(originBoxX + originBoxWidth, originBoxY + i, direction.down, values.to)
-  grow(originBoxX + originBoxWidth, originBoxY + i, direction.up, values.from)
-}
-
-for (let loc in grid) {
-  const y = Math.floor(loc / gridWidth)
-  const x = loc - y * gridWidth;
-  const val = grid[loc]
-
-  if ((val >> 6) > 0) {
-    const el = document.createElement("div")
-    el.style.position = "absolute"
-    el.style.top = `${(y * gridSize) - gridSize / 2}px`
-    el.style.left = `${(x * gridSize)}px`
-    el.style.width = `2px`
-    el.style.height = `${gridSize / 2}px`
-    el.style.background = 'red'
-    document.body.appendChild(el)
+    if (entry.target === gridSizeEl) {
+      gridSize = entry.contentBoxSize[0].inlineSize;
+    }
   }
+})
 
-  if ((val >> 4 & 3) > 0) {
-    const el = document.createElement("div")
-    el.style.position = "absolute"
-    el.style.top = `${(y * gridSize)}px`
-    el.style.left = `${(x * gridSize)}px`
-    el.style.height = `2px`
-    el.style.width = `${gridSize / 2}px`
-    el.style.background = 'red'
-    document.body.appendChild(el)
-  }
+resizeObserver.observe(canvasEl)
+resizeObserver.observe(gridSizeEl)
 
-  if ((val >> 2 & 3) > 0) {
-    const el = document.createElement("div")
-    el.style.position = "absolute"
-    el.style.top = `${(y * gridSize)}px`
-    el.style.left = `${(x * gridSize)}px`
-    el.style.width = `2px`
-    el.style.height = `${gridSize / 2}px`
-    el.style.background = 'red'
-    document.body.appendChild(el)
-  }
-
-  if ((val & 3) > 0) {
-    const el = document.createElement("div")
-    el.style.position = "absolute"
-    el.style.top = `${(y * gridSize)}px`
-    el.style.left = `${(x * gridSize) - gridSize / 2}px`
-    el.style.height = `2px`
-    el.style.width = `${gridSize / 2}px`
-    el.style.background = 'red'
-    document.body.appendChild(el)
-  }
+const render = init(gl)
+function animate(time) {
+  render(time, canvasWidth, canvasHeight, dpr)
+  requestAnimationFrame(animate)
 }
+requestAnimationFrame(animate)
+
+
