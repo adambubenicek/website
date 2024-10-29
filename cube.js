@@ -151,7 +151,6 @@ outColor = color;
   )
 
   return function render(time, width, height, dpr) {
-    console.log(width, height)
     const uniforms = {
       time: time * 0.001,
       projection: mat4.create(),
