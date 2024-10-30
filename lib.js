@@ -25,3 +25,7 @@ export function createProgram(gl, vertexShader, fragmentShader) {
   return program
 }
 
+export const canvasEl = document.querySelector('canvas')
+export const gridSizeEl = document.querySelector('#grid-size')
+
+export const gl = canvasEl.getContext("webgl2");

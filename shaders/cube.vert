@@ -1,9 +1,9 @@
 #version 300 es
 precision highp float;
 
-in vec3 a_pos;
-in vec3 a_start;
-in vec3 a_end;
+layout(location=0) in vec3 a_pos;
+layout(location=1) in vec3 a_start;
+layout(location=2) in vec3 a_end;
 uniform mat4 u_projection;
 uniform mat4 u_model;
 uniform float u_width;
