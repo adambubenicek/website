@@ -1,7 +1,6 @@
 import { mat4, quat, vec3 } from "gl-matrix"
 import { createShader, createProgram } from './lib'
 
-
 export function init(gl) {
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, `#version 300 es
 precision highp float;
@@ -124,39 +123,24 @@ outColor = color;
     0, // offset
   )
 
-  return function render(time, width, height, dpr) {
-    const uniforms = {
-      time: time * 0.001,
-      projection: mat4.create(),
-      transform: mat4.create(),
-    };
-
+  return function render(time, projection) {
+    const transform = mat4.create()
     const rotation = quat.create()
     quat.fromEuler(rotation, time * 0.01, time * 0.02, time * 0.03)
 
     const scale = vec3.fromValues(100, 100, 100)
     const translation = vec3.fromValues(100, 100, 0)
 
-    mat4.fromRotationTranslationScale(uniforms.transform, 
+    mat4.fromRotationTranslationScale(transform, 
       rotation,
       translation,
       scale
     )
 
-    mat4.ortho(
-      uniforms.projection,
-      0,
-      width,
-      height,
-      0,
-      -1000,
-      1000,
-    );
-
     gl.useProgram(program);
 
-    gl.uniformMatrix4fv(projectionUniformLocation, false, uniforms.projection)
-    gl.uniformMatrix4fv(transformUniformLocation, false, uniforms.transform)
+    gl.uniformMatrix4fv(projectionUniformLocation, false, projection)
+    gl.uniformMatrix4fv(transformUniformLocation, false, transform)
     gl.uniform1f(widthUniformLocation, 2)
 
     gl.enable(gl.DEPTH_TEST);

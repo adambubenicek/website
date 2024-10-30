@@ -1,4 +1,5 @@
-import { init } from './cube'
+import { init } from './background';
+import { mat4 } from 'gl-matrix';
 
 const canvasEl = document.querySelector('canvas')
 const gridSizeEl = document.querySelector('#grid-size')
@@ -7,6 +8,7 @@ const gl = canvasEl.getContext("webgl2");
 
 let dpr = window.devicePixelRatio;
 let canvasWidth, canvasHeight, gridSize;
+const projection = mat4.create()
 
 const resizeObserver = new ResizeObserver(entries => {
   for (const entry of entries) {
@@ -34,7 +36,18 @@ const resizeObserver = new ResizeObserver(entries => {
 
       canvasEl.width = width;
       canvasEl.height = height;
+
       gl.viewport(0,0,width, height);
+      mat4.ortho(
+        projection,
+        0,
+        width,
+        height,
+        0,
+        -1000,
+        1000,
+      );
+
     }
 
     if (entry.target === gridSizeEl) {
@@ -48,7 +61,7 @@ resizeObserver.observe(gridSizeEl)
 
 const render = init(gl)
 function animate(time) {
-  render(time, canvasWidth, canvasHeight, dpr)
+  render(time, projection, dpr)
   requestAnimationFrame(animate)
 }
 requestAnimationFrame(animate)
