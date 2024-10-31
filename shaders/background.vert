@@ -1,10 +1,10 @@
 #version 300 es
 precision highp float;
 
-in vec2 a_pos;
+in vec2 aPos;
 
-uniform mat4 u_projection;
+uniform mat4 uProjection;
 
 void main() {
-  gl_Position = u_projection * vec4(a_pos, 0, 1);
+  gl_Position = uProjection * vec4(aPos, 0, 1);
 }

@@ -10,15 +10,15 @@ const program = createProgram(gl, vertexShader, fragmentShader)
 const vao = gl.createVertexArray()
 gl.bindVertexArray(vao)
 
-const aPosLoc = gl.getAttribLocation(program, "a_pos")
-const aStartLoc = gl.getAttribLocation(program, "a_start")
-const aEndLoc = gl.getAttribLocation(program, "a_end")
+const aPosLoc = gl.getAttribLocation(program, "aPos")
+const aPointStartLoc = gl.getAttribLocation(program, "aPointStart")
+const aPointEndLoc = gl.getAttribLocation(program, "aPointEnd")
 
-const uProjectionLoc = gl.getUniformLocation(program, "u_projection")
-const uModelLoc = gl.getUniformLocation(program, "u_model")
-const uWidthLoc = gl.getUniformLocation(program, "u_width")
+const uProjectionLoc = gl.getUniformLocation(program, "uProjection")
+const uModelLoc = gl.getUniformLocation(program, "uModel")
+const uWidthLoc = gl.getUniformLocation(program, "uWidth")
 
-const instancePositionArray = [
+const aPosArray = [
   -0.5, 0, 0,
   0, 0.5, 0,
   0.5, 0, 1,
@@ -36,16 +36,16 @@ const instancePositionArray = [
   0, -0.5, 1
 ]
 
-const instancePositionBuffer = gl.createBuffer()
-gl.bindBuffer(gl.ARRAY_BUFFER, instancePositionBuffer)
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instancePositionArray), gl.STATIC_DRAW)
+const aPosBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, aPosBuffer)
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(aPosArray), gl.STATIC_DRAW)
 
 gl.vertexAttribDivisor(aPosLoc, 0)
 gl.enableVertexAttribArray(aPosLoc)
 gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0,)
 
-const pointBuffer = gl.createBuffer()
-gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
+const aPointBuffer = gl.createBuffer()
+gl.bindBuffer(gl.ARRAY_BUFFER, aPointBuffer)
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   0, 0, 0, 1, 0, 0,
   1, 0, 0, 1, 0, 1,
@@ -61,10 +61,10 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   1, 0, 1, 1, 1, 1,
 ]), gl.STATIC_DRAW)
 
-gl.vertexAttribDivisor(aStartLoc, 1)
-gl.enableVertexAttribArray(aStartLoc)
+gl.vertexAttribDivisor(aPointStartLoc, 1)
+gl.enableVertexAttribArray(aPointStartLoc)
 gl.vertexAttribPointer(
-  aStartLoc,
+  aPointStartLoc,
   3,
   gl.FLOAT,
   false,
@@ -72,10 +72,10 @@ gl.vertexAttribPointer(
   Float32Array.BYTES_PER_ELEMENT * 0,
 )
 
-gl.vertexAttribDivisor(aEndLoc, 1)
-gl.enableVertexAttribArray(aEndLoc)
+gl.vertexAttribDivisor(aPointEndLoc, 1)
+gl.enableVertexAttribArray(aPointEndLoc)
 gl.vertexAttribPointer(
-  aEndLoc,
+  aPointEndLoc,
   3,
   gl.FLOAT,
   false,
@@ -104,7 +104,7 @@ export function render(time, projection) {
   gl.uniformMatrix4fv(uModelLoc, false, model)
   gl.uniform1f(uWidthLoc, 2)
 
-  gl.drawArraysInstanced(gl.TRIANGLES, 0, instancePositionArray.length / 3, 12)
+  gl.drawArraysInstanced(gl.TRIANGLES, 0, aPosArray.length / 3, 12)
 }
 
 export default {

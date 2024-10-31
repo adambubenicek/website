@@ -7,8 +7,8 @@ const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
 const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 const program = createProgram(gl, vertexShader, fragmentShader)
 
-const aPosLoc = gl.getAttribLocation(program, "a_pos");
-const uProjectionLoc = gl.getUniformLocation(program, "u_projection");
+const aPosLoc = gl.getAttribLocation(program, "aPos");
+const uProjectionLoc = gl.getUniformLocation(program, "uProjection");
 
 const vao = gl.createVertexArray()
 gl.bindVertexArray(vao)
