@@ -44,22 +44,35 @@ gl.vertexAttribDivisor(aPosLoc, 0)
 gl.enableVertexAttribArray(aPosLoc)
 gl.vertexAttribPointer(aPosLoc, 3, gl.FLOAT, false, 0, 0,)
 
+const aPointArray = [
+  -0.5, -0.5, -0.5, 
+  0.5, -0.5, -0.5,
+  -0.5, 0.5, -0.5, 
+  0.5, 0.5, -0.5,
+  0.5, -0.5, -0.5, 
+  0.5, 0.5, -0.5,
+  -0.5, -0.5, -0.5, 
+  -0.5, 0.5, -0.5,
+  -0.5, -0.5, 0.5, 
+  0.5, -0.5, 0.5,
+  -0.5, 0.5, 0.5, 
+  0.5, 0.5, 0.5,
+  0.5, -0.5, 0.5, 
+  0.5, 0.5, 0.5,
+  -0.5, -0.5, 0.5, 
+  -0.5, 0.5, 0.5,
+  -0.5, -0.5, -0.5,
+  -0.5, -0.5, 0.5,
+  -0.5, 0.5, -0.5,
+  -0.5, 0.5, 0.5,
+  0.5, 0.5, -0.5,
+  0.5, 0.5, 0.5,
+  0.5, -0.5, -0.5,
+  0.5, -0.5, 0.5,
+]
 const aPointBuffer = gl.createBuffer()
 gl.bindBuffer(gl.ARRAY_BUFFER, aPointBuffer)
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-  0, 0, 0, 1, 0, 0,
-  1, 0, 0, 1, 0, 1,
-  1, 0, 1, 0, 0, 1,
-  0, 0, 0, 0, 0, 1, 
-  0, 1, 0, 1, 1, 0,
-  1, 1, 0, 1, 1, 1,
-  1, 1, 1, 0, 1, 1,
-  0, 1, 1, 0, 1, 0,
-  0, 0, 0, 0, 1, 0,
-  1, 0, 0, 1, 1, 0,
-  0, 0, 1, 0, 1, 1,
-  1, 0, 1, 1, 1, 1,
-]), gl.STATIC_DRAW)
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(aPointArray), gl.STATIC_DRAW)
 
 gl.enableVertexAttribArray(aPointStartLoc)
 gl.vertexAttribDivisor(aPointStartLoc, 1)
@@ -104,7 +117,7 @@ export function render(time, projection) {
   gl.uniformMatrix4fv(uModelLoc, false, model)
   gl.uniform1f(uWidthLoc, 2)
 
-  gl.drawArraysInstanced(gl.TRIANGLES, 0, aPosArray.length / 3, 12)
+  gl.drawArraysInstanced(gl.TRIANGLES, 0, aPosArray.length / 3, aPointArray.length / 6)
 }
 
 export default {
