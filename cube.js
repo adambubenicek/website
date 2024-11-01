@@ -61,8 +61,8 @@ gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
   1, 0, 1, 1, 1, 1,
 ]), gl.STATIC_DRAW)
 
-gl.vertexAttribDivisor(aPointStartLoc, 1)
 gl.enableVertexAttribArray(aPointStartLoc)
+gl.vertexAttribDivisor(aPointStartLoc, 1)
 gl.vertexAttribPointer(
   aPointStartLoc,
   3,
@@ -72,8 +72,8 @@ gl.vertexAttribPointer(
   Float32Array.BYTES_PER_ELEMENT * 0,
 )
 
-gl.vertexAttribDivisor(aPointEndLoc, 1)
 gl.enableVertexAttribArray(aPointEndLoc)
+gl.vertexAttribDivisor(aPointEndLoc, 1)
 gl.vertexAttribPointer(
   aPointEndLoc,
   3,
