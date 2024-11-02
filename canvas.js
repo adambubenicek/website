@@ -13,10 +13,13 @@ function handleResolutionChange() {
     return
   }
 
-  el.width = Math.round(width * dpr)
-  el.height = Math.round(height * dpr)
+  const actualWidth = Math.round(width * dpr)
+  const actualHeight = Math.round(height * dpr)
 
-  gl.viewport(0, 0, width, height)
+  el.width = actualWidth
+  el.height = actualHeight
+
+  gl.viewport(0, 0, actualWidth, actualHeight)
 
   for (const cb of onResizeCallbacks) {
     cb(width, height, dpr)
@@ -47,15 +50,6 @@ resizeObserver.observe(el)
 
 
 export default {
-  get width() {
-    return width
-  },
-  get height() {
-    return height
-  },
-  get dpr() {
-    return dpr
-  },
   onResolutionChange(cb) {
     onResizeCallbacks.push(cb)
   }
