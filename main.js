@@ -1,109 +1,111 @@
 import { mat4, quat, vec3 } from 'gl-matrix';
-import objectVertexShaderSource from './shaders/line.vert?raw'
-import objectFragmentShaderSource from './shaders/line.frag?raw'
-import { createShader, createProgram } from './lib.js'
 import canvas, { gl } from './canvas'
+import LineProgram from './programs/line'
 
-import lineGeometry from './geometries/line.js'
 import cubeGeometry from './geometries/cube.js'
-
 
 const projection = mat4.create()
 canvas.onResolutionChange((width, height) => {
   mat4.ortho(projection, 0, width, height, 0, -1000, 1000);
+
+  LineProgram.use()
+  LineProgram.projection = projection
+  LineProgram.width = 2
 })
 
-const objectVertexShader = createShader(gl, gl.VERTEX_SHADER, objectVertexShaderSource);
-const objectFragmentShader = createShader(gl, gl.FRAGMENT_SHADER, objectFragmentShaderSource);
-const objectProgram = createProgram(gl, objectVertexShader, objectFragmentShader);
-const objectPositionAttribLoc = gl.getAttribLocation(objectProgram, "position");
-const objectStartPositionAttribLoc = gl.getAttribLocation(objectProgram, "startPosition");
-const objectEndPositionAttribLoc = gl.getAttribLocation(objectProgram, "endPosition");
-const objectProjectionUniformLoc = gl.getUniformLocation(objectProgram, "projection");
-const objectModelUniformLoc = gl.getUniformLocation(objectProgram, "model");
-const objectWidthUniformLoc = gl.getUniformLocation(objectProgram, "width");
+const cubes = [
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+  {
+    program: new LineProgram(cubeGeometry),
+    rotation: quat.create(),
+    translation: vec3.create(),
+    scale: vec3.create(),
+  },
+]
 
-const objectPositionBuffer = gl.createBuffer()
-gl.bindBuffer(gl.ARRAY_BUFFER, objectPositionBuffer)
-gl.bufferData(gl.ARRAY_BUFFER, lineGeometry, gl.STATIC_DRAW)
+for (const index in cubes) {
+  const cube = cubes[index]
 
-const objects = []
-function objectCreate(geometry) {
-  const model = mat4.create()
-  const vao = gl.createVertexArray()
-
-  gl.bindVertexArray(vao)
-
-  gl.bindBuffer(gl.ARRAY_BUFFER, objectPositionBuffer)
-  gl.enableVertexAttribArray(objectPositionAttribLoc)
-  gl.vertexAttribDivisor(objectPositionAttribLoc, 0)
-  gl.vertexAttribPointer(objectPositionAttribLoc, 3, gl.FLOAT, false, 0, 0)
-
-  const pointBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, pointBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, geometry, gl.STATIC_DRAW)
-
-  gl.enableVertexAttribArray(objectStartPositionAttribLoc)
-  gl.vertexAttribDivisor(objectStartPositionAttribLoc, 1)
-  gl.vertexAttribPointer(
-    objectStartPositionAttribLoc,
-    3,
-    gl.FLOAT,
-    false,
-    Float32Array.BYTES_PER_ELEMENT * 6,
-    Float32Array.BYTES_PER_ELEMENT * 0,
-  )
-
-  gl.enableVertexAttribArray(objectEndPositionAttribLoc)
-  gl.vertexAttribDivisor(objectEndPositionAttribLoc, 1)
-  gl.vertexAttribPointer(
-    objectEndPositionAttribLoc,
-    3,
-    gl.FLOAT,
-    false,
-    Float32Array.BYTES_PER_ELEMENT * 6,
-    Float32Array.BYTES_PER_ELEMENT * 3,
-  )
-
-  objects.push({
-    vao, model, geometry
-  })
+  vec3.random(cube.scale, 100)
+  cube.translation = vec3.fromValues(index * 100, 100, 0)
 }
-
-objectCreate(cubeGeometry)
-objectCreate(cubeGeometry)
-objectCreate(cubeGeometry)
-objectCreate(cubeGeometry)
-objectCreate(cubeGeometry)
-
 
 function animate(time) {
   gl.enable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+  LineProgram.use()
 
-  gl.useProgram(objectProgram)
+  for (const index in cubes) {
+    const cube = cubes[index]
 
-  let count = 0
-  for (const obj of objects) {
-    const rotation = quat.create()
-    quat.fromEuler(rotation, time * 0.01, time * 0.02, time * 0.03)
+    quat.fromEuler(cube.rotation, time * 0.1, time * 0.2, time * 0.3)
 
-    const scale = vec3.fromValues(100, 100, 100)
-    const translation = vec3.fromValues(count++ * 200, 100, 0)
-
-    mat4.fromRotationTranslationScale(obj.model, 
-      rotation,
-      translation,
-      scale
+    const model = mat4.create()
+    mat4.fromRotationTranslationScale(
+      model,
+      cube.rotation,
+      cube.translation,
+      cube.scale
     )
-    gl.bindVertexArray(obj.vao)
-    gl.uniformMatrix4fv(objectProjectionUniformLoc, false, projection)
-    gl.uniformMatrix4fv(objectModelUniformLoc, false, obj.model)
-    gl.uniform1f(objectWidthUniformLoc, 4)
-    gl.drawArraysInstanced(gl.TRIANGLES, 0, lineGeometry.length / 3, obj.geometry.length / 6)
+    LineProgram.model = model
+    cube.program.draw()
   }
+
 
   return requestAnimationFrame(animate)
 }
