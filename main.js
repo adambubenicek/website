@@ -2,78 +2,16 @@ import { mat4, quat, vec3 } from 'gl-matrix';
 import objectVertexShaderSource from './shaders/line.vert?raw'
 import objectFragmentShaderSource from './shaders/line.frag?raw'
 import { createShader, createProgram } from './lib.js'
+import canvas, { gl } from './canvas'
 
 import lineGeometry from './geometries/line.js'
 import cubeGeometry from './geometries/cube.js'
 
 
 const projection = mat4.create()
-function projectionUpdate() {
-  mat4.ortho(projection, 0, canvasWidth, canvasHeight, 0, -1000, 1000);
-}
-
-
-const canvasEl = document.querySelector('canvas')
-if (!canvasEl) { throw "Couldn't find canvas element" }
-
-const canvasGridSizeEl = document.querySelector('#grid-size')
-if (!canvasGridSizeEl) { throw "Couldn't find canvas grid size element" }
-
-let canvasWidth = 0;
-let canvasHeight = 0;
-let canvasGridSize = 0;
-
-const canvasResizeObserver = new ResizeObserver(entries => {
-  for (const entry of entries) {
-    if (entry.target === canvasEl) {
-      canvasWidth = entry.contentBoxSize[0].inlineSize;
-      canvasHeight = entry.contentBoxSize[0].blockSize;
-
-      projectionUpdate()
-      canvasUpdate()
-      glUpdate()
-    }
-
-    if (entry.target === canvasGridSizeEl) {
-      canvasGridSize = entry.contentBoxSize[0].inlineSize;
-    }
-  }
+canvas.onResolutionChange((width, height) => {
+  mat4.ortho(projection, 0, width, height, 0, -1000, 1000);
 })
-
-function canvasUpdate() {
-  canvasEl.width = Math.round(canvasWidth * dpr)
-  canvasEl.height = Math.round(canvasHeight * dpr)
-}
-
-canvasResizeObserver.observe(canvasEl)
-canvasResizeObserver.observe(canvasGridSizeEl)
-
-
-const gl = canvasEl.getContext("webgl2");
-if (gl == null) { throw "Webgl2 is not supported" }
-
-function glUpdate() {
-  gl.viewport(
-    0, 
-    0, 
-    Math.round(canvasWidth * dpr),
-    Math.round(canvasHeight * dpr)
-  )
-}
-
-
-let dpr = 0;
-function dprUpdate() {
-  dpr = window.devicePixelRatio;
-
-  canvasUpdate()
-  glUpdate()
-
-  const media = matchMedia(`(resolution: ${dpr}dppx)`)
-  media.addEventListener('change', dprUpdate, { once: true })
-}
-dprUpdate()
-
 
 const objectVertexShader = createShader(gl, gl.VERTEX_SHADER, objectVertexShaderSource);
 const objectFragmentShader = createShader(gl, gl.FRAGMENT_SHADER, objectFragmentShaderSource);
@@ -140,10 +78,6 @@ objectCreate(cubeGeometry)
 
 
 function animate(time) {
-  if (canvasWidth == 0 || canvasHeight == 0 || dpr == 0) {
-    return requestAnimationFrame(animate)
-  }
-
   gl.enable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
