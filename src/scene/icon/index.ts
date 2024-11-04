@@ -8,7 +8,7 @@ import cubeGeometry from "./geometries/cube";
 
 export function create(
   gl: WebGL2RenderingContext,
-    program: IconProgram,
+  program: IconProgram,
   model: mat4,
 ): Icon {
   const vao = gl.createVertexArray()!;
