@@ -33,7 +33,13 @@ export function resize(
 ) {
   const { gl } = scene;
 
-  gl.viewport(0, 0, width, height);
+  gl.viewport(
+    0, 
+    0, 
+    Math.round(width * dpr), 
+    Math.round(height * dpr)
+  );
+
   mat4.ortho(scene.projection, 0, width, height, 0, -1000, 1000);
 
   scene.width = width;

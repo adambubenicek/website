@@ -28,14 +28,15 @@ function handleDPRChange() {
 handleDPRChange();
 
 const resizeObserver = new ResizeObserver((entries) => {
-  width = Math.round(entries[0].contentBoxSize[0].inlineSize * dpr);
-  height = Math.round(entries[0].contentBoxSize[0].blockSize * dpr);
+  width = entries[0].contentBoxSize[0].inlineSize;
+  height = entries[0].contentBoxSize[0].blockSize;
 
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
 
   if (dpr > 0) {
     Scene.resize(scene, width, height, dpr);
+    console.log(scene)
   }
 });
 
