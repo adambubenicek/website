@@ -1,4 +1,4 @@
-import type { mat4 } from "gl-matrix";
+import type { mat4, quat, vec3 } from "gl-matrix";
 
 export type Scene = {
   iconProgram: IconProgram;
@@ -31,5 +31,8 @@ export type IconProgram = Program & {
 
 export type Icon = {
   vao: WebGLVertexArrayObject;
-  model: mat4;
+  rotation: quat,
+  translation: vec3,
+  translationVelocity: vec3,
+  scale: vec3
 };

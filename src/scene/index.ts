@@ -1,5 +1,5 @@
 import type { Scene } from "./types";
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, quat, vec3 } from "gl-matrix";
 import * as Icon from "./icon";
 
 export function render(scene: Scene, time: DOMHighResTimeStamp) {
@@ -17,11 +17,21 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
   for (let i = 0; i < icons.length; i++) {
     const icon = icons[i];
 
-    mat4.rotateX(icon.model, icon.model, 0.0001 * deltaTime);
-    mat4.rotateY(icon.model, icon.model, 0.0002 * deltaTime);
-    mat4.rotateZ(icon.model, icon.model, 0.0003 * deltaTime);
+    quat.rotateX(icon.rotation, icon.rotation, deltaTime * 0.001)
+    quat.rotateY(icon.rotation, icon.rotation, deltaTime * 0.002)
+    quat.rotateZ(icon.rotation, icon.rotation, deltaTime * 0.003)
 
-    Icon.render(scene, icon, scene.projection, 4);
+    vec3.scaleAndAdd(icon.translation, icon.translation, icon.translationVelocity, deltaTime * 0.001)
+
+    const model = mat4.create()
+    mat4.fromRotationTranslationScale(
+      model,
+      icon.rotation,
+      icon.translation,
+      icon.scale,
+    )
+
+    Icon.render(scene, icon, scene.projection, model, 4);
   }
 }
 
@@ -52,14 +62,21 @@ export function create(gl: WebGL2RenderingContext): Scene {
 
   const icons = [];
   for (let i = 0; i < 5; i++) {
-    const model = mat4.create();
     const scale = vec3.fromValues(100, 100, 100);
     const translation = vec3.fromValues(100 + 100 * i, 100, 0);
+    const translationVelocity = vec3.create()
+    const rotation = quat.create()
 
-    mat4.translate(model, model, translation);
-    mat4.scale(model, model, scale);
+    vec3.random(translationVelocity, 10)
 
-    const icon = Icon.create(gl, iconProgram, model);
+    const icon = Icon.create(
+      gl, 
+      iconProgram, 
+      rotation,
+      translation,
+      translationVelocity,
+      scale
+    );
     icons.push(icon);
   }
 

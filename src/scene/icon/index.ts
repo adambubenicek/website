@@ -1,6 +1,6 @@
 import type { Scene, IconProgram, Icon } from "../types";
 import * as Util from "../util";
-import { mat4 } from "gl-matrix";
+import { mat4, vec3, quat } from "gl-matrix";
 import vertexShaderSource from "./vertex.glsl?raw";
 import fragmentShaderSource from "./fragment.glsl?raw";
 import segmentGeometry from "./geometries/segment";
@@ -9,7 +9,10 @@ import cubeGeometry from "./geometries/cube";
 export function create(
   gl: WebGL2RenderingContext,
   program: IconProgram,
-  model: mat4,
+  rotation: quat,
+  translation: vec3,
+  translationVelocity: vec3,
+  scale: vec3,
 ): Icon {
   const vao = gl.createVertexArray()!;
 
@@ -48,7 +51,10 @@ export function create(
 
   return {
     vao: vao,
-    model: model,
+    rotation: rotation,
+    translation: translation,
+    translationVelocity: translationVelocity,
+    scale: scale
   };
 }
 
@@ -56,12 +62,13 @@ export function render(
   scene: Scene,
   icon: Icon,
   projection: mat4,
+  model: mat4,
   width: number,
 ) {
   const { gl, iconProgram } = scene;
   gl.bindVertexArray(icon.vao);
   gl.uniformMatrix4fv(iconProgram.locations.projection, false, projection);
-  gl.uniformMatrix4fv(iconProgram.locations.model, false, icon.model);
+  gl.uniformMatrix4fv(iconProgram.locations.model, false, model);
   gl.uniform1f(iconProgram.locations.width, width);
   gl.drawArraysInstanced(
     gl.TRIANGLES,
