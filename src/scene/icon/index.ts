@@ -1,4 +1,4 @@
-import type { IconProgram, Icon } from "../types";
+import type { Scene, IconProgram, Icon } from "../types";
 import * as Util from "../util";
 import { mat4 } from "gl-matrix";
 import vertexShaderSource from "./vertex.glsl?raw";
@@ -53,16 +53,16 @@ export function create(
 }
 
 export function render(
-  gl: WebGL2RenderingContext,
-  program: IconProgram,
+  scene: Scene,
   icon: Icon,
   projection: mat4,
   width: number,
 ) {
+  const { gl, iconProgram } = scene;
   gl.bindVertexArray(icon.vao);
-  gl.uniformMatrix4fv(program.locations.projection, false, projection);
-  gl.uniformMatrix4fv(program.locations.model, false, icon.model);
-  gl.uniform1f(program.locations.width, width);
+  gl.uniformMatrix4fv(iconProgram.locations.projection, false, projection);
+  gl.uniformMatrix4fv(iconProgram.locations.model, false, icon.model);
+  gl.uniform1f(iconProgram.locations.width, width);
   gl.drawArraysInstanced(
     gl.TRIANGLES,
     0,

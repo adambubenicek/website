@@ -21,7 +21,7 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
     mat4.rotateY(icon.model, icon.model, 0.002);
     mat4.rotateZ(icon.model, icon.model, 0.003);
 
-    Icon.render(gl, iconProgram, icon, projection, 4);
+    Icon.render(scene, icon, projection, 4);
   }
 }
 
