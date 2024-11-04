@@ -4,6 +4,7 @@ export type Scene = {
   iconProgram: IconProgram;
   icons: Icon[];
   projection: mat4,
+  lastRenderTime: DOMHighResTimeStamp,
   width: number;
   height: number;
   dpr: number;

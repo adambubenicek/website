@@ -5,6 +5,9 @@ import * as Icon from "./icon";
 export function render(scene: Scene, time: DOMHighResTimeStamp) {
   const { gl, iconProgram, icons, width, height } = scene;
 
+  let deltaTime = time - scene.lastRenderTime
+  scene.lastRenderTime = time
+
   gl.enable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -14,9 +17,9 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
   for (let i = 0; i < icons.length; i++) {
     const icon = icons[i];
 
-    mat4.rotateX(icon.model, icon.model, 0.001);
-    mat4.rotateY(icon.model, icon.model, 0.002);
-    mat4.rotateZ(icon.model, icon.model, 0.003);
+    mat4.rotateX(icon.model, icon.model, 0.0001 * deltaTime);
+    mat4.rotateY(icon.model, icon.model, 0.0002 * deltaTime);
+    mat4.rotateZ(icon.model, icon.model, 0.0003 * deltaTime);
 
     Icon.render(scene, icon, scene.projection, 4);
   }
@@ -59,6 +62,7 @@ export function create(gl: WebGL2RenderingContext): Scene {
     iconProgram: iconProgram,
     icons: icons,
     projection: mat4.create(),
+    lastRenderTime: 0,
     width: 0,
     height: 0,
     dpr: 0,
