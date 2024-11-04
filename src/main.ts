@@ -11,6 +11,7 @@ if (!gl) {
 
 const scene = Scene.create(gl);
 
+let animating = false;
 let dpr = 0;
 let width = 0;
 let height = 0;
@@ -20,6 +21,11 @@ function handleDPRChange() {
 
   if (width > 0 && height > 0) {
     Scene.resize(scene, width, height, dpr);
+
+    if (!animating) {
+      animating = true;
+      requestAnimationFrame(animate);
+    }
   }
 
   const media = matchMedia(`(resolution: ${dpr}dppx)`);
@@ -37,7 +43,11 @@ const resizeObserver = new ResizeObserver((entries) => {
 
   if (dpr > 0) {
     Scene.resize(scene, width, height, dpr);
-    console.log(scene)
+
+    if (!animating) {
+      animating = true;
+      requestAnimationFrame(animate);
+    }
   }
 });
 
@@ -48,4 +58,3 @@ function animate(time: DOMHighResTimeStamp) {
   requestAnimationFrame(animate);
 }
 
-requestAnimationFrame(animate);
