@@ -1,113 +1,49 @@
-import { mat4, quat, vec3 } from 'gl-matrix';
-import canvas, { gl } from './canvas'
-import LineProgram from './programs/line'
+import * as Scene from "./scene";
 
-import cubeGeometry from './geometries/cube.js'
+const canvas = document.querySelector("canvas")!;
 
-const projection = mat4.create()
-canvas.onResolutionChange((width, height) => {
-  mat4.ortho(projection, 0, width, height, 0, -1000, 1000);
+const gl = canvas.getContext("webgl2");
 
-  LineProgram.use()
-  LineProgram.projection = projection
-  LineProgram.width = 2
-})
-
-const cubes = [
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-  {
-    program: new LineProgram(cubeGeometry),
-    rotation: quat.create(),
-    translation: vec3.create(),
-    scale: vec3.create(),
-  },
-]
-
-for (const index in cubes) {
-  const cube = cubes[index]
-
-  vec3.random(cube.scale, 100)
-  cube.translation = vec3.fromValues(index * 100, 100, 0)
+if (!gl) {
+  throw "Webgl2 not supported";
 }
 
-function animate(time) {
-  gl.enable(gl.DEPTH_TEST);
-  gl.clearColor(0, 0, 0, 0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+const scene = Scene.create(gl);
 
-  LineProgram.use()
+let dpr = 0;
+let width = 0;
+let height = 0;
 
-  for (const index in cubes) {
-    const cube = cubes[index]
+function handleDPRChange() {
+  dpr = window.devicePixelRatio;
 
-    quat.fromEuler(cube.rotation, time * 0.1, time * 0.2, time * 0.3)
-
-    const model = mat4.create()
-    mat4.fromRotationTranslationScale(
-      model,
-      cube.rotation,
-      cube.translation,
-      cube.scale
-    )
-    LineProgram.model = model
-    cube.program.draw()
+  if (width > 0 && height > 0) {
+    Scene.resize(scene, width, height, dpr);
   }
 
-
-  return requestAnimationFrame(animate)
+  const media = matchMedia(`(resolution: ${dpr}dppx)`);
+  media.addEventListener("change", handleDPRChange, { once: true });
 }
 
-requestAnimationFrame(animate)
+handleDPRChange();
+
+const resizeObserver = new ResizeObserver((entries) => {
+  width = Math.round(entries[0].contentBoxSize[0].inlineSize * dpr);
+  height = Math.round(entries[0].contentBoxSize[0].blockSize * dpr);
+
+  canvas.width = width;
+  canvas.height = height;
+
+  if (dpr > 0) {
+    Scene.resize(scene, width, height, dpr);
+  }
+});
+
+resizeObserver.observe(canvas);
+
+function animate(time: DOMHighResTimeStamp) {
+  Scene.render(scene, time);
+  requestAnimationFrame(animate);
+}
+
+requestAnimationFrame(animate);

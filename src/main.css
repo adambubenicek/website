@@ -19,7 +19,7 @@ body {
   justify-content: center;
   background-color: #000000;
   color: #b4b4b4;
-  font-family: "Noto Sans Mono", monospace, ui-monospace; 
+  font-family: "Noto Sans Mono", monospace, ui-monospace;
   font-size: 24px;
   line-height: calc(var(--grid-size) * 3);
   letter-spacing: calc(var(--grid-size) - 1ch);
@@ -27,13 +27,16 @@ body {
 
 main {
   position: relative;
-  height: calc(round(down, calc(100vh - var(--grid-size) * 4), var(--grid-size)) - 1px);
-  width: calc(round(down, calc(100vw - var(--grid-size) * 4), var(--grid-size)) - 1px);
+  height: calc(
+    round(down, calc(100vh - var(--grid-size) * 4), var(--grid-size)) - 1px
+  );
+  width: calc(
+    round(down, calc(100vw - var(--grid-size) * 4), var(--grid-size)) - 1px
+  );
   background-color: #111111;
   background-position: -1px -1px;
   background-size: calc(var(--grid-size) * 1) calc(var(--grid-size) * 1);
-  background-image:
-    linear-gradient(to right,  #191919 1px, transparent 1px),
+  background-image: linear-gradient(to right, #191919 1px, transparent 1px),
     linear-gradient(to bottom, #191919 1px, transparent 1px);
   border-radius: var(--grid-size);
   border: 1px solid #191919;
