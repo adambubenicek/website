@@ -1,9 +1,9 @@
 import type { Scene } from "./types";
-import { mat4, vec3, quat } from "gl-matrix";
+import { mat4, vec3 } from "gl-matrix";
 import * as Icon from "./icon";
 
 export function render(scene: Scene, time: DOMHighResTimeStamp) {
-  const { gl, iconProgram, icons, width, height } = scene;
+  const { gl, iconProgram, icons } = scene;
 
   let deltaTime = time - scene.lastRenderTime
   scene.lastRenderTime = time
