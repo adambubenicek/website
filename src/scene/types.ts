@@ -3,6 +3,7 @@ import type { mat4 } from "gl-matrix";
 export type Scene = {
   iconProgram: IconProgram;
   icons: Icon[];
+  projection: mat4,
   width: number;
   height: number;
   dpr: number;

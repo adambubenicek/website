@@ -11,9 +11,6 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
 
   gl.useProgram(iconProgram.program);
 
-  const projection = mat4.create();
-  mat4.ortho(projection, 0, width, height, 0, -1000, 1000);
-
   for (let i = 0; i < icons.length; i++) {
     const icon = icons[i];
 
@@ -21,7 +18,7 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
     mat4.rotateY(icon.model, icon.model, 0.002);
     mat4.rotateZ(icon.model, icon.model, 0.003);
 
-    Icon.render(scene, icon, projection, 4);
+    Icon.render(scene, icon, scene.projection, 4);
   }
 }
 
@@ -34,6 +31,7 @@ export function resize(
   const { gl } = scene;
 
   gl.viewport(0, 0, width, height);
+  mat4.ortho(scene.projection, 0, width, height, 0, -1000, 1000);
 
   scene.width = width;
   scene.height = height;
@@ -60,6 +58,7 @@ export function create(gl: WebGL2RenderingContext): Scene {
     gl: gl,
     iconProgram: iconProgram,
     icons: icons,
+    projection: mat4.create(),
     width: 0,
     height: 0,
     dpr: 0,
