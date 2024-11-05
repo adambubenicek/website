@@ -21,16 +21,20 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
     quat.rotateY(icon.rotation, icon.rotation, deltaTime * 0.002)
     quat.rotateZ(icon.rotation, icon.rotation, deltaTime * 0.003)
 
-    if (icon.translation[0] < 45 || 
-      icon.translation[0] > scene.width - 45
-    ) {
-      icon.translationVelocity[0] = -icon.translationVelocity[0]
+    if (icon.translation[0] <= 45) {
+      icon.translationVelocity[0] = Math.abs(icon.translationVelocity[0])
     }
 
-    if (icon.translation[1] < 45 || 
-      icon.translation[1] > scene.height - 45
-    ) {
-      icon.translationVelocity[1] = -icon.translationVelocity[1]
+    if (icon.translation[0] >= scene.width - 45) {
+      icon.translationVelocity[0] = -Math.abs(icon.translationVelocity[0])
+    }
+
+    if (icon.translation[1] <= 45) {
+      icon.translationVelocity[1] = Math.abs(icon.translationVelocity[1])
+    }
+
+    if (icon.translation[1] >= scene.height - 45) {
+      icon.translationVelocity[1] = -Math.abs(icon.translationVelocity[1])
     }
 
     icon.translationVelocity[2] = 0
@@ -86,7 +90,7 @@ export function create(gl: WebGL2RenderingContext): Scene {
     const translationVelocity = vec3.create()
     const rotation = quat.create()
 
-    vec3.random(translationVelocity, 10)
+    vec3.random(translationVelocity, 100)
 
     const icon = Icon.create(
       gl, 
