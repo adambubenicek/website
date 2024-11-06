@@ -1,4 +1,4 @@
-import type { mat4, quat, vec2 } from "gl-matrix";
+import type { mat4, quat, vec2, vec3 } from "gl-matrix";
 
 export type Scene = {
   iconProgram: IconProgram;
@@ -34,5 +34,5 @@ export type Icon = {
   rotation: quat,
   translation: vec2,
   translationVelocity: vec2,
-  scale: vec2
+  scale: vec3
 };

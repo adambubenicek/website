@@ -2,9 +2,9 @@ import type { Scene } from "./types";
 import { mat4, quat, vec3, vec2 } from "gl-matrix";
 import * as Icon from "./icon";
 
-const k = 100000 // Repulsion coefficient
+const k = 10000 // Repulsion coefficient
 const f = vec2.create() // Force vector
-const speed = 30 
+const speed = 15 
 
 export function render(scene: Scene, time: DOMHighResTimeStamp) {
   const { gl, iconProgram, icons, width, height } = scene;
@@ -105,11 +105,7 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
         icon.translation[1],
         0
       ),
-      vec3.fromValues(
-        icon.scale[0],
-        icon.scale[1],
-        icon.scale[1],
-      ),
+      icon.scale
     )
 
     Icon.render(scene, icon, scene.projection, model, 2);
@@ -143,7 +139,7 @@ export function create(gl: WebGL2RenderingContext): Scene {
 
   const icons = [];
   for (let i = 0; i < 10; i++) {
-    const scale = vec2.fromValues(15, 15);
+    const scale = vec3.fromValues(15, 15, 15);
     const translation = vec2.fromValues(Math.random() * 400, Math.random() * 400);
     const translationVelocity = vec2.create()
     const rotation = quat.create()
