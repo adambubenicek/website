@@ -1,5 +1,4 @@
 import * as Scene from "./scene";
-import { vec2 } from 'gl-matrix'
 
 const canvas = document.querySelector("canvas")!;
 
