@@ -1,6 +1,6 @@
 import type { Scene, IconProgram, Icon } from "../types";
 import * as Util from "../util";
-import { mat4, vec3, quat } from "gl-matrix";
+import { mat4, vec2, quat } from "gl-matrix";
 import vertexShaderSource from "./vertex.glsl?raw";
 import fragmentShaderSource from "./fragment.glsl?raw";
 import segmentGeometry from "./geometries/segment";
@@ -10,9 +10,9 @@ export function create(
   gl: WebGL2RenderingContext,
   program: IconProgram,
   rotation: quat,
-  translation: vec3,
-  translationVelocity: vec3,
-  scale: vec3,
+  translation: vec2,
+  translationVelocity: vec2,
+  scale: vec2,
 ): Icon {
   const vao = gl.createVertexArray()!;
 

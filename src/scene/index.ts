@@ -1,11 +1,17 @@
 import type { Scene } from "./types";
-import { mat4, quat, vec3 } from "gl-matrix";
+import { mat4, quat, vec3, vec2 } from "gl-matrix";
 import * as Icon from "./icon";
 
-export function render(scene: Scene, time: DOMHighResTimeStamp) {
-  const { gl, iconProgram, icons } = scene;
+const k = 100000 // Repulsion coefficient
+const f = vec2.create() // Force vector
+const speed = 30 
 
-  let deltaTime = time - scene.lastRenderTime
+export function render(scene: Scene, time: DOMHighResTimeStamp) {
+  const { gl, iconProgram, icons, width, height } = scene;
+
+  const influence = vec2.fromValues(width * 0.5, height * 0.5)
+
+  let dt = (time - scene.lastRenderTime) * 0.001
   scene.lastRenderTime = time
 
   gl.enable(gl.DEPTH_TEST);
@@ -15,46 +21,92 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
   gl.useProgram(iconProgram.program);
 
   for (let i = 0; i < icons.length; i++) {
-    const icon = icons[i];
+    const icon1 = icons[i];
+    const t1 = icon1.translation
+    const tv1 = icon1.translationVelocity
 
-    quat.rotateX(icon.rotation, icon.rotation, deltaTime * 0.001)
-    quat.rotateY(icon.rotation, icon.rotation, deltaTime * 0.002)
-    quat.rotateZ(icon.rotation, icon.rotation, deltaTime * 0.003)
+    quat.rotateX(icon1.rotation, icon1.rotation, dt)
+    quat.rotateY(icon1.rotation, icon1.rotation, dt)
+    quat.rotateZ(icon1.rotation, icon1.rotation, dt)
 
-    if (icon.translation[0] <= 45) {
-      icon.translationVelocity[0] = Math.abs(icon.translationVelocity[0])
+
+    vec2.normalize(f, tv1)
+    vec2.scaleAndAdd(tv1, tv1, f, (speed - vec2.length(tv1)) * dt)
+
+    for (let j = i + 1; j < icons.length; j++) {
+      const icon2 = icons[j]
+      const t2 = icon2.translation
+      const tv2 = icon2.translationVelocity
+
+      // Don't influence icons if they are far away
+      if (
+        Math.abs(t1[0] - t2[0]) > influence[0] ||
+        Math.abs(t1[1] - t2[1]) > influence[1]
+      ) {
+        continue
+      }
+
+      // Get distance between icons
+      const r = vec2.distance(t1, t2)
+
+      // Calculate repulsion force.
+      vec2.subtract(f, t1, t2)
+      vec2.normalize(f, f)
+
+      // Apply repulsion force to the first icon
+      vec2.scaleAndAdd( tv1, tv1, f, k / (r * r) * dt)
+
+      // Negate repulsion force and apply to the second icon
+      vec2.negate(f, f)
+      vec2.scaleAndAdd( tv2, tv2, f, k / (r * r) * dt)
     }
 
-    if (icon.translation[0] >= scene.width - 45) {
-      icon.translationVelocity[0] = -Math.abs(icon.translationVelocity[0])
+    if (t1[0] < influence[0]) {
+      const dist = t1[0]
+      vec2.set(f, 1, 0)
+      vec2.scaleAndAdd(tv1, tv1, f, k / (dist * dist) * dt)
+    } else {
+      const dist = width - t1[0]
+      vec2.set(f, -1, 0)
+      vec2.scaleAndAdd(tv1, tv1, f, k / (dist * dist) * dt)
     }
 
-    if (icon.translation[1] <= 45) {
-      icon.translationVelocity[1] = Math.abs(icon.translationVelocity[1])
+    if (t1[1] < influence[1]) {
+      const dist = t1[1]
+      vec2.set(f, 0, 1)
+      vec2.scaleAndAdd(tv1, tv1, f, k / (dist * dist) * dt)
+    } else {
+      const dist = height - t1[1]
+      vec2.set(f, 0, -1)
+      vec2.scaleAndAdd(tv1, tv1, f, k / (dist * dist) * dt)
     }
+  }
 
-    if (icon.translation[1] >= scene.height - 45) {
-      icon.translationVelocity[1] = -Math.abs(icon.translationVelocity[1])
-    }
-
-    icon.translationVelocity[2] = 0
-
-    vec3.scaleAndAdd(
+  for (const icon of icons) {
+    vec2.scaleAndAdd(
       icon.translation, 
       icon.translation, 
       icon.translationVelocity, 
-      deltaTime * 0.001
+      dt
     )
 
     const model = mat4.create()
     mat4.fromRotationTranslationScale(
       model,
       icon.rotation,
-      icon.translation,
-      icon.scale,
+      vec3.fromValues(
+        icon.translation[0],
+        icon.translation[1],
+        0
+      ),
+      vec3.fromValues(
+        icon.scale[0],
+        icon.scale[1],
+        icon.scale[1],
+      ),
     )
 
-    Icon.render(scene, icon, scene.projection, model, 4);
+    Icon.render(scene, icon, scene.projection, model, 2);
   }
 }
 
@@ -85,12 +137,12 @@ export function create(gl: WebGL2RenderingContext): Scene {
 
   const icons = [];
   for (let i = 0; i < 10; i++) {
-    const scale = vec3.fromValues(45, 45, 45);
-    const translation = vec3.fromValues(100 , 100, 0);
-    const translationVelocity = vec3.create()
+    const scale = vec2.fromValues(15, 15);
+    const translation = vec2.fromValues(Math.random() * 400, Math.random() * 400);
+    const translationVelocity = vec2.create()
     const rotation = quat.create()
 
-    vec3.random(translationVelocity, 100)
+    vec2.random(translationVelocity, 10)
 
     const icon = Icon.create(
       gl, 
