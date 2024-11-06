@@ -14,6 +14,12 @@ export function render(scene: Scene, time: DOMHighResTimeStamp) {
   let dt = (time - scene.lastRenderTime) * 0.001
   scene.lastRenderTime = time
 
+  // Drop frame if delta is more than a second
+  if (dt > 1) {
+    return
+  }
+
+
   gl.enable(gl.DEPTH_TEST);
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
