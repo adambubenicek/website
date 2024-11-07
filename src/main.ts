@@ -1,4 +1,4 @@
-import * as Scene from "./scene";
+import Scene from "./scene.ts";
 
 const canvas = document.querySelector("canvas")!;
 
@@ -8,24 +8,14 @@ if (!gl) {
   throw "Webgl2 not supported";
 }
 
-const scene = Scene.create(gl);
+const scene = Scene(gl)
 
-let animating = false;
-let dpr = 0;
-let width = 0;
-let height = 0;
 
+let dpr = 0
 function handleDPRChange() {
   dpr = window.devicePixelRatio;
 
-  if (width > 0 && height > 0) {
-    Scene.resize(scene, width, height, dpr);
-
-    if (!animating) {
-      animating = true;
-      requestAnimationFrame(animate);
-    }
-  }
+  scene.setDPR(dpr)
 
   const media = matchMedia(`(resolution: ${dpr}dppx)`);
   media.addEventListener("change", handleDPRChange, { once: true });
@@ -33,27 +23,17 @@ function handleDPRChange() {
 
 handleDPRChange();
 
+
 const resizeObserver = new ResizeObserver((entries) => {
-  width = entries[0].contentBoxSize[0].inlineSize;
-  height = entries[0].contentBoxSize[0].blockSize;
+  const width = entries[0].contentBoxSize[0].inlineSize;
+  const height = entries[0].contentBoxSize[0].blockSize;
 
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
 
-  if (dpr > 0) {
-    Scene.resize(scene, width, height, dpr);
-
-    if (!animating) {
-      animating = true;
-      requestAnimationFrame(animate);
-    }
-  }
+  scene.setResolution(width, height)
 });
 
+scene.setIconSize(60)
+
 resizeObserver.observe(canvas);
-
-function animate(time: DOMHighResTimeStamp) {
-  Scene.render(scene, time);
-  requestAnimationFrame(animate);
-}
-
