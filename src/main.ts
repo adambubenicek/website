@@ -34,6 +34,6 @@ const resizeObserver = new ResizeObserver((entries) => {
   scene.setResolution(width, height)
 });
 
-scene.setIconSize(60)
+scene.setIconSize(30)
 
 resizeObserver.observe(canvas);
