@@ -151,20 +151,6 @@ export default function Scene(gl: WebGL2RenderingContext) {
     for (let i = 0; i < icons.length; i++) {
       const icon = icons[i];
 
-      const currentSpeed = vec2.length(icon.translationVelocity)
-      vec2.normalize(force, icon.translationVelocity)
-      vec2.scaleAndAdd(
-        icon.translationVelocity, 
-        icon.translationVelocity, 
-        force, 
-        (iconDefaultSpeed - currentSpeed) * delta
-      )
-
-      quat.rotateX(icon.rotation, icon.rotation, (iconDefaultSpeed - currentSpeed) * delta * 0.01)
-      quat.rotateY(icon.rotation, icon.rotation, (iconDefaultSpeed - currentSpeed) * delta * 0.01)
-      quat.rotateZ(icon.rotation, icon.rotation, delta)
-
-
       for (let j = i + 1; j < icons.length; j++) {
         const icon2 = icons[j]
         const distance = vec2.distance(
@@ -250,6 +236,19 @@ export default function Scene(gl: WebGL2RenderingContext) {
         icon.translationVelocity, 
         delta
       )
+
+      const currentSpeed = vec2.length(icon.translationVelocity)
+      vec2.normalize(force, icon.translationVelocity)
+      vec2.scaleAndAdd(
+        icon.translationVelocity, 
+        icon.translationVelocity, 
+        force, 
+        (iconDefaultSpeed - currentSpeed) * delta
+      )
+
+      quat.rotateX(icon.rotation, icon.rotation, icon.translationVelocity[0] * delta * 0.01)
+      quat.rotateY(icon.rotation, icon.rotation, icon.translationVelocity[1] * delta * 0.01)
+      quat.rotateZ(icon.rotation, icon.rotation, delta)
 
       mat4.fromRotationTranslationScale(
         model,
