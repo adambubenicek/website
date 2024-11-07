@@ -151,10 +151,6 @@ export default function Scene(gl: WebGL2RenderingContext) {
     for (let i = 0; i < icons.length; i++) {
       const icon = icons[i];
 
-      quat.rotateX(icon.rotation, icon.rotation, delta)
-      quat.rotateY(icon.rotation, icon.rotation, delta)
-      quat.rotateZ(icon.rotation, icon.rotation, delta)
-
       const currentSpeed = vec2.length(icon.translationVelocity)
       vec2.normalize(force, icon.translationVelocity)
       vec2.scaleAndAdd(
@@ -163,6 +159,11 @@ export default function Scene(gl: WebGL2RenderingContext) {
         force, 
         (iconDefaultSpeed - currentSpeed) * delta
       )
+
+      quat.rotateX(icon.rotation, icon.rotation, (iconDefaultSpeed - currentSpeed) * delta * 0.01)
+      quat.rotateY(icon.rotation, icon.rotation, (iconDefaultSpeed - currentSpeed) * delta * 0.01)
+      quat.rotateZ(icon.rotation, icon.rotation, delta)
+
 
       for (let j = i + 1; j < icons.length; j++) {
         const icon2 = icons[j]
