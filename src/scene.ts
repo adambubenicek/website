@@ -168,7 +168,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         const distance = vec2.distance(
           icon.translation,
           icon2.translation,
-        )
+        ) - iconSize
 
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
