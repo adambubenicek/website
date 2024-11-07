@@ -137,6 +137,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
     const delta = (renderTime - lastRenderTime) * 0.001
     lastRenderTime = renderTime
 
+    // Drop frame if delta is too high
     if (delta > 1) {
       return
     }
@@ -173,6 +174,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
 
+        // Repel current icon from the other
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
@@ -182,6 +184,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
         vec2.negate(force, force)
 
+        // Repel the other icon from the current one
         vec2.scaleAndAdd(
           icon2.translationVelocity,
           icon2.translationVelocity,
@@ -190,6 +193,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         )
       }
 
+      // Repel icon from left side
       {
         const distance = icon.translation[0]
         if (distance > 0) {
@@ -203,6 +207,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         } 
       }
 
+      // Repel icon from right side
       {
         const distance = width - icon.translation[0]
         vec2.set(force, -1, 0)
@@ -214,6 +219,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         )
       }
 
+      // Repel icon from top side
       {
         const distance = icon.translation[1]
         vec2.set(force, 0, 1)
@@ -225,6 +231,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         )
       }
 
+      // Repel icon from bottom side
       {
         const distance = height - icon.translation[1]
         vec2.set(force, 0, -1)
