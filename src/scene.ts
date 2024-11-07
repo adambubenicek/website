@@ -112,6 +112,13 @@ export default function Scene(gl: WebGL2RenderingContext) {
     createIcon(),
     createIcon(),
     createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
   ]
 
   let dpr = 0
