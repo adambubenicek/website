@@ -119,19 +119,25 @@ export default function Scene(gl: WebGL2RenderingContext) {
     createIcon(),
     createIcon(),
     createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
   ]
 
   let dpr = 0
   let width = 0
   let height = 0
   let iconDefaultSpeed = 0
-  let iconSize = 0
+  let iconRadius = 0
   let repulsionCoefficient = 0
+  let lastRenderTime = 0
   const projection = mat4.create()
   const model = mat4.create()
   const force = vec2.create()
-
-  let lastRenderTime = 0
 
   function handleAnimationFrame(renderTime: DOMHighResTimeStamp) {
     const delta = (renderTime - lastRenderTime) * 0.001
@@ -153,10 +159,10 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       for (let j = i + 1; j < icons.length; j++) {
         const icon2 = icons[j]
-        const distance = vec2.distance(
+        const distance = Math.max(1, vec2.distance(
           icon.translation,
           icon2.translation,
-        ) - iconSize
+        ) - iconRadius * 2)
 
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
@@ -182,7 +188,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from left side
       {
-        const distance = icon.translation[0]
+        const distance = Math.max(1, icon.translation[0] - iconRadius)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -194,7 +200,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from right side
       {
-        const distance = width - icon.translation[0]
+        const distance = Math.max(1, width - icon.translation[0] - iconRadius)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -206,7 +212,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from top side
       {
-        const distance = icon.translation[1]
+        const distance = Math.max(1, icon.translation[1] - iconRadius)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -218,7 +224,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from bottom side
       {
-        const distance = height - icon.translation[1]
+        const distance = Math.max(1, height - icon.translation[1] - iconRadius)
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -282,7 +288,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
       || width == 0
       || height == 0
       || dpr == 0
-      || iconSize == 0
+      || iconRadius == 0
       || iconDefaultSpeed == 0
       || repulsionCoefficient == 0
     ) return
@@ -290,14 +296,14 @@ export default function Scene(gl: WebGL2RenderingContext) {
     for (let icon of icons) {
       vec2.set(
         icon.translation, 
-        Math.random() * (width - 2 * iconSize) + iconSize,
-        Math.random() * (height - 2 * iconSize) + iconSize,
+        Math.random() * (width - 4 * iconRadius) + 2 * iconRadius,
+        Math.random() * (height - 4 * iconRadius) + 2 * iconRadius,
       )
       vec2.random(
         icon.translationVelocity,
         iconDefaultSpeed
       )
-      vec3.set(icon.scale, iconSize, iconSize, iconSize)
+      vec3.set(icon.scale, iconRadius * 2, iconRadius * 2, iconRadius * 2)
     }
 
     animating = true
@@ -338,9 +344,9 @@ export default function Scene(gl: WebGL2RenderingContext) {
       updateViewport()
       startAnimation()
     },
-    setIconSize(s: number) {
-      iconSize = s
-      repulsionCoefficient = s * 10000
+    setIconRadius(s: number) {
+      iconRadius = s
+      repulsionCoefficient = s * 2000
       iconDefaultSpeed = s
 
       startAnimation()
