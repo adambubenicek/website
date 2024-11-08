@@ -298,9 +298,21 @@ export default function Scene(
         (iconDefaultSpeed.value - currentSpeed) * delta
       )
 
-      quat.rotateX(icon.rotation, icon.rotation, icon.translationVelocity[0] * delta * 0.01)
-      quat.rotateY(icon.rotation, icon.rotation, icon.translationVelocity[1] * delta * 0.01)
-      quat.rotateZ(icon.rotation, icon.rotation, delta)
+      quat.rotateX(
+        icon.rotation, 
+        icon.rotation, 
+        icon.translationVelocity[0] * iconDefaultSpeed.value * delta * 0.01
+      )
+      quat.rotateY(
+        icon.rotation, 
+        icon.rotation, 
+        icon.translationVelocity[1] * iconDefaultSpeed.value * delta * 0.01
+      )
+      quat.rotateZ(
+        icon.rotation, 
+        icon.rotation, 
+        delta
+      )
 
       mat4.fromRotationTranslationScale(
         model,
