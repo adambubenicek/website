@@ -46,8 +46,4 @@ effect(() => {
   canvasElement.height = Math.round(height.value * dpr.value);
 })
 
-effect(() => {
-  console.log(gridSize.value)
-})
-
 Scene(gl, width, height, dpr, gridSize, iconSize)
