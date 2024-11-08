@@ -183,15 +183,13 @@ export default function Scene(gl: WebGL2RenderingContext) {
       // Repel icon from left side
       {
         const distance = icon.translation[0]
-        if (distance > 0) {
-          vec2.set(force, 1, 0)
-          vec2.scaleAndAdd(
-            icon.translationVelocity,
-            icon.translationVelocity,
-            force, 
-            repulsionCoefficient / (distance * distance) * delta
-          )
-        } 
+        vec2.set(force, 1, 0)
+        vec2.scaleAndAdd(
+          icon.translationVelocity,
+          icon.translationVelocity,
+          force, 
+          repulsionCoefficient / (distance * distance) * delta
+        )
       }
 
       // Repel icon from right side
