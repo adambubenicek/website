@@ -3,12 +3,13 @@ import Scene from "./scene.ts";
 
 const canvasElement = document.querySelector("canvas")!;
 const gridSizeElement = document.querySelector("#grid-size")!;
+const iconSizeElement = document.querySelector("#icon-size")!;
 
 const gl = canvasElement.getContext("webgl2");
 
 const width = signal(0)
 const height = signal(0)
-const iconSize = signal(100)
+const iconSize = signal(0)
 const gridSize = signal(0)
 const dpr = signal(0)
 
@@ -34,12 +35,15 @@ const resizeObserver = new ResizeObserver((entries) => {
       })
     } else if (entry.target === gridSizeElement) {
       gridSize.value = entry.contentBoxSize[0].inlineSize;
+    } else if (entry.target === iconSizeElement) {
+      iconSize.value = entry.contentBoxSize[0].inlineSize;
     }
   }
 });
 
 resizeObserver.observe(canvasElement);
 resizeObserver.observe(gridSizeElement);
+resizeObserver.observe(iconSizeElement);
 
 effect(() => {
   canvasElement.width = Math.round(width.value * dpr.value);

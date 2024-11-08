@@ -59,3 +59,10 @@ canvas {
   left: 0;
   width: var(--grid-size);
 }
+
+#icon-size {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--grid-size) * 3);
+}
