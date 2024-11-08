@@ -11,6 +11,7 @@ export default function Scene(
   width: Signal<number>,
   height: Signal<number>,
   dpr: Signal<number>,
+  gridSize: Signal<number>,
   iconSize: Signal<number>
 ) {
   effect(() => {
@@ -75,7 +76,7 @@ export default function Scene(
   const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
 
-  const iconDefaultSpeed = computed(() => iconSize.value)
+  const iconDefaultSpeed = computed(() => gridSize.value)
 
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);

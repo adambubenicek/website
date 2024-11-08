@@ -65,5 +65,4 @@ canvas {
   top: 0;
   left: 0;
   width: var(--grid-size);
-  height: var(--grid-size);
 }

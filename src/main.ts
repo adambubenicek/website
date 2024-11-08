@@ -1,12 +1,15 @@
 import { signal, effect, batch } from '@preact/signals-core'
 import Scene from "./scene.ts";
 
-const canvas = document.querySelector("canvas")!;
-const gl = canvas.getContext("webgl2");
+const canvasElement = document.querySelector("canvas")!;
+const gridSizeElement = document.querySelector("#grid-size")!;
+
+const gl = canvasElement.getContext("webgl2");
 
 const width = signal(0)
 const height = signal(0)
 const iconSize = signal(100)
+const gridSize = signal(0)
 const dpr = signal(0)
 
 if (!gl) {
@@ -23,17 +26,28 @@ handleDPRChange();
 
 
 const resizeObserver = new ResizeObserver((entries) => {
-  batch(() => {
-    width.value = entries[0].contentBoxSize[0].inlineSize;
-    height.value = entries[0].contentBoxSize[0].blockSize;
-  })
+  for (const entry of entries) {
+    if (entry.target === canvasElement) {
+      batch(() => {
+        width.value = entry.contentBoxSize[0].inlineSize;
+        height.value = entry.contentBoxSize[0].blockSize;
+      })
+    } else if (entry.target === gridSizeElement) {
+      gridSize.value = entry.contentBoxSize[0].inlineSize;
+    }
+  }
 });
 
-resizeObserver.observe(canvas);
+resizeObserver.observe(canvasElement);
+resizeObserver.observe(gridSizeElement);
 
 effect(() => {
-  canvas.width = Math.round(width.value * dpr.value);
-  canvas.height = Math.round(height.value * dpr.value);
+  canvasElement.width = Math.round(width.value * dpr.value);
+  canvasElement.height = Math.round(height.value * dpr.value);
 })
 
-Scene(gl, width, height, dpr, iconSize)
+effect(() => {
+  console.log(gridSize.value)
+})
+
+Scene(gl, width, height, dpr, gridSize, iconSize)
