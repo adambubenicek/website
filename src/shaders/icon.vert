@@ -31,7 +31,10 @@ void main() {
 
   vec3 position2 = mix(startPosition3, endPosition3, position.z);
 
-  vColor = texture(colors, vec2(color[0] / 1.0, color[1] / 4.0));
 
-  gl_Position = projection * vec4(position2, 1);
+  vColor = texture(colors, vec2(color[0] / 1.0, color[1] / 2.0));
+
+  vec3 position3 = mix(vec3(0.0, 0.0, 0.0), position2, vColor[3]);
+
+  gl_Position = projection * vec4(position3, 1);
 }

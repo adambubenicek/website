@@ -105,7 +105,7 @@ export default function Scene(
       3,
       gl.FLOAT,
       false,
-      Float32Array.BYTES_PER_ELEMENT * 6,
+      Float32Array.BYTES_PER_ELEMENT * 0,
       Float32Array.BYTES_PER_ELEMENT * 0,
     );
 
@@ -116,7 +116,7 @@ export default function Scene(
       3,
       gl.FLOAT,
       false,
-      Float32Array.BYTES_PER_ELEMENT * 6,
+      Float32Array.BYTES_PER_ELEMENT * 0,
       Float32Array.BYTES_PER_ELEMENT * 3,
     );
 
@@ -370,7 +370,7 @@ export default function Scene(
         gl.TRIANGLES,
         0,
         segmentGeometry.length / 3,
-        cubeGeometry.vertices.length / 6,
+        cubeGeometry.vertices.length / 3 - 1,
       );
     }
 
