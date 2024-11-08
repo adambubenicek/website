@@ -13,6 +13,15 @@ export default function Scene(
   dpr: Signal<number>,
   iconRadius: Signal<number>
 ) {
+  effect(() => {
+    gl.viewport(
+      0, 
+      0, 
+      Math.round(width.value * dpr.value), 
+      Math.round(height.value * dpr.value)
+    )
+  })
+
   function createShader(
     type: GLenum, 
     source: string
@@ -109,11 +118,6 @@ export default function Scene(
     );
 
     const translation = vec2.create()
-      vec2.set(
-        translation, 
-        Math.random() * (width.value - 4 * iconRadius.value) + 2 * iconRadius.value,
-        Math.random() * (height.value - 4 * iconRadius.value) + 2 * iconRadius.value,
-      )
 
     const translationVelocity = vec2.create()
       vec2.random(
@@ -150,6 +154,24 @@ export default function Scene(
     createIcon(),
     createIcon(),
   ]
+
+  {
+    const dispose = effect(() => {
+      if (width.value === 0 || height.value === 0) {
+        return
+      }
+
+      for (const icon of icons) {
+        vec2.set(
+          icon.translation, 
+          Math.random() * (width.value - 4 * iconRadius.value) + 2 * iconRadius.value,
+          Math.random() * (height.value - 4 * iconRadius.value) + 2 * iconRadius.value,
+        )
+      }
+
+      dispose()
+    })
+  }
 
   effect(() => {
     for (let icon of icons) {
@@ -322,14 +344,14 @@ export default function Scene(
     requestAnimationFrame(handleAnimationFrame)
   }
 
-  effect(() => {
-    gl.viewport(
-      0, 
-      0, 
-      Math.round(width.value * dpr.value), 
-      Math.round(height.value * dpr.value)
-    )
-  })
+  {
+    const dispose = effect(() => {
+      if (width.value === 0 || height.value === 0 || dpr.value === 0 || iconRadius.value === 0) {
+        return
+      }
 
-  requestAnimationFrame(handleAnimationFrame)
+      requestAnimationFrame(handleAnimationFrame)
+      dispose()
+    })
+  }
 }

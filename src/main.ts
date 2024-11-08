@@ -4,10 +4,10 @@ import Scene from "./scene.ts";
 const canvas = document.querySelector("canvas")!;
 const gl = canvas.getContext("webgl2");
 
-const width = signal(canvas.offsetWidth)
-const height = signal(canvas.offsetHeight)
+const width = signal(0)
+const height = signal(0)
 const iconRadius = signal(15)
-const dpr = signal(window.devicePixelRatio)
+const dpr = signal(0)
 
 if (!gl) {
   throw "Webgl2 not supported";
