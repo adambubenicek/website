@@ -13,8 +13,6 @@ if (!gl) {
   throw "Webgl2 not supported";
 }
 
-Scene(gl, width, height, dpr, iconRadius)
-
 function handleDPRChange() {
   dpr.value = window.devicePixelRatio
 
@@ -38,3 +36,4 @@ effect(() => {
   canvas.height = Math.round(height.value * dpr.value);
 })
 
+Scene(gl, width, height, dpr, iconRadius)
