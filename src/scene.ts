@@ -11,7 +11,7 @@ export default function Scene(
   width: Signal<number>,
   height: Signal<number>,
   dpr: Signal<number>,
-  iconRadius: Signal<number>
+  iconSize: Signal<number>
 ) {
   effect(() => {
     gl.viewport(
@@ -75,7 +75,7 @@ export default function Scene(
   const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
 
-  const iconDefaultSpeed = computed(() => iconRadius.value * 2)
+  const iconDefaultSpeed = computed(() => iconSize.value)
 
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
@@ -120,10 +120,10 @@ export default function Scene(
     const translation = vec2.create()
 
     const translationVelocity = vec2.create()
-      vec2.random(
-        translationVelocity,
-        iconDefaultSpeed.value
-      )
+    vec2.random(
+      translationVelocity,
+      iconDefaultSpeed.value
+    )
 
     return {
       vao: vao,
@@ -136,23 +136,6 @@ export default function Scene(
 
   const icons = [
     createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
   ]
 
   {
@@ -164,8 +147,8 @@ export default function Scene(
       for (const icon of icons) {
         vec2.set(
           icon.translation, 
-          Math.random() * (width.value - 4 * iconRadius.value) + 2 * iconRadius.value,
-          Math.random() * (height.value - 4 * iconRadius.value) + 2 * iconRadius.value,
+          Math.random() * (width.value - iconSize.value) + iconSize.value,
+          Math.random() * (height.value - iconSize.value) + iconSize.value,
         )
       }
 
@@ -177,9 +160,9 @@ export default function Scene(
     for (let icon of icons) {
       vec3.set(
         icon.scale, 
-        iconRadius.value * 2, 
-        iconRadius.value * 2, 
-        iconRadius.value * 2
+        iconSize.value, 
+        iconSize.value, 
+        iconSize.value
       )
     }
   })
@@ -226,7 +209,7 @@ export default function Scene(
         const distance = Math.max(1, vec2.distance(
           icon.translation,
           icon2.translation,
-        ) - iconRadius.value * 2)
+        ) - iconSize.value)
 
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
@@ -252,7 +235,7 @@ export default function Scene(
 
       // Repel icon from left side
       {
-        const distance = Math.max(1, icon.translation[0] - iconRadius.value)
+        const distance = Math.max(1, icon.translation[0] - iconSize.value * 0.5)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -264,7 +247,7 @@ export default function Scene(
 
       // Repel icon from right side
       {
-        const distance = Math.max(1, width.value - icon.translation[0] - iconRadius.value)
+        const distance = Math.max(1, width.value - icon.translation[0] - iconSize.value * 0.5)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -276,7 +259,7 @@ export default function Scene(
 
       // Repel icon from top side
       {
-        const distance = Math.max(1, icon.translation[1] - iconRadius.value)
+        const distance = Math.max(1, icon.translation[1] - iconSize.value * 0.5)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -288,7 +271,7 @@ export default function Scene(
 
       // Repel icon from bottom side
       {
-        const distance = Math.max(1, height.value - icon.translation[1] - iconRadius.value)
+        const distance = Math.max(1, height.value - icon.translation[1] - iconSize.value * 0.5)
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -346,7 +329,7 @@ export default function Scene(
 
   {
     const dispose = effect(() => {
-      if (width.value === 0 || height.value === 0 || dpr.value === 0 || iconRadius.value === 0) {
+      if (width.value === 0 || height.value === 0 || dpr.value === 0 || iconSize.value === 0) {
         return
       }
 

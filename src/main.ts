@@ -6,7 +6,7 @@ const gl = canvas.getContext("webgl2");
 
 const width = signal(0)
 const height = signal(0)
-const iconRadius = signal(15)
+const iconSize = signal(100)
 const dpr = signal(0)
 
 if (!gl) {
@@ -36,4 +36,4 @@ effect(() => {
   canvas.height = Math.round(height.value * dpr.value);
 })
 
-Scene(gl, width, height, dpr, iconRadius)
+Scene(gl, width, height, dpr, iconSize)
