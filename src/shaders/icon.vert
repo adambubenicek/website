@@ -4,9 +4,12 @@ precision highp float;
 in vec3 position;
 in vec3 startPosition;
 in vec3 endPosition;
+in vec2 color;
 uniform mat4 projection;
 uniform mat4 model;
 uniform float width;
+
+uniform sampler2D colors;
 
 out vec4 vColor;
 
@@ -28,7 +31,7 @@ void main() {
 
   vec3 position2 = mix(startPosition3, endPosition3, position.z);
 
-  vColor = vec4(position2.z / 100.0 + 0.5, 0.0, 1.0, 1.0);
+  vColor = texture(colors, vec2(color[0] / 1.0, color[1] / 4.0));
 
   gl_Position = projection * vec4(position2, 1);
 }

@@ -5,6 +5,7 @@ import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
 import segmentGeometry from "./geometries/segment";
 import cubeGeometry from "./geometries/cube";
+import colorsTextureInfo from './textures/colors'
 
 export default function Scene(
   gl: WebGL2RenderingContext,
@@ -72,6 +73,7 @@ export default function Scene(
   const iconProgramPosition = gl.getAttribLocation(iconProgram, "position")
   const iconProgramStartPosition = gl.getAttribLocation(iconProgram, "startPosition")
   const iconProgramEndPosition = gl.getAttribLocation(iconProgram, "endPosition")
+  const iconProgramColor = gl.getAttribLocation(iconProgram, "color")
   const iconProgramProjection = gl.getUniformLocation(iconProgram, "projection")!
   const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
@@ -94,7 +96,7 @@ export default function Scene(
 
     const geometryBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, geometryBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.vertices, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconProgramStartPosition);
     gl.vertexAttribDivisor(iconProgramStartPosition, 1);
@@ -116,6 +118,21 @@ export default function Scene(
       false,
       Float32Array.BYTES_PER_ELEMENT * 6,
       Float32Array.BYTES_PER_ELEMENT * 3,
+    );
+
+    const colorsBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.colors, gl.STATIC_DRAW)
+
+    gl.enableVertexAttribArray(iconProgramColor);
+    gl.vertexAttribDivisor(iconProgramColor, 1);
+    gl.vertexAttribPointer(
+      iconProgramColor,
+      2,
+      gl.FLOAT,
+      false,
+      Uint8Array.BYTES_PER_ELEMENT * 0,
+      Uint8Array.BYTES_PER_ELEMENT * 0
     );
 
     const translation = vec2.create()
@@ -168,7 +185,26 @@ export default function Scene(
     }
   })
 
-  let repulsionCoefficient = 1000 
+
+  const colorsTexture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, colorsTexture)
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0, // todo lookup level
+    gl.RGBA,
+    colorsTextureInfo.width,
+    colorsTextureInfo.height,
+    0, // todo lookup border
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    colorsTextureInfo.source
+  )
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
 
   const projection = mat4.create()
   effect(() => {
@@ -186,6 +222,7 @@ export default function Scene(
   const model = mat4.create()
   const force = vec2.create()
 
+  let repulsionCoefficient = 1000 
   let lastRenderTime = 0
   function handleAnimationFrame(renderTime: DOMHighResTimeStamp) {
     const delta = (renderTime - lastRenderTime) * 0.001
@@ -333,7 +370,7 @@ export default function Scene(
         gl.TRIANGLES,
         0,
         segmentGeometry.length / 3,
-        cubeGeometry.length / 6,
+        cubeGeometry.vertices.length / 6,
       );
     }
 
