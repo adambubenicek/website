@@ -1,4 +1,4 @@
-import { signal, effect } from '@preact/signals-core'
+import { signal, effect, batch } from '@preact/signals-core'
 import Scene from "./scene.ts";
 
 const canvas = document.querySelector("canvas")!;
@@ -25,8 +25,10 @@ handleDPRChange();
 
 
 const resizeObserver = new ResizeObserver((entries) => {
-  width.value = entries[0].contentBoxSize[0].inlineSize;
-  height.value = entries[0].contentBoxSize[0].blockSize;
+  batch(() => {
+    width.value = entries[0].contentBoxSize[0].inlineSize;
+    height.value = entries[0].contentBoxSize[0].blockSize;
+  })
 });
 
 resizeObserver.observe(canvas);
