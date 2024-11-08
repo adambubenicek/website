@@ -1,14 +1,6 @@
-:root {
-  --grid-size: round(up, 1ch, 1px);
-}
-
 * {
   margin: 0;
   padding: 0;
-}
-
-html {
-  height: 100%;
 }
 
 body {
@@ -23,6 +15,7 @@ body {
   font-size: 24px;
   line-height: calc(var(--grid-size) * 3);
   letter-spacing: calc(var(--grid-size) - 1ch);
+  --grid-size: round(up, 1ch, 1px);
 }
 
 main {
