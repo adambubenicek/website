@@ -1,39 +1,38 @@
+import { signal, effect } from '@preact/signals-core'
 import Scene from "./scene.ts";
 
 const canvas = document.querySelector("canvas")!;
-
 const gl = canvas.getContext("webgl2");
+
+const width = signal(canvas.offsetWidth)
+const height = signal(canvas.offsetHeight)
+const iconRadius = signal(15)
+const dpr = signal(window.devicePixelRatio)
 
 if (!gl) {
   throw "Webgl2 not supported";
 }
 
-const scene = Scene(gl)
+Scene(gl, width, height, dpr, iconRadius)
 
-
-let dpr = 0
 function handleDPRChange() {
-  dpr = window.devicePixelRatio;
+  dpr.value = window.devicePixelRatio
 
-  scene.setDPR(dpr)
-
-  const media = matchMedia(`(resolution: ${dpr}dppx)`);
+  const media = matchMedia(`(resolution: ${dpr.value}dppx)`);
   media.addEventListener("change", handleDPRChange, { once: true });
 }
-
 handleDPRChange();
 
 
 const resizeObserver = new ResizeObserver((entries) => {
-  const width = entries[0].contentBoxSize[0].inlineSize;
-  const height = entries[0].contentBoxSize[0].blockSize;
-
-  canvas.width = Math.round(width * dpr);
-  canvas.height = Math.round(height * dpr);
-
-  scene.setResolution(width, height)
+  width.value = entries[0].contentBoxSize[0].inlineSize;
+  height.value = entries[0].contentBoxSize[0].blockSize;
 });
 
-scene.setIconRadius(15)
-
 resizeObserver.observe(canvas);
+
+effect(() => {
+  canvas.width = Math.round(width.value * dpr.value);
+  canvas.height = Math.round(height.value * dpr.value);
+})
+

@@ -1,10 +1,18 @@
+import type { Signal } from '@preact/signals-core'
+import { effect, computed } from '@preact/signals-core'
 import { mat4, quat, vec2, vec3 } from 'gl-matrix'
 import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
 import segmentGeometry from "./geometries/segment";
 import cubeGeometry from "./geometries/cube";
 
-export default function Scene(gl: WebGL2RenderingContext) {
+export default function Scene(
+  gl: WebGL2RenderingContext,
+  width: Signal<number>,
+  height: Signal<number>,
+  dpr: Signal<number>,
+  iconRadius: Signal<number>
+) {
   function createShader(
     type: GLenum, 
     source: string
@@ -58,6 +66,8 @@ export default function Scene(gl: WebGL2RenderingContext) {
   const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
 
+  const iconDefaultSpeed = computed(() => iconRadius.value * 2)
+
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, segmentGeometry, gl.STATIC_DRAW);
@@ -98,11 +108,24 @@ export default function Scene(gl: WebGL2RenderingContext) {
       Float32Array.BYTES_PER_ELEMENT * 3,
     );
 
+    const translation = vec2.create()
+      vec2.set(
+        translation, 
+        Math.random() * (width.value - 4 * iconRadius.value) + 2 * iconRadius.value,
+        Math.random() * (height.value - 4 * iconRadius.value) + 2 * iconRadius.value,
+      )
+
+    const translationVelocity = vec2.create()
+      vec2.random(
+        translationVelocity,
+        iconDefaultSpeed.value
+      )
+
     return {
       vao: vao,
       rotation: quat.create(),
-      translation: vec2.create(),
-      translationVelocity: vec2.create(),
+      translation: translation, 
+      translationVelocity: translationVelocity,
       scale: vec3.create()
     };
   }
@@ -128,17 +151,36 @@ export default function Scene(gl: WebGL2RenderingContext) {
     createIcon(),
   ]
 
-  let dpr = 0
-  let width = 0
-  let height = 0
-  let iconDefaultSpeed = 0
-  let iconRadius = 0
-  let repulsionCoefficient = 0
-  let lastRenderTime = 0
+  effect(() => {
+    for (let icon of icons) {
+      vec3.set(
+        icon.scale, 
+        iconRadius.value * 2, 
+        iconRadius.value * 2, 
+        iconRadius.value * 2
+      )
+    }
+  })
+
+  let repulsionCoefficient = 1000 
+
   const projection = mat4.create()
+  effect(() => {
+    mat4.ortho(
+      projection, 
+      0, 
+      width.value, 
+      height.value, 
+      0, 
+      -1000, 
+      1000
+    );
+  })
+
   const model = mat4.create()
   const force = vec2.create()
 
+  let lastRenderTime = 0
   function handleAnimationFrame(renderTime: DOMHighResTimeStamp) {
     const delta = (renderTime - lastRenderTime) * 0.001
     lastRenderTime = renderTime
@@ -162,7 +204,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         const distance = Math.max(1, vec2.distance(
           icon.translation,
           icon2.translation,
-        ) - iconRadius * 2)
+        ) - iconRadius.value * 2)
 
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
@@ -188,7 +230,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from left side
       {
-        const distance = Math.max(1, icon.translation[0] - iconRadius)
+        const distance = Math.max(1, icon.translation[0] - iconRadius.value)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -200,7 +242,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from right side
       {
-        const distance = Math.max(1, width - icon.translation[0] - iconRadius)
+        const distance = Math.max(1, width.value - icon.translation[0] - iconRadius.value)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -212,7 +254,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from top side
       {
-        const distance = Math.max(1, icon.translation[1] - iconRadius)
+        const distance = Math.max(1, icon.translation[1] - iconRadius.value)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -224,7 +266,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
 
       // Repel icon from bottom side
       {
-        const distance = Math.max(1, height - icon.translation[1] - iconRadius)
+        const distance = Math.max(1, height.value - icon.translation[1] - iconRadius.value)
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -247,7 +289,7 @@ export default function Scene(gl: WebGL2RenderingContext) {
         icon.translationVelocity, 
         icon.translationVelocity, 
         force, 
-        (iconDefaultSpeed - currentSpeed) * delta
+        (iconDefaultSpeed.value - currentSpeed) * delta
       )
 
       quat.rotateX(icon.rotation, icon.rotation, icon.translationVelocity[0] * delta * 0.01)
@@ -280,76 +322,14 @@ export default function Scene(gl: WebGL2RenderingContext) {
     requestAnimationFrame(handleAnimationFrame)
   }
 
-
-  let animating = false
-
-  function startAnimation() {
-    if ( animating == true
-      || width == 0
-      || height == 0
-      || dpr == 0
-      || iconRadius == 0
-      || iconDefaultSpeed == 0
-      || repulsionCoefficient == 0
-    ) return
-
-    for (let icon of icons) {
-      vec2.set(
-        icon.translation, 
-        Math.random() * (width - 4 * iconRadius) + 2 * iconRadius,
-        Math.random() * (height - 4 * iconRadius) + 2 * iconRadius,
-      )
-      vec2.random(
-        icon.translationVelocity,
-        iconDefaultSpeed
-      )
-      vec3.set(icon.scale, iconRadius * 2, iconRadius * 2, iconRadius * 2)
-    }
-
-    animating = true
-    requestAnimationFrame(handleAnimationFrame)
-  }
-
-
-  function updateViewport() {
-    mat4.ortho(
-      projection, 
-      0, 
-      width, 
-      height, 
-      0, 
-      -1000, 
-      1000
-    );
-
+  effect(() => {
     gl.viewport(
       0, 
       0, 
-      Math.round(width * dpr), 
-      Math.round(height * dpr)
+      Math.round(width.value * dpr.value), 
+      Math.round(height.value * dpr.value)
     )
-  }
+  })
 
-  return {
-    setResolution(w: number, h: number) {
-      width = w
-      height = h
-
-      updateViewport()
-      startAnimation()
-    },
-    setDPR(r: number) {
-      dpr = r
-
-      updateViewport()
-      startAnimation()
-    },
-    setIconRadius(s: number) {
-      iconRadius = s
-      repulsionCoefficient = s * 2000
-      iconDefaultSpeed = s
-
-      startAnimation()
-    },
-  }
+  requestAnimationFrame(handleAnimationFrame)
 }
