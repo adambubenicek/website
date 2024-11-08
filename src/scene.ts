@@ -230,7 +230,7 @@ export default function Scene(
 
     // Drop frame if delta is too high
     if (delta > 1) {
-      return
+      return requestAnimationFrame(handleAnimationFrame)
     }
 
     gl.enable(gl.DEPTH_TEST);
