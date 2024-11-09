@@ -301,8 +301,8 @@ export default function Scene(
       width.value, 
       height.value, 
       0, 
-      -1000, 
-      1000
+      gridSize.value * -5, 
+      gridSize.value * 5
     );
   })
 

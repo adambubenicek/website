@@ -13,7 +13,7 @@ out vec4 vColor;
 void main() {
   float val = 0.0;
 
-  vec4 position2 = projection * vec4(position * size + offset * size, 0, 1);
+  vec4 position2 = projection * vec4(position * size + offset * size, size * -4.0, 1);
   vec3 color = vec3(0.0, 0.0, 0.0);
   float alpha = 0.0;
 
