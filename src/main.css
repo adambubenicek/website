@@ -12,10 +12,16 @@ body {
   background-color: #000000;
   color: #b4b4b4;
   font-family: "Noto Sans Mono", monospace, ui-monospace;
-  font-size: 24px;
+  font-size: 20px;
   line-height: calc(var(--grid-size) * 3);
   letter-spacing: calc(var(--grid-size) - 1ch);
   --grid-size: round(up, 1ch, 1px);
+}
+
+@media (min-width: 800px) {
+  body {
+    font-size: 24px;
+  }
 }
 
 main {
