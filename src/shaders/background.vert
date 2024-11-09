@@ -18,9 +18,8 @@ void main() {
   float alpha = 0.0;
 
   for (int i = 0; i < %iconCount%; i++) {
-    float dist = (size * 6.0) / pow(distance(offset * size + position * size, icons[i]), 2.0);
-    // color = mix(color, colors[i], clamp(dist, 0.0, 1.0));
-    color = color + colors[i] * clamp(dist, 0.0, 0.1);
+    float dist = distance(offset * size + position * size, icons[i]);
+    color = color + colors[i] * clamp(10.0 / dist, 0.0, 1.0) * 0.2;
   }
 
   vColor = vec4(color, alpha);
