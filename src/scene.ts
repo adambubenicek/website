@@ -279,11 +279,11 @@ export default function Scene(
   gl.bindTexture(gl.TEXTURE_2D, colorsTexture)
   gl.texImage2D(
     gl.TEXTURE_2D,
-    0, // todo lookup level
+    0,
     gl.RGBA,
     colorsTextureInfo.width,
     colorsTextureInfo.height,
-    0, // todo lookup border
+    0,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
     colorsTextureInfo.source
