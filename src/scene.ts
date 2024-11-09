@@ -208,12 +208,11 @@ export default function Scene(
   const backgroundProgramIcons = gl.getUniformLocation(backgroundProgram, "icons")!
   const backgroundProgramColors = gl.getUniformLocation(backgroundProgram, "colors")!
 
-  const backgroundColors = [
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1,
-    1, 1, 0,
-  ]
+  const backgroundColors: number[] = []
+
+  for (const icon of icons) {
+    backgroundColors.push(1.0, 0.0, 0.0)
+  }
 
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
