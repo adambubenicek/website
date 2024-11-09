@@ -3,7 +3,10 @@ import { effect, computed } from '@preact/signals-core'
 import { mat4, quat, vec2, vec3 } from 'gl-matrix'
 import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
+import backgroundVertexShaderSource from "./shaders/background.vert?raw";
+import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
 import segmentGeometry from "./geometries/segment";
+import backgroundGeometry from "./geometries/background";
 import cubeGeometry from "./geometries/cube";
 import colorsTextureInfo from './textures/colors'
 
@@ -186,6 +189,90 @@ export default function Scene(
   })
 
 
+  const backgroundVertexShader = createShader(
+    gl.VERTEX_SHADER,
+    backgroundVertexShaderSource,
+  );
+
+  const backgroundFragmentShader = createShader(
+    gl.FRAGMENT_SHADER,
+    backgroundFragmentShaderSource,
+  );
+
+
+  const backgroundProgram = createProgram(backgroundVertexShader, backgroundFragmentShader);
+  const backgroundProgramPosition = gl.getAttribLocation(backgroundProgram, "position")
+  const backgroundProgramOffset = gl.getAttribLocation(backgroundProgram, "offset")
+  const backgroundProgramProjection = gl.getUniformLocation(backgroundProgram, "projection")!
+  const backgroundProgramSize = gl.getUniformLocation(backgroundProgram, "size")!
+  const backgroundProgramIcons = gl.getUniformLocation(backgroundProgram, "icons")!
+  const backgroundProgramColors = gl.getUniformLocation(backgroundProgram, "colors")!
+
+  const backgroundColors = [
+    1, 0, 0,
+    0, 1, 0,
+    0, 0, 1,
+    1, 1, 0,
+  ]
+
+  const backgroundVOA = gl.createVertexArray()
+  gl.bindVertexArray(backgroundVOA)
+
+  const backgroundGridBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, backgroundGeometry, gl.STATIC_DRAW);
+
+  gl.enableVertexAttribArray(backgroundProgramPosition);
+  gl.vertexAttribDivisor(backgroundProgramPosition, 0);
+  gl.vertexAttribPointer(
+    backgroundProgramPosition,
+    2,
+    gl.FLOAT,
+    false,
+    Uint8Array.BYTES_PER_ELEMENT * 0,
+    Uint8Array.BYTES_PER_ELEMENT * 0
+  );
+
+  const backgroundOffsetBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
+  gl.enableVertexAttribArray(backgroundProgramOffset);
+  gl.vertexAttribDivisor(backgroundProgramOffset, 1);
+  gl.vertexAttribPointer(
+    backgroundProgramOffset,
+    2,
+    gl.FLOAT,
+    false,
+    Uint8Array.BYTES_PER_ELEMENT * 0,
+    Uint8Array.BYTES_PER_ELEMENT * 0
+  );
+
+  let backgroundOffsets = new Float32Array()
+
+  effect(() => {
+    if (width.value === 0 || height.value === 0 || gridSize.value === 0) {
+      return
+    }
+
+    const cols = Math.ceil(width.value / gridSize.value)
+    const rows = Math.ceil(height.value / gridSize.value)
+
+    backgroundOffsets = new Float32Array(cols * rows * 2)
+
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        backgroundOffsets[(row * cols + col) * 2] = col
+        backgroundOffsets[(row * cols + col) * 2 + 1] = row
+      }
+    }
+
+    console.log(backgroundOffsets)
+
+    gl.bindVertexArray(backgroundVOA)
+    gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.STATIC_DRAW);
+  })
+
+
   const colorsTexture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, colorsTexture)
   gl.texImage2D(
@@ -222,6 +309,7 @@ export default function Scene(
   const model = mat4.create()
   const force = vec2.create()
 
+
   let repulsionCoefficient = 1000 
   let lastRenderTime = 0
   function handleAnimationFrame(renderTime: DOMHighResTimeStamp) {
@@ -236,6 +324,24 @@ export default function Scene(
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.useProgram(backgroundProgram)
+    gl.bindVertexArray(backgroundVOA)
+    gl.uniformMatrix4fv(backgroundProgramProjection, false, projection);
+    gl.uniform1f(backgroundProgramSize, gridSize.value);
+
+    const backgroundIcons = []
+    for (const icon of icons) {
+      backgroundIcons.push(icon.translation[0], icon.translation[1])
+    }
+    gl.uniform2fv(backgroundProgramIcons, backgroundIcons);
+    gl.uniform3fv(backgroundProgramColors, backgroundColors);
+    gl.drawArraysInstanced(
+      gl.TRIANGLES,
+      0,
+      backgroundGeometry.length / 2,
+      backgroundOffsets.length / 2
+    );
 
     gl.useProgram(iconProgram);
 
