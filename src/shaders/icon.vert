@@ -8,6 +8,7 @@ in vec2 color;
 uniform mat4 projection;
 uniform mat4 model;
 uniform float width;
+uniform float size;
 
 uniform sampler2D colors;
 
@@ -31,10 +32,15 @@ void main() {
 
   vec3 position2 = mix(startPosition3, endPosition3, position.z);
 
+  vec4 color = texture(colors, vec2(color[0] / 1.0, color[1] / 2.0));
 
-  vColor = texture(colors, vec2(color[0] / 1.0, color[1] / 2.0));
+  vec3 position3 = mix(vec3(0.0, 0.0, 0.0), position2, color[3]);
 
-  vec3 position3 = mix(vec3(0.0, 0.0, 0.0), position2, vColor[3]);
+  vColor = mix(
+    color, 
+    vec4(0.0, 0.0, 0.0, 1.0), 
+    ((size - position3.z) / (size * 2.0)) * 0.5
+  );
 
   gl_Position = projection * vec4(position3, 1);
 }

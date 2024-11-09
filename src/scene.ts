@@ -79,6 +79,7 @@ export default function Scene(
   const iconProgramProjection = gl.getUniformLocation(iconProgram, "projection")!
   const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
+  const iconProgramSize = gl.getUniformLocation(iconProgram, "size")!
 
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 2)
@@ -466,6 +467,7 @@ export default function Scene(
       gl.uniformMatrix4fv(iconProgramProjection, false, projection);
       gl.uniformMatrix4fv(iconProgramModel, false, model);
       gl.uniform1f(iconProgramWidth, 2);
+      gl.uniform1f(iconProgramSize, gridSize.value);
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
