@@ -229,8 +229,8 @@ export default function Scene(
     2,
     gl.FLOAT,
     false,
-    Uint8Array.BYTES_PER_ELEMENT * 0,
-    Uint8Array.BYTES_PER_ELEMENT * 0
+    0,
+    0,
   );
 
   const backgroundOffsetBuffer = gl.createBuffer()!
@@ -242,8 +242,8 @@ export default function Scene(
     2,
     gl.FLOAT,
     false,
-    Uint8Array.BYTES_PER_ELEMENT * 0,
-    Uint8Array.BYTES_PER_ELEMENT * 0
+    0,
+    0
   );
 
   let backgroundOffsets = new Float32Array()
