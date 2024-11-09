@@ -269,8 +269,6 @@ export default function Scene(
       }
     }
 
-    console.log(backgroundOffsets)
-
     gl.bindVertexArray(backgroundVOA)
     gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.STATIC_DRAW);
