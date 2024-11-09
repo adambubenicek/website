@@ -379,9 +379,8 @@ export default function Scene(
         )
       }
 
-      // Repel icon from left side
-      {
-        const distance = Math.max(1, icon.translation[0] - iconSize.value * 0.5)
+      if (icon.translation[0] < width.value * 0.5) {
+        const distance = Math.max(1, icon.translation[0] - gridSize.value * 3)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -389,11 +388,8 @@ export default function Scene(
           force, 
           repulsionCoefficient / (distance * distance) * delta
         )
-      }
-
-      // Repel icon from right side
-      {
-        const distance = Math.max(1, width.value - icon.translation[0] - iconSize.value * 0.5)
+      } else {
+        const distance = Math.max(1, width.value - icon.translation[0] - gridSize.value * 3)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -403,9 +399,8 @@ export default function Scene(
         )
       }
 
-      // Repel icon from top side
-      {
-        const distance = Math.max(1, icon.translation[1] - iconSize.value * 0.5)
+      if (icon.translation[1] < height.value * 0.5) {
+        const distance = Math.max(1, icon.translation[1] - gridSize.value * 3)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -413,11 +408,8 @@ export default function Scene(
           force, 
           repulsionCoefficient / (distance * distance) * delta
         )
-      }
-
-      // Repel icon from bottom side
-      {
-        const distance = Math.max(1, height.value - icon.translation[1] - iconSize.value * 0.5)
+      } else {
+        const distance = Math.max(1, height.value - icon.translation[1] - gridSize.value * 3)
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
