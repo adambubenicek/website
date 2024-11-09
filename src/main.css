@@ -21,7 +21,7 @@ body {
 main {
   position: relative;
   height: calc(
-    round(down, calc(100vh - var(--grid-size) * 4), var(--grid-size)) - 1px
+    round(down, calc(100svh - var(--grid-size) * 4), var(--grid-size)) - 1px
   );
   width: calc(
     round(down, calc(100vw - var(--grid-size) * 4), var(--grid-size)) - 1px
