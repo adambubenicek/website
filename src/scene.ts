@@ -16,7 +16,6 @@ export default function Scene(
   height: Signal<number>,
   dpr: Signal<number>,
   gridSize: Signal<number>,
-  iconSize: Signal<number>
 ) {
   effect(() => {
     gl.viewport(
@@ -82,6 +81,7 @@ export default function Scene(
   const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
 
   const iconDefaultSpeed = computed(() => gridSize.value)
+  const iconSize = computed(() => gridSize.value * 2)
 
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
@@ -156,6 +156,11 @@ export default function Scene(
   }
 
   const icons = [
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
+    createIcon(),
     createIcon(),
   ]
 
@@ -484,7 +489,7 @@ export default function Scene(
 
   {
     const dispose = effect(() => {
-      if (width.value === 0 || height.value === 0 || dpr.value === 0 || iconSize.value === 0) {
+      if (width.value === 0 || height.value === 0 || dpr.value === 0 || gridSize.value === 0) {
         return
       }
 

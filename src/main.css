@@ -47,10 +47,8 @@ h1 {
 
 canvas {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100svh;
 }
 
 #grid-size {
@@ -58,11 +56,4 @@ canvas {
   top: 0;
   left: 0;
   width: var(--grid-size);
-}
-
-#icon-size {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: calc(var(--grid-size) * 3);
 }
