@@ -191,7 +191,7 @@ export default function Scene(
 
   const backgroundVertexShader = createShader(
     gl.VERTEX_SHADER,
-    backgroundVertexShaderSource,
+    backgroundVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
   );
 
   const backgroundFragmentShader = createShader(
