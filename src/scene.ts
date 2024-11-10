@@ -139,10 +139,10 @@ export default function Scene(
     gl.vertexAttribPointer(
       iconAttributes.color,
       2,
-      gl.FLOAT,
+      gl.UNSIGNED_BYTE,
       false,
-      Uint8Array.BYTES_PER_ELEMENT * 0,
-      Uint8Array.BYTES_PER_ELEMENT * 0
+      0,
+      0
     );
 
     const translation = vec2.create()
