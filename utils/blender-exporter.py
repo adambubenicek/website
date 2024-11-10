@@ -37,4 +37,4 @@ for obj in bpy.context.active_object.children:
 
 
 print(f"vertices: new Float32Array({json.dumps(points)}),")
-print(f"colors: new Float32Array({json.dumps(colors)}),")
+print(f"colors: new Uint8Array({json.dumps(colors)}),")
