@@ -5,10 +5,10 @@ in vec3 position;
 in vec3 startPosition;
 in vec3 endPosition;
 in vec2 color;
-uniform mat4 projection;
 uniform mat4 model;
 uniform float width;
 uniform float size;
+uniform vec2 resolution;
 
 uniform sampler2D colors;
 
@@ -36,11 +36,14 @@ void main() {
 
   vec3 position3 = mix(vec3(0.0, 0.0, 0.0), position2, color[3]);
 
+  vec3 position4 = position3 / vec3(resolution, 1.0) * vec3(2.0, -2.0, 0.5 / size) + vec3(-1.0, 1.0, 0);
+
   vColor = mix(
     color, 
     vec4(0.0, 0.0, 0.0, 1.0), 
-    ((size - position3.z) / (size * 2.0)) * 0.5
+    clamp(position4.z + 0.5, 0.0, 0.5)
   );
 
-  gl_Position = projection * vec4(position3, 1);
+
+  gl_Position = vec4(position4, 1);
 }
