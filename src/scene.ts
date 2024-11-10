@@ -82,7 +82,6 @@ export default function Scene(
 
   const iconUniforms = {
     model: gl.getUniformLocation(iconProgram, "model")!,
-    width: gl.getUniformLocation(iconProgram, "width")!,
     size: gl.getUniformLocation(iconProgram, "size")!,
     resolution: gl.getUniformLocation(iconProgram, "resolution")!
   }
@@ -464,7 +463,6 @@ export default function Scene(
       gl.bindVertexArray(icon.vao);
       gl.uniform2f(iconUniforms.resolution, width.value, height.value);
       gl.uniformMatrix4fv(iconUniforms.model, false, model);
-      gl.uniform1f(iconUniforms.width, 2);
       gl.uniform1f(iconUniforms.size, gridSize.value);
       gl.drawArraysInstanced(
         gl.TRIANGLES,

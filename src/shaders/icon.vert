@@ -6,11 +6,11 @@ in vec3 startPosition;
 in vec3 endPosition;
 in vec2 color;
 uniform mat4 model;
-uniform float width;
 uniform float size;
 uniform vec2 resolution;
-
 uniform sampler2D colors;
+
+float width = 2.0;
 
 out vec4 vColor;
 
