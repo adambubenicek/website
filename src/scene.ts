@@ -92,7 +92,7 @@ export default function Scene(
 
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, segmentGeometry, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, segmentGeometry.vertices, gl.STATIC_DRAW);
 
   function createIcon () {
     const vao = gl.createVertexArray()!;
@@ -236,7 +236,7 @@ export default function Scene(
 
   const backgroundGridBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, backgroundGeometry, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, backgroundGeometry.vertices, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(backgroundAttributes.position);
   gl.vertexAttribDivisor(backgroundAttributes.position, 0);
@@ -340,7 +340,7 @@ export default function Scene(
     gl.drawArraysInstanced(
       gl.TRIANGLES,
       0,
-      backgroundGeometry.length / 2,
+      backgroundGeometry.vertices.length / 2,
       backgroundOffsets.length / 2
     );
 
@@ -469,7 +469,7 @@ export default function Scene(
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
-        segmentGeometry.length / 3,
+        segmentGeometry.vertices.length / 3,
         cubeGeometry.vertices.length / 3 - 1,
       );
     }
