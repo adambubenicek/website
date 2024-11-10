@@ -72,14 +72,20 @@ export default function Scene(
   );
 
   const iconProgram = createProgram(iconVertexShader, iconFragmentShader);
-  const iconProgramPosition = gl.getAttribLocation(iconProgram, "position")
-  const iconProgramStartPosition = gl.getAttribLocation(iconProgram, "startPosition")
-  const iconProgramEndPosition = gl.getAttribLocation(iconProgram, "endPosition")
-  const iconProgramColor = gl.getAttribLocation(iconProgram, "color")
-  const iconProgramProjection = gl.getUniformLocation(iconProgram, "projection")!
-  const iconProgramModel = gl.getUniformLocation(iconProgram, "model")!
-  const iconProgramWidth = gl.getUniformLocation(iconProgram, "width")!
-  const iconProgramSize = gl.getUniformLocation(iconProgram, "size")!
+
+  const iconAttributes = {
+    position: gl.getAttribLocation(iconProgram, "position"),
+    startPosition: gl.getAttribLocation(iconProgram, "startPosition"),
+    endPosition: gl.getAttribLocation(iconProgram, "endPosition"),
+    color: gl.getAttribLocation(iconProgram, "color")
+  }
+
+  const iconUniforms = {
+    projection: gl.getUniformLocation(iconProgram, "projection")!,
+    model: gl.getUniformLocation(iconProgram, "model")!,
+    width: gl.getUniformLocation(iconProgram, "width")!,
+    size: gl.getUniformLocation(iconProgram, "size")!
+  }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 2)
@@ -94,18 +100,18 @@ export default function Scene(
     gl.bindVertexArray(vao);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
-    gl.enableVertexAttribArray(iconProgramPosition);
-    gl.vertexAttribDivisor(iconProgramPosition, 0);
-    gl.vertexAttribPointer(iconProgramPosition, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(iconAttributes.position);
+    gl.vertexAttribDivisor(iconAttributes.position, 0);
+    gl.vertexAttribPointer(iconAttributes.position, 3, gl.FLOAT, false, 0, 0);
 
     const geometryBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, geometryBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.vertices, gl.STATIC_DRAW);
 
-    gl.enableVertexAttribArray(iconProgramStartPosition);
-    gl.vertexAttribDivisor(iconProgramStartPosition, 1);
+    gl.enableVertexAttribArray(iconAttributes.startPosition);
+    gl.vertexAttribDivisor(iconAttributes.startPosition, 1);
     gl.vertexAttribPointer(
-      iconProgramStartPosition,
+      iconAttributes.startPosition,
       3,
       gl.FLOAT,
       false,
@@ -113,10 +119,10 @@ export default function Scene(
       Float32Array.BYTES_PER_ELEMENT * 0,
     );
 
-    gl.enableVertexAttribArray(iconProgramEndPosition);
-    gl.vertexAttribDivisor(iconProgramEndPosition, 1);
+    gl.enableVertexAttribArray(iconAttributes.endPosition);
+    gl.vertexAttribDivisor(iconAttributes.endPosition, 1);
     gl.vertexAttribPointer(
-      iconProgramEndPosition,
+      iconAttributes.endPosition,
       3,
       gl.FLOAT,
       false,
@@ -128,10 +134,10 @@ export default function Scene(
     gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer)
     gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.colors, gl.STATIC_DRAW)
 
-    gl.enableVertexAttribArray(iconProgramColor);
-    gl.vertexAttribDivisor(iconProgramColor, 1);
+    gl.enableVertexAttribArray(iconAttributes.color);
+    gl.vertexAttribDivisor(iconAttributes.color, 1);
     gl.vertexAttribPointer(
-      iconProgramColor,
+      iconAttributes.color,
       2,
       gl.FLOAT,
       false,
@@ -207,12 +213,17 @@ export default function Scene(
 
 
   const backgroundProgram = createProgram(backgroundVertexShader, backgroundFragmentShader);
-  const backgroundProgramPosition = gl.getAttribLocation(backgroundProgram, "position")
-  const backgroundProgramOffset = gl.getAttribLocation(backgroundProgram, "offset")
-  const backgroundProgramProjection = gl.getUniformLocation(backgroundProgram, "projection")!
-  const backgroundProgramSize = gl.getUniformLocation(backgroundProgram, "size")!
-  const backgroundProgramIcons = gl.getUniformLocation(backgroundProgram, "icons")!
-  const backgroundProgramColors = gl.getUniformLocation(backgroundProgram, "colors")!
+  const backgroundAttributes = {
+    position: gl.getAttribLocation(backgroundProgram, "position"),
+    offset: gl.getAttribLocation(backgroundProgram, "offset")
+  }
+
+  const backgroundUniforms = {
+    projection: gl.getUniformLocation(backgroundProgram, "projection")!,
+    size: gl.getUniformLocation(backgroundProgram, "size")!,
+    icons: gl.getUniformLocation(backgroundProgram, "icons")!,
+    colors: gl.getUniformLocation(backgroundProgram, "colors")!
+  }
 
   const backgroundColors: number[] = []
 
@@ -227,10 +238,10 @@ export default function Scene(
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, backgroundGeometry, gl.STATIC_DRAW);
 
-  gl.enableVertexAttribArray(backgroundProgramPosition);
-  gl.vertexAttribDivisor(backgroundProgramPosition, 0);
+  gl.enableVertexAttribArray(backgroundAttributes.position);
+  gl.vertexAttribDivisor(backgroundAttributes.position, 0);
   gl.vertexAttribPointer(
-    backgroundProgramPosition,
+    backgroundAttributes.position,
     2,
     gl.FLOAT,
     false,
@@ -240,10 +251,10 @@ export default function Scene(
 
   const backgroundOffsetBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
-  gl.enableVertexAttribArray(backgroundProgramOffset);
-  gl.vertexAttribDivisor(backgroundProgramOffset, 1);
+  gl.enableVertexAttribArray(backgroundAttributes.offset);
+  gl.vertexAttribDivisor(backgroundAttributes.offset, 1);
   gl.vertexAttribPointer(
-    backgroundProgramOffset,
+    backgroundAttributes.offset,
     2,
     gl.FLOAT,
     false,
@@ -330,15 +341,15 @@ export default function Scene(
 
     gl.useProgram(backgroundProgram)
     gl.bindVertexArray(backgroundVOA)
-    gl.uniformMatrix4fv(backgroundProgramProjection, false, projection);
-    gl.uniform1f(backgroundProgramSize, gridSize.value);
+    gl.uniformMatrix4fv(backgroundUniforms.projection, false, projection);
+    gl.uniform1f(backgroundUniforms.size, gridSize.value);
 
     const backgroundIcons = []
     for (const icon of icons) {
       backgroundIcons.push(icon.translation[0], icon.translation[1])
     }
-    gl.uniform2fv(backgroundProgramIcons, backgroundIcons);
-    gl.uniform3fv(backgroundProgramColors, backgroundColors);
+    gl.uniform2fv(backgroundUniforms.icons, backgroundIcons);
+    gl.uniform3fv(backgroundUniforms.colors, backgroundColors);
     gl.drawArraysInstanced(
       gl.TRIANGLES,
       0,
@@ -464,10 +475,10 @@ export default function Scene(
       )
 
       gl.bindVertexArray(icon.vao);
-      gl.uniformMatrix4fv(iconProgramProjection, false, projection);
-      gl.uniformMatrix4fv(iconProgramModel, false, model);
-      gl.uniform1f(iconProgramWidth, 2);
-      gl.uniform1f(iconProgramSize, gridSize.value);
+      gl.uniformMatrix4fv(iconUniforms.projection, false, projection);
+      gl.uniformMatrix4fv(iconUniforms.model, false, model);
+      gl.uniform1f(iconUniforms.width, 2);
+      gl.uniform1f(iconUniforms.size, gridSize.value);
       gl.drawArraysInstanced(
         gl.TRIANGLES,
         0,
