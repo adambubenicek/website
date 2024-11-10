@@ -219,10 +219,10 @@ export default function Scene(
   }
 
   const backgroundUniforms = {
-    projection: gl.getUniformLocation(backgroundProgram, "projection")!,
     size: gl.getUniformLocation(backgroundProgram, "size")!,
     icons: gl.getUniformLocation(backgroundProgram, "icons")!,
-    colors: gl.getUniformLocation(backgroundProgram, "colors")!
+    colors: gl.getUniformLocation(backgroundProgram, "colors")!,
+    resolution: gl.getUniformLocation(backgroundProgram, "resolution")!
   }
 
   const backgroundColors: number[] = []
@@ -341,7 +341,7 @@ export default function Scene(
 
     gl.useProgram(backgroundProgram)
     gl.bindVertexArray(backgroundVOA)
-    gl.uniformMatrix4fv(backgroundUniforms.projection, false, projection);
+    gl.uniform2f(backgroundUniforms.resolution, width.value, height.value);
     gl.uniform1f(backgroundUniforms.size, gridSize.value);
 
     const backgroundIcons = []
