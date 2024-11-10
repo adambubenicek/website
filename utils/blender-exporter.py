@@ -12,6 +12,8 @@ for obj in bpy.context.active_object.children:
         obj.data["colorY"] = 1
 
     for spline in obj.data.splines:
+        spline.type = "POLY"
+
         for point in spline.points:
             co = obj.matrix_world @ point.co
             points.append(co.x)
