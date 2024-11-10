@@ -4,7 +4,7 @@ import json
 points = []
 colors = []
 
-for obj in bpy.context.selected_objects:
+for obj in bpy.context.active_object.children:
     if "colorX" not in obj.data:
         obj.data["colorX"] = 1
 
