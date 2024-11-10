@@ -379,7 +379,7 @@ export default function Scene(
       }
 
       if (icon.translation[0] < width.value * 0.5) {
-        const distance = Math.max(1, icon.translation[0] - gridSize.value * 3)
+        const distance = Math.max(1, icon.translation[0] - iconSize.value * 2)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -388,7 +388,7 @@ export default function Scene(
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
-        const distance = Math.max(1, width.value - icon.translation[0] - gridSize.value * 3)
+        const distance = Math.max(1, width.value - icon.translation[0] - gridSize.value * 2)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -399,7 +399,7 @@ export default function Scene(
       }
 
       if (icon.translation[1] < height.value * 0.5) {
-        const distance = Math.max(1, icon.translation[1] - gridSize.value * 3)
+        const distance = Math.max(1, icon.translation[1] - gridSize.value * 2)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -408,7 +408,7 @@ export default function Scene(
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
-        const distance = Math.max(1, height.value - icon.translation[1] - gridSize.value * 3)
+        const distance = Math.max(1, height.value - icon.translation[1] - gridSize.value * 2)
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
