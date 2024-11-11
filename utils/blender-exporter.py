@@ -15,7 +15,7 @@ for obj in bpy.context.active_object.children:
         spline.type = "POLY"
 
         for point in spline.points:
-            co = obj.matrix_world @ point.co
+            co = obj.matrix_world @ point.co.to_3d()
             points.append(co.x)
             points.append(co.y)
             points.append(co.z)
@@ -24,7 +24,7 @@ for obj in bpy.context.active_object.children:
             colors.append(obj.data["hue"])
 
         if spline.use_cyclic_u:
-            co = obj.matrix_world @ spline.points[0].co
+            co = obj.matrix_world @ spline.points[0].co.to_3d()
             points.append(co.x)
             points.append(co.y)
             points.append(co.z)
