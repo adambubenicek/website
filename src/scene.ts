@@ -157,7 +157,8 @@ export default function Scene(
       rotation: quat.create(),
       translation: translation, 
       translationVelocity: translationVelocity,
-      scale: vec3.create()
+      scale: vec3.create(),
+      color: cubeGeometry.color,
     };
   }
 
@@ -227,7 +228,7 @@ export default function Scene(
   const backgroundColors: number[] = []
 
   for (const icon of icons) {
-    backgroundColors.push(1.0, 0.0, 0.0)
+    backgroundColors.push(icon.color[0], icon.color[1])
   }
 
   const backgroundVOA = gl.createVertexArray()
@@ -334,8 +335,9 @@ export default function Scene(
     for (const icon of icons) {
       backgroundIcons.push(icon.translation[0], icon.translation[1])
     }
+
     gl.uniform2fv(backgroundUniforms.icons, backgroundIcons);
-    gl.uniform3fv(backgroundUniforms.colors, backgroundColors);
+    gl.uniform2fv(backgroundUniforms.colors, backgroundColors);
     gl.drawArraysInstanced(
       gl.TRIANGLES,
       0,

@@ -6,8 +6,9 @@ in vec2 offset;
 uniform float size;
 uniform mat4 projection;
 uniform vec2[%iconCount%] icons;
-uniform vec3[%iconCount%] colors;
+uniform vec2[%iconCount%] colors;
 uniform vec2 resolution;
+uniform sampler2D colorsTexture;
 
 out vec4 vColor;
 
@@ -22,9 +23,18 @@ void main() {
 
   vec2 pos2 = pos + ((pos - resolution * 0.5) / maxRes) * 6.0 * size;
 
+  ivec2 tsize = textureSize(colorsTexture, 0);
   for (int i = 0; i < %iconCount%; i++) {
     float dist = distance(pos2, icons[i]);
-    color = color + colors[i] * clamp(10.0 / dist, 0.0, 1.0) * 0.1;
+    vec3 tc = texture(
+      colorsTexture, 
+      vec2(
+        colors[i][0] / float(tsize.x - 1), 
+        colors[i][1] / float(tsize.y - 1)
+      )
+    ).rgb;
+
+    color = color + tc * clamp(10.0 / dist, 0.0, 1.0) * 0.05;
   }
 
   vColor = vec4(color * 2.0, 0.0);
