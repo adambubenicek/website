@@ -5,11 +5,11 @@ points = []
 colors = []
 
 for obj in bpy.context.active_object.children:
-    if "colorX" not in obj.data:
-        obj.data["colorX"] = 1
+    if "value" not in obj.data:
+        obj.data["value"] = 1
 
-    if "colorY" not in obj.data:
-        obj.data["colorY"] = 1
+    if "hue" not in obj.data:
+        obj.data["hue"] = 1
 
     for spline in obj.data.splines:
         spline.type = "POLY"
@@ -20,8 +20,8 @@ for obj in bpy.context.active_object.children:
             points.append(co.y)
             points.append(co.z)
 
-            colors.append(obj.data["colorX"])
-            colors.append(obj.data["colorY"])
+            colors.append(obj.data["value"])
+            colors.append(obj.data["hue"])
 
         if spline.use_cyclic_u:
             co = obj.matrix_world @ spline.points[0].co
@@ -29,8 +29,8 @@ for obj in bpy.context.active_object.children:
             points.append(co.y)
             points.append(co.z)
 
-            colors.append(obj.data["colorX"])
-            colors.append(obj.data["colorY"])
+            colors.append(obj.data["value"])
+            colors.append(obj.data["hue"])
 
         colors[-1] = 0
         colors[-2] = 0
