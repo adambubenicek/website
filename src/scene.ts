@@ -8,6 +8,7 @@ import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
 import segmentGeometry from "./geometries/segment";
 import backgroundGeometry from "./geometries/background";
 import cubeGeometry from "./geometries/cube";
+import aeropressGeometry from "./geometries/aeropress";
 import colorsTextureInfo from './textures/colors'
 
 export default function Scene(
@@ -87,13 +88,17 @@ export default function Scene(
   }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
-  const iconSize = computed(() => gridSize.value * 2)
+  const iconSize = computed(() => gridSize.value * 3)
 
   const iconSegmentBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, segmentGeometry.vertices, gl.STATIC_DRAW);
 
-  function createIcon () {
+  function createIcon (
+    vertices: Float32Array,
+    colors: Uint8Array,
+    color: Uint8Array,
+  ) {
     const vao = gl.createVertexArray()!;
 
     gl.bindVertexArray(vao);
@@ -105,7 +110,7 @@ export default function Scene(
 
     const geometryBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, geometryBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.vertices, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconAttributes.startPosition);
     gl.vertexAttribDivisor(iconAttributes.startPosition, 1);
@@ -131,7 +136,7 @@ export default function Scene(
 
     const colorsBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, cubeGeometry.colors, gl.STATIC_DRAW)
+    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW)
 
     gl.enableVertexAttribArray(iconAttributes.color);
     gl.vertexAttribDivisor(iconAttributes.color, 1);
@@ -158,17 +163,22 @@ export default function Scene(
       translation: translation, 
       translationVelocity: translationVelocity,
       scale: vec3.create(),
-      color: cubeGeometry.color,
+      color: color,
+      vertices: vertices,
     };
   }
 
   const icons = [
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
-    createIcon(),
+    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
+    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
+    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
+    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
+    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
+    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
+    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
+    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
+    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
+    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
   ]
 
   {
@@ -470,7 +480,7 @@ export default function Scene(
         gl.TRIANGLES,
         0,
         segmentGeometry.vertices.length / 3,
-        cubeGeometry.vertices.length / 3 - 1,
+        icon.vertices.length / 3 - 1,
       );
     }
 

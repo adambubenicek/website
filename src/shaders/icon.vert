@@ -10,7 +10,7 @@ uniform float size;
 uniform vec2 resolution;
 uniform sampler2D colors;
 
-float width = 2.0;
+float width = 1.0;
 
 out vec4 vColor;
 
