@@ -32,7 +32,14 @@ void main() {
 
   vec3 position2 = mix(startPosition3, endPosition3, position.z);
 
-  vec4 color = texture(colors, vec2(color[0] / 1.0, color[1] / 2.0));
+  ivec2 tsize = textureSize(colors, 0);
+  vec4 color = texture(
+    colors, 
+    vec2(
+      color[0] / float(tsize.x - 1), 
+      color[1] / float(tsize.y - 1)
+    )
+  );
 
   vec3 position3 = mix(vec3(0.0, 0.0, 0.0), position2, color[3]);
 
