@@ -8,6 +8,7 @@ import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
 import backgroundGeometry from "./geometries/background";
 import cube from "./geometries/cube";
 import colorsTextureInfo from './textures/colors'
+import lights from './textures/lights.png'
 
 export default function Scene(
   gl: WebGL2RenderingContext,
@@ -80,6 +81,8 @@ export default function Scene(
   const iconUniforms = {
     model: gl.getUniformLocation(iconProgram, "uModel")!,
     projection: gl.getUniformLocation(iconProgram, "uProjection")!,
+    colorSampler: gl.getUniformLocation(iconProgram, "uColorSampler")!,
+    lightSampler: gl.getUniformLocation(iconProgram, "uLightSampler")!,
   }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
@@ -187,7 +190,8 @@ export default function Scene(
     size: gl.getUniformLocation(backgroundProgram, "size")!,
     icons: gl.getUniformLocation(backgroundProgram, "icons")!,
     colors: gl.getUniformLocation(backgroundProgram, "colors")!,
-    resolution: gl.getUniformLocation(backgroundProgram, "resolution")!
+    resolution: gl.getUniformLocation(backgroundProgram, "resolution")!,
+    colorSampler: gl.getUniformLocation(backgroundProgram, "uColorSampler")!
   }
 
   const backgroundColors: number[] = []
@@ -253,6 +257,7 @@ export default function Scene(
 
 
   const colorsTexture = gl.createTexture()
+  gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, colorsTexture)
   gl.texImage2D(
     gl.TEXTURE_2D,
@@ -270,6 +275,40 @@ export default function Scene(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const lightsTexture = gl.createTexture()
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, lightsTexture)
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    1,
+    1,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    new Uint8Array([0,0,255,255])
+  )
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const lightsImage = new Image()
+  lightsImage.src = lights;
+  lightsImage.addEventListener('load', () => {
+    gl.bindTexture(gl.TEXTURE_2D, lightsTexture)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      lightsImage
+    )
+  }, { once: true })
 
 
   const model = mat4.create()
@@ -315,6 +354,7 @@ export default function Scene(
 
     gl.uniform2fv(backgroundUniforms.icons, backgroundIcons);
     gl.uniform2fv(backgroundUniforms.colors, backgroundColors);
+    gl.uniform1i(backgroundUniforms.colorSampler, 0);
     gl.drawArraysInstanced(
       gl.TRIANGLES,
       0,
@@ -442,6 +482,8 @@ export default function Scene(
       gl.bindVertexArray(icon.vao);
       gl.uniformMatrix4fv(iconUniforms.model, false, model);
       gl.uniformMatrix4fv(iconUniforms.projection, false, projection);
+      gl.uniform1i(iconUniforms.colorSampler, 0);
+      gl.uniform1i(iconUniforms.lightSampler, 1);
       gl.drawElements(
         gl.TRIANGLES,
         icon.indices.length,
