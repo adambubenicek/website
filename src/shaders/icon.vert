@@ -22,7 +22,7 @@ void main() {
   vFresnel = fresnel;
 
   vLightUV = vec2(normal) * 0.5 + 0.5;
-  vColor = texture(uColorSampler, vec2(0.83, 0.55));
+  vColor = texture(uColorSampler, vec2(0.83, 0.23));
 
   gl_Position = uProjection * uModel * vec4(aPosition, 1);
 }
