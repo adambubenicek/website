@@ -14,7 +14,10 @@ void main() {
   vec3 normal = mat3(transpose(inverse(uModel))) * aNormal;
   normal = normalize(normal);
 
-  vColor = vec4(normal, 1.0);
+  float fresnel = pow(1.0 - dot(normal, vec3(0, 0, 1.0)), 5.0);
+
+  vec3 color = mix(vec3(0.8, 0.4, 0.2), vec3(0.17,0.17,0.17), fresnel);
+  vColor = vec4(color, 1.0);
 
   gl_Position = uProjection * uModel * vec4(aPosition, 1);
 }
