@@ -5,10 +5,8 @@ import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
 import backgroundVertexShaderSource from "./shaders/background.vert?raw";
 import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
-import segmentGeometry from "./geometries/segment";
 import backgroundGeometry from "./geometries/background";
-import cubeGeometry from "./geometries/cube";
-import aeropressGeometry from "./geometries/aeropress";
+import cube from "./geometries/cube";
 import colorsTextureInfo from './textures/colors'
 
 export default function Scene(
@@ -75,79 +73,42 @@ export default function Scene(
   const iconProgram = createProgram(iconVertexShader, iconFragmentShader);
 
   const iconAttributes = {
-    position: gl.getAttribLocation(iconProgram, "position"),
-    startPosition: gl.getAttribLocation(iconProgram, "startPosition"),
-    endPosition: gl.getAttribLocation(iconProgram, "endPosition"),
-    color: gl.getAttribLocation(iconProgram, "color")
+    normal: gl.getAttribLocation(iconProgram, "aNormal"),
+    position: gl.getAttribLocation(iconProgram, "aPosition"),
   }
 
   const iconUniforms = {
-    model: gl.getUniformLocation(iconProgram, "model")!,
-    size: gl.getUniformLocation(iconProgram, "size")!,
-    resolution: gl.getUniformLocation(iconProgram, "resolution")!
+    model: gl.getUniformLocation(iconProgram, "uModel")!,
+    projection: gl.getUniformLocation(iconProgram, "uProjection")!,
   }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 3)
 
-  const iconSegmentBuffer = gl.createBuffer()!
-  gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, segmentGeometry.vertices, gl.STATIC_DRAW);
-
   function createIcon (
-    vertices: Float32Array,
-    colors: Uint8Array,
     color: Uint8Array,
   ) {
     const vao = gl.createVertexArray()!;
 
     gl.bindVertexArray(vao);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, iconSegmentBuffer);
+    const indexBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube.indices, gl.STATIC_DRAW)
+
+    const vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, cube.vertices, gl.STATIC_DRAW);
+
     gl.enableVertexAttribArray(iconAttributes.position);
-    gl.vertexAttribDivisor(iconAttributes.position, 0);
     gl.vertexAttribPointer(iconAttributes.position, 3, gl.FLOAT, false, 0, 0);
 
-    const geometryBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, geometryBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    const normalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, cube.normals, gl.STATIC_DRAW);
 
-    gl.enableVertexAttribArray(iconAttributes.startPosition);
-    gl.vertexAttribDivisor(iconAttributes.startPosition, 1);
-    gl.vertexAttribPointer(
-      iconAttributes.startPosition,
-      3,
-      gl.FLOAT,
-      false,
-      Float32Array.BYTES_PER_ELEMENT * 0,
-      Float32Array.BYTES_PER_ELEMENT * 0,
-    );
-
-    gl.enableVertexAttribArray(iconAttributes.endPosition);
-    gl.vertexAttribDivisor(iconAttributes.endPosition, 1);
-    gl.vertexAttribPointer(
-      iconAttributes.endPosition,
-      3,
-      gl.FLOAT,
-      false,
-      Float32Array.BYTES_PER_ELEMENT * 0,
-      Float32Array.BYTES_PER_ELEMENT * 3,
-    );
-
-    const colorsBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorsBuffer)
-    gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW)
-
-    gl.enableVertexAttribArray(iconAttributes.color);
-    gl.vertexAttribDivisor(iconAttributes.color, 1);
-    gl.vertexAttribPointer(
-      iconAttributes.color,
-      2,
-      gl.UNSIGNED_BYTE,
-      false,
-      0,
-      0
-    );
+    gl.enableVertexAttribArray(iconAttributes.normal);
+    gl.vertexAttribPointer(iconAttributes.normal, 3, gl.FLOAT, false, 0, 0);
 
     const translation = vec2.create()
 
@@ -164,21 +125,15 @@ export default function Scene(
       translationVelocity: translationVelocity,
       scale: vec3.create(),
       color: color,
-      vertices: vertices,
+      indices: cube.indices,
     };
   }
 
   const icons = [
-    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
-    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
-    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
-    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
-    createIcon(aeropressGeometry.vertices, aeropressGeometry.colors, aeropressGeometry.color),
-    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
-    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
-    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
-    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
-    createIcon(cubeGeometry.vertices, cubeGeometry.colors, cubeGeometry.color),
+    createIcon(new Uint8Array([10, 7])),
+    createIcon(new Uint8Array([10, 7])),
+    createIcon(new Uint8Array([10, 7])),
+    createIcon(new Uint8Array([10, 7])),
   ]
 
   {
@@ -318,8 +273,20 @@ export default function Scene(
 
 
   const model = mat4.create()
+  const projection = mat4.create()
   const force = vec2.create()
 
+  effect(() => {
+    mat4.ortho(
+      projection,
+      0,
+      width.value,
+      height.value,
+      0,
+      -1000,
+      1000
+    )
+  })
 
   let repulsionCoefficient = 1000 
   let lastRenderTime = 0
@@ -469,18 +436,17 @@ export default function Scene(
           icon.translation[1],
           0
         ),
-        icon.scale
+        icon.scale,
       )
 
       gl.bindVertexArray(icon.vao);
-      gl.uniform2f(iconUniforms.resolution, width.value, height.value);
       gl.uniformMatrix4fv(iconUniforms.model, false, model);
-      gl.uniform1f(iconUniforms.size, gridSize.value);
-      gl.drawArraysInstanced(
+      gl.uniformMatrix4fv(iconUniforms.projection, false, projection);
+      gl.drawElements(
         gl.TRIANGLES,
+        icon.indices.length,
+        gl.UNSIGNED_SHORT,
         0,
-        segmentGeometry.vertices.length / 3,
-        icon.vertices.length / 3 - 1,
       );
     }
 
