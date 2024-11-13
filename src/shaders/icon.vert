@@ -4,8 +4,7 @@ precision highp float;
 in vec3 aPosition;
 in vec3 aNormal;
 uniform mat4 uModel;
-uniform mat4 uProjection;
-uniform mat4 uWorld;
+uniform vec2 uResolution;
 uniform sampler2D uColorSampler;
 uniform sampler2D uLightSampler;
 
@@ -24,5 +23,9 @@ void main() {
   vLightUV = vec2(normal) * 0.5 + 0.5;
   vColor = texture(uColorSampler, vec2(0.83, 0.23));
 
-  gl_Position = uProjection * uModel * vec4(aPosition, 1);
+  vec4 position = uModel * vec4(aPosition, 1.0);
+  position = vec4(position.xy / uResolution * 2.0 - 1.0, position.z * -0.001, 1.0);
+  position = vec4(position.x, -position.y, position.z, position.w);
+
+  gl_Position = position;
 }

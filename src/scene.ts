@@ -80,7 +80,7 @@ export default function Scene(
 
   const iconUniforms = {
     model: gl.getUniformLocation(iconProgram, "uModel")!,
-    projection: gl.getUniformLocation(iconProgram, "uProjection")!,
+    resolution: gl.getUniformLocation(iconProgram, "uResolution")!,
     colorSampler: gl.getUniformLocation(iconProgram, "uColorSampler")!,
     lightSampler: gl.getUniformLocation(iconProgram, "uLightSampler")!,
   }
@@ -148,8 +148,8 @@ export default function Scene(
       for (const icon of icons) {
         vec2.set(
           icon.translation, 
-          Math.random() * (width.value - iconSize.value) + iconSize.value,
-          Math.random() * (height.value - iconSize.value) + iconSize.value,
+          iconSize.value,
+          iconSize.value,
         )
       }
 
@@ -312,20 +312,7 @@ export default function Scene(
 
 
   const model = mat4.create()
-  const projection = mat4.create()
   const force = vec2.create()
-
-  effect(() => {
-    mat4.ortho(
-      projection,
-      0,
-      width.value,
-      height.value,
-      0,
-      -1000,
-      1000
-    )
-  })
 
   let repulsionCoefficient = 1000 
   let lastRenderTime = 0
@@ -481,7 +468,7 @@ export default function Scene(
 
       gl.bindVertexArray(icon.vao);
       gl.uniformMatrix4fv(iconUniforms.model, false, model);
-      gl.uniformMatrix4fv(iconUniforms.projection, false, projection);
+      gl.uniform2f(iconUniforms.resolution, width.value, height.value);
       gl.uniform1i(iconUniforms.colorSampler, 0);
       gl.uniform1i(iconUniforms.lightSampler, 1);
       gl.drawElements(
