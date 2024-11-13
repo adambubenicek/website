@@ -182,26 +182,23 @@ export default function Scene(
 
   const backgroundProgram = createProgram(backgroundVertexShader, backgroundFragmentShader);
   const backgroundAttributes = {
-    position: gl.getAttribLocation(backgroundProgram, "position"),
-    offset: gl.getAttribLocation(backgroundProgram, "offset")
+    position: gl.getAttribLocation(backgroundProgram, "aPosition"),
+    offset: gl.getAttribLocation(backgroundProgram, "aOffset"),
   }
 
   const backgroundUniforms = {
-    size: gl.getUniformLocation(backgroundProgram, "size")!,
-    icons: gl.getUniformLocation(backgroundProgram, "icons")!,
-    colors: gl.getUniformLocation(backgroundProgram, "colors")!,
-    resolution: gl.getUniformLocation(backgroundProgram, "resolution")!,
+    size: gl.getUniformLocation(backgroundProgram, "uSize")!,
+    resolution: gl.getUniformLocation(backgroundProgram, "uResolution")!,
     colorSampler: gl.getUniformLocation(backgroundProgram, "uColorSampler")!
-  }
-
-  const backgroundColors: number[] = []
-
-  for (const icon of icons) {
-    backgroundColors.push(icon.color[0], icon.color[1])
   }
 
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
+
+  const indexBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, backgroundGeometry.indices, gl.STATIC_DRAW)
+
 
   const backgroundGridBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
@@ -211,7 +208,7 @@ export default function Scene(
   gl.vertexAttribDivisor(backgroundAttributes.position, 0);
   gl.vertexAttribPointer(
     backgroundAttributes.position,
-    2,
+    3,
     gl.FLOAT,
     false,
     0,
@@ -231,29 +228,7 @@ export default function Scene(
     0
   );
 
-  let backgroundOffsets = new Float32Array()
-
-  effect(() => {
-    if (width.value === 0 || height.value === 0 || gridSize.value === 0) {
-      return
-    }
-
-    const cols = Math.ceil(width.value / gridSize.value)
-    const rows = Math.ceil(height.value / gridSize.value)
-
-    backgroundOffsets = new Float32Array(cols * rows * 2)
-
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        backgroundOffsets[(row * cols + col) * 2] = col
-        backgroundOffsets[(row * cols + col) * 2 + 1] = row
-      }
-    }
-
-    gl.bindVertexArray(backgroundVOA)
-    gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.STATIC_DRAW);
-  })
+  let backgroundOffsets = new Float32Array(icons.length * 2);
 
 
   const colorsTexture = gl.createTexture()
@@ -325,30 +300,35 @@ export default function Scene(
       return requestAnimationFrame(handleAnimationFrame)
     }
 
-    gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.enable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     gl.useProgram(backgroundProgram)
     gl.bindVertexArray(backgroundVOA)
     gl.uniform2f(backgroundUniforms.resolution, width.value, height.value);
     gl.uniform1f(backgroundUniforms.size, gridSize.value);
 
-    const backgroundIcons = []
-    for (const icon of icons) {
-      backgroundIcons.push(icon.translation[0], icon.translation[1])
+    for (let i = 0; i < icons.length; i++) {
+      const icon = icons[i]
+      backgroundOffsets[i * 2] = icon.translation[0]
+      backgroundOffsets[i * 2 + 1] = icon.translation[1]
     }
+    gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.DYNAMIC_DRAW);
 
-    gl.uniform2fv(backgroundUniforms.icons, backgroundIcons);
-    gl.uniform2fv(backgroundUniforms.colors, backgroundColors);
-    gl.uniform1i(backgroundUniforms.colorSampler, 0);
-    gl.drawArraysInstanced(
+    gl.drawElementsInstanced(
       gl.TRIANGLES,
-      0,
-      backgroundGeometry.vertices.length / 2,
+      backgroundGeometry.indices.length,
+      gl.UNSIGNED_SHORT,
+      0, 
       backgroundOffsets.length / 2
     );
 
+    gl.disable(gl.BLEND);
+    gl.enable(gl.DEPTH_TEST);
     gl.useProgram(iconProgram);
 
     for (let i = 0; i < icons.length; i++) {
