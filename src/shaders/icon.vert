@@ -16,7 +16,7 @@ void main() {
   vec3 normal = mat3(transpose(inverse(uModel))) * aNormal;
   normal = normalize(normal);
 
-  float fresnel = pow(1.0 - dot(normal, vec3(0, 0, 1.0)), 5.0);
+  float fresnel = 0.04 + (1.0 - 0.04) * pow(1.0 - dot(normal, vec3(0, 0, 1.0)), 5.0);
   fresnel = clamp(fresnel, 0.0, 1.0);
   vFresnel = fresnel;
 
