@@ -3,8 +3,6 @@ import { effect, computed } from '@preact/signals-core'
 import { mat4, quat, vec2, vec3 } from 'gl-matrix'
 import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
-import backgroundVertexShaderSource from "./shaders/background.vert?raw";
-import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
 import shadowVertexShaderSource from "./shaders/shadow.vert?raw";
 import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
 import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
