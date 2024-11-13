@@ -5,6 +5,10 @@ import iconVertexShaderSource from "./shaders/icon.vert?raw";
 import iconFragmentShaderSource from "./shaders/icon.frag?raw";
 import backgroundVertexShaderSource from "./shaders/background.vert?raw";
 import backgroundFragmentShaderSource from "./shaders/background.frag?raw";
+import shadowVertexShaderSource from "./shaders/shadow.vert?raw";
+import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
+import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
+import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
 import backgroundGeometry from "./geometries/background";
 import cube from "./geometries/cube";
 import colorsTextureInfo from './textures/colors'
@@ -169,27 +173,43 @@ export default function Scene(
   })
 
 
-  const backgroundVertexShader = createShader(
-    gl.VERTEX_SHADER,
-    backgroundVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
-  );
-
-  const backgroundFragmentShader = createShader(
-    gl.FRAGMENT_SHADER,
-    backgroundFragmentShaderSource,
-  );
-
-
-  const backgroundProgram = createProgram(backgroundVertexShader, backgroundFragmentShader);
   const backgroundAttributes = {
-    position: gl.getAttribLocation(backgroundProgram, "aPosition"),
-    offset: gl.getAttribLocation(backgroundProgram, "aOffset"),
+    position: 0,
+    offset: 1,
   }
 
-  const backgroundUniforms = {
-    size: gl.getUniformLocation(backgroundProgram, "uSize")!,
-    resolution: gl.getUniformLocation(backgroundProgram, "uResolution")!,
-    colorSampler: gl.getUniformLocation(backgroundProgram, "uColorSampler")!
+  const shadowVertexShader = createShader(
+    gl.VERTEX_SHADER,
+    shadowVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
+  );
+
+  const shadowFragmentShader = createShader(
+    gl.FRAGMENT_SHADER,
+    shadowFragmentShaderSource,
+  );
+
+  const shadowProgram = createProgram(shadowVertexShader, shadowFragmentShader);
+  const shadowUniforms = {
+    size: gl.getUniformLocation(shadowProgram, "uSize")!,
+    resolution: gl.getUniformLocation(shadowProgram, "uResolution")!,
+    colorSampler: gl.getUniformLocation(shadowProgram, "uColorSampler")!
+  }
+
+  const reflectionVertexShader = createShader(
+    gl.VERTEX_SHADER,
+    reflectionVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
+  );
+
+  const reflectionFragmentShader = createShader(
+    gl.FRAGMENT_SHADER,
+    reflectionFragmentShaderSource,
+  );
+
+  const reflectionProgram = createProgram(reflectionVertexShader, reflectionFragmentShader);
+  const reflectionUniforms = {
+    size: gl.getUniformLocation(reflectionProgram, "uSize")!,
+    resolution: gl.getUniformLocation(reflectionProgram, "uResolution")!,
+    colorSampler: gl.getUniformLocation(reflectionProgram, "uColorSampler")!
   }
 
   const backgroundVOA = gl.createVertexArray()
@@ -307,10 +327,7 @@ export default function Scene(
     gl.disable(gl.DEPTH_TEST);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    gl.useProgram(backgroundProgram)
     gl.bindVertexArray(backgroundVOA)
-    gl.uniform2f(backgroundUniforms.resolution, width.value, height.value);
-    gl.uniform1f(backgroundUniforms.size, gridSize.value);
 
     for (let i = 0; i < icons.length; i++) {
       const icon = icons[i]
@@ -318,6 +335,22 @@ export default function Scene(
       backgroundOffsets[i * 2 + 1] = icon.translation[1]
     }
     gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.DYNAMIC_DRAW);
+
+    gl.useProgram(reflectionProgram)
+    gl.uniform2f(reflectionUniforms.resolution, width.value, height.value);
+    gl.uniform1f(reflectionUniforms.size, gridSize.value);
+
+    gl.drawElementsInstanced(
+      gl.TRIANGLES,
+      backgroundGeometry.indices.length,
+      gl.UNSIGNED_SHORT,
+      0, 
+      backgroundOffsets.length / 2
+    );
+
+    gl.useProgram(shadowProgram)
+    gl.uniform2f(shadowUniforms.resolution, width.value, height.value);
+    gl.uniform1f(shadowUniforms.size, gridSize.value);
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
