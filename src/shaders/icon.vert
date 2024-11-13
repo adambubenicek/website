@@ -23,7 +23,7 @@ void main() {
   vLightUV = vec2(normal) * 0.5 + 0.5;
   vColor = texture(uColorSampler, vec2(0.83, 0.23));
 
-  vec4 position = uModel * vec4(aPosition, 1.0);
+  vec4 position = uModel * vec4(aPosition / 65535.0, 1.0);
   position = vec4(position.xy / uResolution * 2.0 - 1.0, position.z * -0.001, 1.0);
   position = vec4(position.x, -position.y, position.z, position.w);
 

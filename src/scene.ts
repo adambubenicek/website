@@ -105,8 +105,8 @@ export default async function Scene(
     color: Uint8Array,
   ) {
     const vao = gl.createVertexArray()!;
-    const vertices = new Float32Array(verticesBuf)
-    const normals = new Float32Array(normalsBuf)
+    const vertices = new Int16Array(verticesBuf)
+    const normals = new Int16Array(normalsBuf)
     const indices = new Uint16Array(indicesBuf)
 
     gl.bindVertexArray(vao);
@@ -120,14 +120,14 @@ export default async function Scene(
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconAttributes.position);
-    gl.vertexAttribPointer(iconAttributes.position, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(iconAttributes.position, 3, gl.SHORT, false, 0, 0);
 
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconAttributes.normal);
-    gl.vertexAttribPointer(iconAttributes.normal, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(iconAttributes.normal, 3, gl.SHORT, false, 0, 0);
 
     const translation = vec2.create()
 

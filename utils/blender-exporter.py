@@ -12,24 +12,24 @@ obj = C.active_object
 
 for vertex in obj.data.vertices:
     coords = obj.matrix_world @ vertex.co
-    vertices.append(coords.x)
-    vertices.append(coords.y)
-    vertices.append(coords.z)
+    vertices.append(round(coords.x * 32767))
+    vertices.append(round(coords.y * 32767))
+    vertices.append(round(coords.z * 32767))
 
     normal = obj.matrix_world @ vertex.normal
-    normals.append(normal.x)
-    normals.append(normal.y)
-    normals.append(normal.z)
+    normals.append(round(normal.x * 32767))
+    normals.append(round(normal.y * 32767))
+    normals.append(round(normal.z * 32767))
 
 for triangle in obj.data.loop_triangles:
     for index in triangle.vertices:
         indices.append(index)
 
 with open(f"{output_dir}{obj.name}.vertices", "wb") as f:
-    f.write(struct.pack(f"{len(vertices)}f", *vertices))
+    f.write(struct.pack(f"{len(vertices)}h", *vertices))
 
 with open(f"{output_dir}{obj.name}.normals", "wb") as f:
-    f.write(struct.pack(f"{len(normals)}f", *normals))
+    f.write(struct.pack(f"{len(normals)}h", *normals))
 
 with open(f"{output_dir}{obj.name}.indices", "wb") as f:
     f.write(struct.pack(f"{len(indices)}H", *indices))
