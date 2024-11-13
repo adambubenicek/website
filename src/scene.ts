@@ -8,11 +8,19 @@ import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
 import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
 import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
 import backgroundGeometry from "./geometries/background";
-import cube from "./geometries/cube";
 import colorsTextureInfo from './textures/colors'
 import lights from './textures/lights.png'
 
-export default function Scene(
+import sphereVertices from './geometries/sphere.vertices?url'
+import sphereNormals from './geometries/sphere.normals?url'
+import sphereIndices from './geometries/sphere.indices?url'
+import cubeVertices from './geometries/cube.vertices?url'
+import cubeNormals from './geometries/cube.normals?url'
+import cubeIndices from './geometries/cube.indices?url'
+
+
+
+export default async function Scene(
   gl: WebGL2RenderingContext,
   width: Signal<number>,
   height: Signal<number>,
@@ -91,26 +99,32 @@ export default function Scene(
   const iconSize = computed(() => gridSize.value * 3)
 
   function createIcon (
+    verticesBuf: ArrayBuffer,
+    normalsBuf: ArrayBuffer,
+    indicesBuf: ArrayBuffer,
     color: Uint8Array,
   ) {
     const vao = gl.createVertexArray()!;
+    const vertices = new Float32Array(verticesBuf)
+    const normals = new Float32Array(normalsBuf)
+    const indices = new Uint16Array(indicesBuf)
 
     gl.bindVertexArray(vao);
 
     const indexBuffer = gl.createBuffer()
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cube.indices, gl.STATIC_DRAW)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
 
     const vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, cube.vertices, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconAttributes.position);
     gl.vertexAttribPointer(iconAttributes.position, 3, gl.FLOAT, false, 0, 0);
 
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, cube.normals, gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(iconAttributes.normal);
     gl.vertexAttribPointer(iconAttributes.normal, 3, gl.FLOAT, false, 0, 0);
@@ -130,34 +144,42 @@ export default function Scene(
       translationVelocity: translationVelocity,
       scale: vec3.create(),
       color: color,
-      indices: cube.indices,
+      indices: indices,
     };
   }
 
   const icons = [
-    createIcon(new Uint8Array([10, 7])),
-    createIcon(new Uint8Array([10, 7])),
-    createIcon(new Uint8Array([10, 7])),
-    createIcon(new Uint8Array([10, 7])),
+    createIcon(
+      await fetch(sphereVertices).then(res => res.arrayBuffer()),
+      await fetch(sphereNormals).then(res => res.arrayBuffer()),
+      await fetch(sphereIndices).then(res => res.arrayBuffer()),
+      new Uint8Array([10, 7])
+    ),
+    createIcon(
+      await fetch(cubeVertices).then(res => res.arrayBuffer()),
+      await fetch(cubeNormals).then(res => res.arrayBuffer()),
+      await fetch(cubeIndices).then(res => res.arrayBuffer()),
+      new Uint8Array([10, 7])
+    )
   ]
 
-  {
-    const dispose = effect(() => {
-      if (width.value === 0 || height.value === 0) {
-        return
-      }
+  let iconsPlaced = false;
+  effect(() => {
+    if (iconsPlaced || width.value === 0 || height.value === 0) {
+      return
+    }
 
-      for (const icon of icons) {
-        vec2.set(
-          icon.translation, 
-          iconSize.value,
-          iconSize.value,
-        )
-      }
+    for (const icon of icons) {
+      vec2.set(
+        icon.translation, 
+        iconSize.value,
+        iconSize.value,
+      )
+    }
 
-      dispose()
-    })
-  }
+    iconsPlaced = true;
+  })
+
 
   effect(() => {
     for (let icon of icons) {
@@ -493,14 +515,13 @@ export default function Scene(
     requestAnimationFrame(handleAnimationFrame)
   }
 
-  {
-    const dispose = effect(() => {
-      if (width.value === 0 || height.value === 0 || dpr.value === 0 || gridSize.value === 0) {
-        return
-      }
+  let animationStarted = false;
+  effect(() => {
+    if (animationStarted || width.value === 0 || height.value === 0 || dpr.value === 0 || gridSize.value === 0) {
+      return
+    }
 
-      requestAnimationFrame(handleAnimationFrame)
-      dispose()
-    })
-  }
+    animationStarted = true
+    requestAnimationFrame(handleAnimationFrame)
+  })
 }
