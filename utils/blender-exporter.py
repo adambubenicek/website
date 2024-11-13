@@ -1,40 +1,27 @@
 import bpy
 import json
 
-points = []
-colors = []
+vertices = []
+normals = []
+indices = []
 
-for obj in bpy.context.active_object.children:
-    if "value" not in obj.data:
-        obj.data["value"] = 1
+obj = bpy.context.active_object
 
-    if "hue" not in obj.data:
-        obj.data["hue"] = 1
+for vertex in obj.data.vertices:
+    coords = obj.matrix_world @ vertex.co
+    vertices.append(coords.x)
+    vertices.append(coords.y)
+    vertices.append(coords.z)
 
-    for spline in obj.data.splines:
-        spline.type = "POLY"
+    normal = obj.matrix_world @ vertex.normal
+    normals.append(normal.x)
+    normals.append(normal.y)
+    normals.append(normal.z)
 
-        for point in spline.points:
-            co = obj.matrix_world @ point.co.to_3d()
-            points.append(co.x)
-            points.append(co.y)
-            points.append(co.z)
+for triangle in obj.data.loop_triangles:
+    for index in triangle.vertices:
+        indices.append(index)
 
-            colors.append(obj.data["value"])
-            colors.append(obj.data["hue"])
-
-        if spline.use_cyclic_u:
-            co = obj.matrix_world @ spline.points[0].co.to_3d()
-            points.append(co.x)
-            points.append(co.y)
-            points.append(co.z)
-
-            colors.append(obj.data["value"])
-            colors.append(obj.data["hue"])
-
-        colors[-1] = 0
-        colors[-2] = 0
-
-
-print(f"vertices: new Float32Array({json.dumps(points)}),")
-print(f"colors: new Uint8Array({json.dumps(colors)}),")
+print(f"vertices: new Float32Array({json.dumps(vertices)}),")
+print(f"normals: new Float32Array({json.dumps(normals)}),")
+print(f"indices: new Uint16Array({json.dumps(indices)}),")
