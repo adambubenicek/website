@@ -11,10 +11,10 @@ import backgroundGeometry from "./geometries/background";
 import colorsTextureInfo from './textures/colors'
 import lights from './textures/lights.png'
 
-import sphereVertices from './geometries/sphere.vertices?url'
+import sphereCoords from './geometries/sphere.coords?url'
 import sphereNormals from './geometries/sphere.normals?url'
 import sphereIndices from './geometries/sphere.indices?url'
-import cubeVertices from './geometries/cube.vertices?url'
+import cubeCoords from './geometries/cube.coords?url'
 import cubeNormals from './geometries/cube.normals?url'
 import cubeIndices from './geometries/cube.indices?url'
 
@@ -150,13 +150,13 @@ export default async function Scene(
 
   const icons = [
     createIcon(
-      await fetch(sphereVertices).then(res => res.arrayBuffer()),
+      await fetch(sphereCoords).then(res => res.arrayBuffer()),
       await fetch(sphereNormals).then(res => res.arrayBuffer()),
       await fetch(sphereIndices).then(res => res.arrayBuffer()),
       new Uint8Array([10, 7])
     ),
     createIcon(
-      await fetch(cubeVertices).then(res => res.arrayBuffer()),
+      await fetch(cubeCoords).then(res => res.arrayBuffer()),
       await fetch(cubeNormals).then(res => res.arrayBuffer()),
       await fetch(cubeIndices).then(res => res.arrayBuffer()),
       new Uint8Array([10, 7])
