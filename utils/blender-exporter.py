@@ -12,6 +12,7 @@ coords = [None] * len(obj.data.vertices) * 3
 normals = [None] * len(obj.data.vertices) * 3
 indices = [None] * len(obj.data.loop_triangles) * 3
 uvs = [None] * len(obj.data.vertices)
+uvFrequencies = [0] * 256
 
 for vertex in obj.data.vertices:
     coord = obj.matrix_world @ vertex.co
@@ -37,6 +38,12 @@ for triangle in obj.data.loop_triangles:
         v = math.floor((1 - uvlayer.data[loopIndex].uv.y) * 16)
         uv = (v * 16 + u)
         uvs[vertexIndex] = uv
+        uvFrequencies[uv] += 1
+
+majorUV = 0
+for index in range(255):
+    if uvFrequencies[index] > uvFrequencies[majorUV]:
+        majorUV = index
 
 with open(f"{output_dir}{obj.name}.coords", "wb") as f:
     f.write(struct.pack(f"{len(coords)}h", *coords))
@@ -49,3 +56,8 @@ with open(f"{output_dir}{obj.name}.indices", "wb") as f:
 
 with open(f"{output_dir}{obj.name}.uvs", "wb") as f:
     f.write(struct.pack(f"{len(uvs)}B", *uvs))
+
+with open(f"{output_dir}{obj.name}.json", "w") as f:
+    json.dump({
+        "majorUV": majorUV
+        }, f)

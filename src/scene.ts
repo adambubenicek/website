@@ -15,12 +15,12 @@ import sphereCoords from './geometries/sphere.coords?url'
 import sphereNormals from './geometries/sphere.normals?url'
 import sphereIndices from './geometries/sphere.indices?url'
 import sphereUvs from './geometries/sphere.uvs?url'
+import sphere from './geometries/sphere.json'
 import cubeCoords from './geometries/cube.coords?url'
 import cubeNormals from './geometries/cube.normals?url'
 import cubeIndices from './geometries/cube.indices?url'
 import cubeUvs from './geometries/cube.uvs?url'
-
-
+import cube from './geometries/cube.json'
 
 export default async function Scene(
   gl: WebGL2RenderingContext,
@@ -106,6 +106,7 @@ export default async function Scene(
     normalsBuf: ArrayBuffer,
     indicesBuf: ArrayBuffer,
     uvsBuf: ArrayBuffer,
+    data: {majorUV: number},
     color: Uint8Array,
   ) {
     const vao = gl.createVertexArray()!;
@@ -155,7 +156,7 @@ export default async function Scene(
       translation: translation, 
       translationVelocity: translationVelocity,
       scale: vec3.create(),
-      color: color,
+      majorUV: data.majorUV,
       indices: indices,
     };
   }
@@ -166,6 +167,7 @@ export default async function Scene(
       await fetch(sphereNormals).then(res => res.arrayBuffer()),
       await fetch(sphereIndices).then(res => res.arrayBuffer()),
       await fetch(sphereUvs).then(res => res.arrayBuffer()),
+      sphere,
       new Uint8Array([10, 7])
     ),
     createIcon(
@@ -173,6 +175,7 @@ export default async function Scene(
       await fetch(cubeNormals).then(res => res.arrayBuffer()),
       await fetch(cubeIndices).then(res => res.arrayBuffer()),
       await fetch(cubeUvs).then(res => res.arrayBuffer()),
+      cube,
       new Uint8Array([10, 7])
     )
   ]
@@ -210,6 +213,7 @@ export default async function Scene(
   const backgroundAttributes = {
     position: 0,
     offset: 1,
+    iconUV: 2,
   }
 
   const shadowVertexShader = createShader(
@@ -253,6 +257,20 @@ export default async function Scene(
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, backgroundGeometry.indices, gl.STATIC_DRAW)
 
+  const backgroundMajorUVBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundMajorUVBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(icons.map(i => i.majorUV)), gl.STATIC_DRAW);
+
+  gl.enableVertexAttribArray(backgroundAttributes.iconUV);
+  gl.vertexAttribDivisor(backgroundAttributes.iconUV, 1);
+  gl.vertexAttribPointer(
+    backgroundAttributes.iconUV,
+    1,
+    gl.UNSIGNED_BYTE,
+    false,
+    0,
+    0,
+  );
 
   const backgroundGridBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
