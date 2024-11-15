@@ -8,15 +8,17 @@ import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
 import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
 import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
 import backgroundGeometry from "./geometries/background";
-import colorsTextureInfo from './textures/colors'
+import palette from './textures/palette.png'
 import lights from './textures/lights.png'
 
 import sphereCoords from './geometries/sphere.coords?url'
 import sphereNormals from './geometries/sphere.normals?url'
 import sphereIndices from './geometries/sphere.indices?url'
+import sphereUvs from './geometries/sphere.uvs?url'
 import cubeCoords from './geometries/cube.coords?url'
 import cubeNormals from './geometries/cube.normals?url'
 import cubeIndices from './geometries/cube.indices?url'
+import cubeUvs from './geometries/cube.uvs?url'
 
 
 
@@ -86,12 +88,13 @@ export default async function Scene(
   const iconAttributes = {
     normal: gl.getAttribLocation(iconProgram, "aNormal"),
     position: gl.getAttribLocation(iconProgram, "aPosition"),
+    uv: gl.getAttribLocation(iconProgram, "aUV"),
   }
 
   const iconUniforms = {
     model: gl.getUniformLocation(iconProgram, "uModel")!,
     resolution: gl.getUniformLocation(iconProgram, "uResolution")!,
-    colorSampler: gl.getUniformLocation(iconProgram, "uColorSampler")!,
+    paletteSampler: gl.getUniformLocation(iconProgram, "uPaletteSampler")!,
     lightSampler: gl.getUniformLocation(iconProgram, "uLightSampler")!,
   }
 
@@ -102,12 +105,14 @@ export default async function Scene(
     verticesBuf: ArrayBuffer,
     normalsBuf: ArrayBuffer,
     indicesBuf: ArrayBuffer,
+    uvsBuf: ArrayBuffer,
     color: Uint8Array,
   ) {
     const vao = gl.createVertexArray()!;
     const vertices = new Int16Array(verticesBuf)
     const normals = new Int16Array(normalsBuf)
     const indices = new Uint16Array(indicesBuf)
+    const uvs = new Int8Array(uvsBuf)
 
     gl.bindVertexArray(vao);
 
@@ -128,6 +133,13 @@ export default async function Scene(
 
     gl.enableVertexAttribArray(iconAttributes.normal);
     gl.vertexAttribPointer(iconAttributes.normal, 3, gl.SHORT, false, 0, 0);
+
+    const uvBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(iconAttributes.uv);
+    gl.vertexAttribPointer(iconAttributes.uv, 1, gl.UNSIGNED_BYTE, false, 0, 0);
 
     const translation = vec2.create()
 
@@ -153,12 +165,14 @@ export default async function Scene(
       await fetch(sphereCoords).then(res => res.arrayBuffer()),
       await fetch(sphereNormals).then(res => res.arrayBuffer()),
       await fetch(sphereIndices).then(res => res.arrayBuffer()),
+      await fetch(sphereUvs).then(res => res.arrayBuffer()),
       new Uint8Array([10, 7])
     ),
     createIcon(
       await fetch(cubeCoords).then(res => res.arrayBuffer()),
       await fetch(cubeNormals).then(res => res.arrayBuffer()),
       await fetch(cubeIndices).then(res => res.arrayBuffer()),
+      await fetch(cubeUvs).then(res => res.arrayBuffer()),
       new Uint8Array([10, 7])
     )
   ]
@@ -212,7 +226,7 @@ export default async function Scene(
   const shadowUniforms = {
     size: gl.getUniformLocation(shadowProgram, "uSize")!,
     resolution: gl.getUniformLocation(shadowProgram, "uResolution")!,
-    colorSampler: gl.getUniformLocation(shadowProgram, "uColorSampler")!
+    paletteSampler: gl.getUniformLocation(shadowProgram, "uPaletteSampler")!
   }
 
   const reflectionVertexShader = createShader(
@@ -229,7 +243,7 @@ export default async function Scene(
   const reflectionUniforms = {
     size: gl.getUniformLocation(reflectionProgram, "uSize")!,
     resolution: gl.getUniformLocation(reflectionProgram, "uResolution")!,
-    colorSampler: gl.getUniformLocation(reflectionProgram, "uColorSampler")!
+    paletteSampler: gl.getUniformLocation(reflectionProgram, "uPaletteSampler")!
   }
 
   const backgroundVOA = gl.createVertexArray()
@@ -271,20 +285,34 @@ export default async function Scene(
   let backgroundOffsets = new Float32Array(icons.length * 2);
 
 
-  const colorsTexture = gl.createTexture()
+  const paletteTexture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0);
-  gl.bindTexture(gl.TEXTURE_2D, colorsTexture)
+  gl.bindTexture(gl.TEXTURE_2D, paletteTexture)
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
-    colorsTextureInfo.width,
-    colorsTextureInfo.height,
+    1,
+    1,
     0,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    colorsTextureInfo.source
+    new Uint8Array([0,0,255,255])
   )
+
+  const paletteImage = new Image()
+  paletteImage.src = palette;
+  paletteImage.addEventListener('load', () => {
+    gl.bindTexture(gl.TEXTURE_2D, paletteTexture)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      paletteImage
+    )
+  }, { once: true })
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);

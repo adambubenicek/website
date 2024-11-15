@@ -3,9 +3,10 @@ precision highp float;
 
 in vec3 aPosition;
 in vec3 aNormal;
+in float aUV;
 uniform mat4 uModel;
 uniform vec2 uResolution;
-uniform sampler2D uColorSampler;
+uniform sampler2D uPaletteSampler;
 uniform sampler2D uLightSampler;
 
 out vec4 vColor;
@@ -21,7 +22,10 @@ void main() {
   vFresnel = fresnel;
 
   vLightUV = vec2(normal) * 0.5 + 0.5;
-  vColor = texture(uColorSampler, vec2(0.83, 0.23));
+  
+  float v = floor(float(aUV) / 16.0);
+  float u = float(aUV) - v * 16.0;
+  vColor = texture(uPaletteSampler, vec2(u, v) / 16.0);
 
   vec4 position = uModel * vec4(aPosition / 65535.0, 1.0);
   position = vec4(position.xy / uResolution * 2.0 - 1.0, position.z * -0.001, 1.0);
