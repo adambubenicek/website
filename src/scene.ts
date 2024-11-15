@@ -8,7 +8,7 @@ import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
 import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
 import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
 import palette from './textures/palette.png'
-import lights from './textures/lights.png'
+import matcap from './textures/matcap.png'
 
 export default async function Scene(
   gl: WebGL2RenderingContext,
@@ -84,7 +84,7 @@ export default async function Scene(
     model: gl.getUniformLocation(iconProgram, "uModel")!,
     resolution: gl.getUniformLocation(iconProgram, "uResolution")!,
     paletteSampler: gl.getUniformLocation(iconProgram, "uPaletteSampler")!,
-    lightSampler: gl.getUniformLocation(iconProgram, "uLightSampler")!,
+    lightSampler: gl.getUniformLocation(iconProgram, "uMatcapSampler")!,
   }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
@@ -343,9 +343,9 @@ export default async function Scene(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const lightsTexture = gl.createTexture()
+  const matcapTexture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE1);
-  gl.bindTexture(gl.TEXTURE_2D, lightsTexture)
+  gl.bindTexture(gl.TEXTURE_2D, matcapTexture)
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
@@ -363,17 +363,17 @@ export default async function Scene(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const lightsImage = new Image()
-  lightsImage.src = lights;
-  lightsImage.addEventListener('load', () => {
-    gl.bindTexture(gl.TEXTURE_2D, lightsTexture)
+  const matcapImage = new Image()
+  matcapImage.src = matcap;
+  matcapImage.addEventListener('load', () => {
+    gl.bindTexture(gl.TEXTURE_2D, matcapTexture)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.RGBA,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      lightsImage
+      matcapImage
     )
   }, { once: true })
 

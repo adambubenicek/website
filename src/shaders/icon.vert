@@ -7,10 +7,10 @@ in float aUV;
 uniform mat4 uModel;
 uniform vec2 uResolution;
 uniform sampler2D uPaletteSampler;
-uniform sampler2D uLightSampler;
+uniform sampler2D uMatcapSampler;
 
 out vec4 vColor;
-out vec2 vLightUV;
+out vec2 vMatcapUV;
 out float vFresnel;
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
   fresnel = clamp(fresnel, 0.0, 1.0);
   vFresnel = fresnel;
 
-  vLightUV = vec2(normal) * 0.5 + 0.5;
+  vMatcapUV = vec2(normal) * 0.5 + 0.5;
   
   float v = floor(aUV / 16.0);
   float u = aUV - v * 16.0;
