@@ -7,7 +7,6 @@ import shadowVertexShaderSource from "./shaders/shadow.vert?raw";
 import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
 import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
 import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
-import backgroundGeometry from "./geometries/background";
 import palette from './textures/palette.png'
 import lights from './textures/lights.png'
 
@@ -21,6 +20,10 @@ import cubeNormals from './geometries/cube.normals?url'
 import cubeIndices from './geometries/cube.indices?url'
 import cubeUvs from './geometries/cube.uvs?url'
 import cube from './geometries/cube.json'
+
+import circleCoords from './geometries/circle.coords?url'
+import circleIndices from './geometries/circle.indices?url'
+import circleUvs from './geometries/circle.uvs?url'
 
 export default async function Scene(
   gl: WebGL2RenderingContext,
@@ -212,7 +215,8 @@ export default async function Scene(
 
   const backgroundAttributes = {
     position: 0,
-    offset: 1,
+    uv: 3,
+    iconPosition: 1,
     iconUV: 2,
   }
 
@@ -253,9 +257,21 @@ export default async function Scene(
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
 
+  const circleCoordsArr = await fetch(circleCoords)
+    .then(res => res.arrayBuffer())
+    .then(a => new Int16Array(a))
+
+  const circleIndicesArr = await fetch(circleIndices)
+    .then(res => res.arrayBuffer())
+    .then(a => new Uint16Array(a))
+
+  const circleUvsArr = await fetch(circleUvs)
+    .then(res => res.arrayBuffer())
+    .then(a => new Uint8Array(a))
+
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, backgroundGeometry.indices, gl.STATIC_DRAW)
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, circleIndicesArr, gl.STATIC_DRAW)
 
   const backgroundMajorUVBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundMajorUVBuffer);
@@ -272,27 +288,43 @@ export default async function Scene(
     0,
   );
 
-  const backgroundGridBuffer = gl.createBuffer()!
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGridBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, backgroundGeometry.vertices, gl.STATIC_DRAW);
+
+  const backgroundPositionBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, circleCoordsArr, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(backgroundAttributes.position);
   gl.vertexAttribDivisor(backgroundAttributes.position, 0);
   gl.vertexAttribPointer(
     backgroundAttributes.position,
     3,
-    gl.FLOAT,
+    gl.SHORT,
     false,
     0,
     0,
   );
 
-  const backgroundOffsetBuffer = gl.createBuffer()!
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundOffsetBuffer);
-  gl.enableVertexAttribArray(backgroundAttributes.offset);
-  gl.vertexAttribDivisor(backgroundAttributes.offset, 1);
+  const backgroundUvBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundUvBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, circleUvsArr, gl.STATIC_DRAW);
+
+  gl.enableVertexAttribArray(backgroundAttributes.uv);
+  gl.vertexAttribDivisor(backgroundAttributes.uv, 0);
   gl.vertexAttribPointer(
-    backgroundAttributes.offset,
+    backgroundAttributes.uv,
+    1,
+    gl.UNSIGNED_BYTE,
+    false,
+    0,
+    0,
+  );
+
+  const backgroundIconPositionBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundIconPositionBuffer);
+  gl.enableVertexAttribArray(backgroundAttributes.iconPosition);
+  gl.vertexAttribDivisor(backgroundAttributes.iconPosition, 1);
+  gl.vertexAttribPointer(
+    backgroundAttributes.iconPosition,
     2,
     gl.FLOAT,
     false,
@@ -300,7 +332,7 @@ export default async function Scene(
     0
   );
 
-  let backgroundOffsets = new Float32Array(icons.length * 2);
+  let backgroundIconPositions = new Float32Array(icons.length * 2);
 
 
   const paletteTexture = gl.createTexture()
@@ -397,10 +429,10 @@ export default async function Scene(
 
     for (let i = 0; i < icons.length; i++) {
       const icon = icons[i]
-      backgroundOffsets[i * 2] = icon.translation[0]
-      backgroundOffsets[i * 2 + 1] = icon.translation[1]
+      backgroundIconPositions[i * 2] = icon.translation[0]
+      backgroundIconPositions[i * 2 + 1] = icon.translation[1]
     }
-    gl.bufferData(gl.ARRAY_BUFFER, backgroundOffsets, gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, backgroundIconPositions, gl.DYNAMIC_DRAW);
 
     gl.useProgram(reflectionProgram)
     gl.uniform2f(reflectionUniforms.resolution, width.value, height.value);
@@ -408,10 +440,10 @@ export default async function Scene(
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
-      backgroundGeometry.indices.length,
+      circleIndicesArr.length,
       gl.UNSIGNED_SHORT,
       0, 
-      backgroundOffsets.length / 2
+      backgroundIconPositions.length / 2
     );
 
     gl.useProgram(shadowProgram)
@@ -420,10 +452,10 @@ export default async function Scene(
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
-      backgroundGeometry.indices.length,
+      circleIndicesArr.length,
       gl.UNSIGNED_SHORT,
       0, 
-      backgroundOffsets.length / 2
+      backgroundIconPositions.length / 2
     );
 
     gl.disable(gl.BLEND);
