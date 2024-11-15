@@ -1,6 +1,7 @@
 import bpy
 import json
 import struct
+import math
 
 C = bpy.context
 output_dir = C.scene.render.filepath
@@ -31,8 +32,11 @@ for triangle in obj.data.loop_triangles:
 
         indices[triangle.index * 3 + index] = vertexIndex
         loop = uvlayer.data[loopIndex]
-        uvs[vertexIndex] = int(loop.uv.y * 256 + loop.uv.x * 16)
+        uv = uvlayer.data[0].uv
 
+        u = math.floor(uv.x * 16.0)
+        v = math.floor((1 - uv.y) * 16)
+        uvs[vertexIndex] = (v * 16 + u)
 
 with open(f"{output_dir}{obj.name}.coords", "wb") as f:
     f.write(struct.pack(f"{len(coords)}h", *coords))
