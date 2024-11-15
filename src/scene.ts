@@ -88,9 +88,9 @@ export default async function Scene(
   }
 
   const iconDefaultSpeed = computed(() => gridSize.value)
-  const iconSize = computed(() => gridSize.value * 3)
+  const iconSize = computed(() => gridSize.value * 6)
 
-  const icons = await Promise.all(['sphere', 'cube'].map(async name => {
+  const icons = await Promise.all(['sphere', 'cube', 'suzanne'].map(async name => {
     const [ data, vertices, uvs, normals, indices ] = await Promise.all([
       import(`./geometries/${name}.json`),
       import(`./geometries/${name}.coords?url`)
