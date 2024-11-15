@@ -23,8 +23,8 @@ void main() {
 
   vLightUV = vec2(normal) * 0.5 + 0.5;
   
-  float v = floor(float(aUV) / 16.0);
-  float u = float(aUV) - v * 16.0;
+  float v = floor(aUV / 16.0);
+  float u = aUV - v * 16.0;
   vColor = texture(uPaletteSampler, vec2(u, v) / 16.0);
 
   vec4 position = uModel * vec4(aPosition / 65535.0, 1.0);

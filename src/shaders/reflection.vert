@@ -18,8 +18,8 @@ void main() {
   vec2 offset = vec2(uSize * 3.0);
   position.xy -= (position.xy * uSize * 6.0) / max(uResolution.x, uResolution.y);
 
-  float v = floor(float(aIconUV) / 16.0);
-  float u = float(aIconUV) - v * 16.0;
+  float v = floor(aIconUV / 16.0);
+  float u = aIconUV - v * 16.0;
   vec4 color = texture(uPaletteSampler, vec2(u, v) / 16.0);
 
 
