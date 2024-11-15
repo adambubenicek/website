@@ -554,7 +554,7 @@ export default async function Scene(
       gl.bindVertexArray(icon.vao);
       gl.uniformMatrix4fv(iconUniforms.model, false, model);
       gl.uniform2f(iconUniforms.resolution, width.value, height.value);
-      gl.uniform1i(iconUniforms.colorSampler, 0);
+      gl.uniform1i(iconUniforms.paletteSampler, 0);
       gl.uniform1i(iconUniforms.lightSampler, 1);
       gl.drawElements(
         gl.TRIANGLES,
