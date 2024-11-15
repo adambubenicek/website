@@ -32,11 +32,11 @@ for triangle in obj.data.loop_triangles:
 
         indices[triangle.index * 3 + index] = vertexIndex
         loop = uvlayer.data[loopIndex]
-        uv = uvlayer.data[0].uv
 
-        u = math.floor(uv.x * 16.0)
-        v = math.floor((1 - uv.y) * 16)
-        uvs[vertexIndex] = (v * 16 + u)
+        u = math.floor(uvlayer.data[loopIndex].uv.x * 16.0)
+        v = math.floor((1 - uvlayer.data[loopIndex].uv.y) * 16)
+        uv = (v * 16 + u)
+        uvs[vertexIndex] = uv
 
 with open(f"{output_dir}{obj.name}.coords", "wb") as f:
     f.write(struct.pack(f"{len(coords)}h", *coords))
