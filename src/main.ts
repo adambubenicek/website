@@ -12,7 +12,7 @@ const gridSize = signal(0)
 const dpr = signal(0)
 
 if (!gl) {
-  throw "Webgl2 not supported";
+	throw "Webgl2 not supported";
 }
 
 function handleDPRChange() {

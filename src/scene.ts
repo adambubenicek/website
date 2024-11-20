@@ -19,16 +19,16 @@ export default async function Scene(
 ) {
   effect(() => {
     gl.viewport(
-      0, 
-      0, 
-      Math.round(width.value * dpr.value), 
+      0,
+      0,
+      Math.round(width.value * dpr.value),
       Math.round(height.value * dpr.value)
     )
   })
 
 
   function createShader(
-    type: GLenum, 
+    type: GLenum,
     source: string
   ): WebGLShader {
     const shader = gl.createShader(type)!;
@@ -44,7 +44,7 @@ export default async function Scene(
 
 
   function createProgram(
-    vertexShader: WebGLShader, 
+    vertexShader: WebGLShader,
     fragmentShader: WebGLShader
   ): WebGLProgram {
     const program = gl.createProgram()!;
@@ -147,7 +147,7 @@ export default async function Scene(
     return {
       vao: vao,
       rotation: quat.create(),
-      translation: translation, 
+      translation: translation,
       translationVelocity: translationVelocity,
       scale: vec3.create(),
       majorUV: data.majorUV,
@@ -163,7 +163,7 @@ export default async function Scene(
 
     for (const icon of icons) {
       vec2.set(
-        icon.translation, 
+        icon.translation,
         iconSize.value,
         iconSize.value,
       )
@@ -176,9 +176,9 @@ export default async function Scene(
   effect(() => {
     for (let icon of icons) {
       vec3.set(
-        icon.scale, 
-        iconSize.value, 
-        iconSize.value, 
+        icon.scale,
+        iconSize.value,
+        iconSize.value,
         iconSize.value
       )
     }
@@ -381,7 +381,7 @@ export default async function Scene(
   const model = mat4.create()
   const force = vec2.create()
 
-  let repulsionCoefficient = 1000 
+  let repulsionCoefficient = 1000
   let lastRenderTime = 0
   function handleAnimationFrame(renderTime: DOMHighResTimeStamp) {
     const delta = (renderTime - lastRenderTime) * 0.001
@@ -453,7 +453,7 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
 
@@ -463,7 +463,7 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon2.translationVelocity,
           icon2.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
       }
@@ -474,7 +474,7 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
@@ -483,7 +483,7 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
       }
@@ -494,7 +494,7 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
@@ -503,40 +503,40 @@ export default async function Scene(
         vec2.scaleAndAdd(
           icon.translationVelocity,
           icon.translationVelocity,
-          force, 
+          force,
           repulsionCoefficient / (distance * distance) * delta
         )
       }
 
       vec2.scaleAndAdd(
-        icon.translation, 
-        icon.translation, 
-        icon.translationVelocity, 
+        icon.translation,
+        icon.translation,
+        icon.translationVelocity,
         delta
       )
 
       const currentSpeed = vec2.length(icon.translationVelocity)
       vec2.normalize(force, icon.translationVelocity)
       vec2.scaleAndAdd(
-        icon.translationVelocity, 
-        icon.translationVelocity, 
-        force, 
+        icon.translationVelocity,
+        icon.translationVelocity,
+        force,
         (iconDefaultSpeed.value - currentSpeed) * delta
       )
 
       quat.rotateX(
-        icon.rotation, 
-        icon.rotation, 
+        icon.rotation,
+        icon.rotation,
         icon.translationVelocity[0] * iconDefaultSpeed.value * delta * 0.01
       )
       quat.rotateY(
-        icon.rotation, 
-        icon.rotation, 
+        icon.rotation,
+        icon.rotation,
         icon.translationVelocity[1] * iconDefaultSpeed.value * delta * 0.01
       )
       quat.rotateZ(
-        icon.rotation, 
-        icon.rotation, 
+        icon.rotation,
+        icon.rotation,
         delta
       )
 
