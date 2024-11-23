@@ -1,14 +1,13 @@
 import type { Signal } from '@preact/signals-core'
 import { effect, computed } from '@preact/signals-core'
 import { mat4, quat, vec2, vec3 } from 'gl-matrix'
-import iconVertexShaderSource from "./shaders/icon.vert?raw";
-import iconFragmentShaderSource from "./shaders/icon.frag?raw";
-import shadowVertexShaderSource from "./shaders/shadow.vert?raw";
-import shadowFragmentShaderSource from "./shaders/shadow.frag?raw";
-import reflectionVertexShaderSource from "./shaders/reflection.vert?raw";
-import reflectionFragmentShaderSource from "./shaders/reflection.frag?raw";
 import palette from './textures/palette.png'
 import matcap from './textures/matcap.png'
+import {
+	createShadedProgram,
+	createReflectionProgram,
+	createShadowProgram,
+} from './programs'
 
 export default async function Scene(
   gl: WebGL2RenderingContext,
@@ -27,65 +26,9 @@ export default async function Scene(
   })
 
 
-  function createShader(
-    type: GLenum,
-    source: string
-  ): WebGLShader {
-    const shader = gl.createShader(type)!;
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw gl.getShaderInfoLog(shader);
-    }
-
-    return shader;
-  }
-
-
-  function createProgram(
-    vertexShader: WebGLShader,
-    fragmentShader: WebGLShader
-  ): WebGLProgram {
-    const program = gl.createProgram()!;
-
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw gl.getProgramInfoLog(program);
-    }
-
-    return program;
-  }
-
-
-  const iconVertexShader = createShader(
-    gl.VERTEX_SHADER,
-    iconVertexShaderSource,
-  );
-
-  const iconFragmentShader = createShader(
-    gl.FRAGMENT_SHADER,
-    iconFragmentShaderSource,
-  );
-
-  const iconProgram = createProgram(iconVertexShader, iconFragmentShader);
-
-  const iconAttributes = {
-    normal: gl.getAttribLocation(iconProgram, "aNormal"),
-    position: gl.getAttribLocation(iconProgram, "aPosition"),
-    uv: gl.getAttribLocation(iconProgram, "aUV"),
-  }
-
-  const iconUniforms = {
-    model: gl.getUniformLocation(iconProgram, "uModel")!,
-    resolution: gl.getUniformLocation(iconProgram, "uResolution")!,
-    paletteSampler: gl.getUniformLocation(iconProgram, "uPaletteSampler")!,
-    lightSampler: gl.getUniformLocation(iconProgram, "uMatcapSampler")!,
-  }
+	const shadedProgramInfo = createShadedProgram(gl)
+	const reflectionProgramInfo = createReflectionProgram(gl)
+	const shadowProgramInfo = createShadowProgram(gl)
 
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 6)
@@ -119,22 +62,22 @@ export default async function Scene(
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-    gl.enableVertexAttribArray(iconAttributes.position);
-    gl.vertexAttribPointer(iconAttributes.position, 3, gl.SHORT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 3, gl.SHORT, false, 0, 0);
 
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
 
-    gl.enableVertexAttribArray(iconAttributes.normal);
-    gl.vertexAttribPointer(iconAttributes.normal, 3, gl.SHORT, false, 0, 0);
+    gl.enableVertexAttribArray(1);
+    gl.vertexAttribPointer(1, 3, gl.SHORT, false, 0, 0);
 
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
 
-    gl.enableVertexAttribArray(iconAttributes.uv);
-    gl.vertexAttribPointer(iconAttributes.uv, 1, gl.UNSIGNED_BYTE, false, 0, 0);
+    gl.enableVertexAttribArray(2);
+    gl.vertexAttribPointer(2, 1, gl.UNSIGNED_BYTE, false, 0, 0);
 
     const translation = vec2.create()
 
@@ -185,47 +128,6 @@ export default async function Scene(
   })
 
 
-  const backgroundAttributes = {
-    position: 0,
-    uv: 3,
-    iconPosition: 1,
-    iconUV: 2,
-  }
-
-  const shadowVertexShader = createShader(
-    gl.VERTEX_SHADER,
-    shadowVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
-  );
-
-  const shadowFragmentShader = createShader(
-    gl.FRAGMENT_SHADER,
-    shadowFragmentShaderSource,
-  );
-
-  const shadowProgram = createProgram(shadowVertexShader, shadowFragmentShader);
-  const shadowUniforms = {
-    size: gl.getUniformLocation(shadowProgram, "uSize")!,
-    resolution: gl.getUniformLocation(shadowProgram, "uResolution")!,
-    paletteSampler: gl.getUniformLocation(shadowProgram, "uPaletteSampler")!
-  }
-
-  const reflectionVertexShader = createShader(
-    gl.VERTEX_SHADER,
-    reflectionVertexShaderSource.replace(/%iconCount%/g, `${icons.length}`),
-  );
-
-  const reflectionFragmentShader = createShader(
-    gl.FRAGMENT_SHADER,
-    reflectionFragmentShaderSource,
-  );
-
-  const reflectionProgram = createProgram(reflectionVertexShader, reflectionFragmentShader);
-  const reflectionUniforms = {
-    size: gl.getUniformLocation(reflectionProgram, "uSize")!,
-    resolution: gl.getUniformLocation(reflectionProgram, "uResolution")!,
-    paletteSampler: gl.getUniformLocation(reflectionProgram, "uPaletteSampler")!
-  }
-
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
 
@@ -251,10 +153,10 @@ export default async function Scene(
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundMajorUVBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(icons.map(i => i.majorUV)), gl.STATIC_DRAW);
 
-  gl.enableVertexAttribArray(backgroundAttributes.iconUV);
-  gl.vertexAttribDivisor(backgroundAttributes.iconUV, 1);
+  gl.enableVertexAttribArray(2);
+  gl.vertexAttribDivisor(2, 1);
   gl.vertexAttribPointer(
-    backgroundAttributes.iconUV,
+    2,
     1,
     gl.UNSIGNED_BYTE,
     false,
@@ -267,10 +169,10 @@ export default async function Scene(
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, circleCoords, gl.STATIC_DRAW);
 
-  gl.enableVertexAttribArray(backgroundAttributes.position);
-  gl.vertexAttribDivisor(backgroundAttributes.position, 0);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribDivisor(0, 0);
   gl.vertexAttribPointer(
-    backgroundAttributes.position,
+    0,
     3,
     gl.SHORT,
     false,
@@ -282,10 +184,10 @@ export default async function Scene(
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundUvBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, circleUvs, gl.STATIC_DRAW);
 
-  gl.enableVertexAttribArray(backgroundAttributes.uv);
-  gl.vertexAttribDivisor(backgroundAttributes.uv, 0);
+  gl.enableVertexAttribArray(3);
+  gl.vertexAttribDivisor(3, 0);
   gl.vertexAttribPointer(
-    backgroundAttributes.uv,
+    3,
     1,
     gl.UNSIGNED_BYTE,
     false,
@@ -295,10 +197,10 @@ export default async function Scene(
 
   const backgroundIconPositionBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundIconPositionBuffer);
-  gl.enableVertexAttribArray(backgroundAttributes.iconPosition);
-  gl.vertexAttribDivisor(backgroundAttributes.iconPosition, 1);
+  gl.enableVertexAttribArray(1);
+  gl.vertexAttribDivisor(1, 1);
   gl.vertexAttribPointer(
-    backgroundAttributes.iconPosition,
+    1,
     2,
     gl.FLOAT,
     false,
@@ -408,9 +310,9 @@ export default async function Scene(
     }
     gl.bufferData(gl.ARRAY_BUFFER, backgroundIconPositions, gl.DYNAMIC_DRAW);
 
-    gl.useProgram(reflectionProgram)
-    gl.uniform2f(reflectionUniforms.resolution, width.value, height.value);
-    gl.uniform1f(reflectionUniforms.size, gridSize.value);
+    gl.useProgram(reflectionProgramInfo.program)
+    gl.uniform2f(reflectionProgramInfo.uniforms.resolution, width.value, height.value);
+    gl.uniform1f(reflectionProgramInfo.uniforms.size, gridSize.value);
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
@@ -420,9 +322,9 @@ export default async function Scene(
       backgroundIconPositions.length / 2
     );
 
-    gl.useProgram(shadowProgram)
-    gl.uniform2f(shadowUniforms.resolution, width.value, height.value);
-    gl.uniform1f(shadowUniforms.size, gridSize.value);
+    gl.useProgram(shadowProgramInfo.program)
+    gl.uniform2f(shadowProgramInfo.uniforms.resolution, width.value, height.value);
+    gl.uniform1f(shadowProgramInfo.uniforms.size, gridSize.value);
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
@@ -434,7 +336,7 @@ export default async function Scene(
 
     gl.disable(gl.BLEND);
     gl.enable(gl.DEPTH_TEST);
-    gl.useProgram(iconProgram);
+    gl.useProgram(shadedProgramInfo.program);
 
     for (let i = 0; i < icons.length; i++) {
       const icon = icons[i];
@@ -552,10 +454,10 @@ export default async function Scene(
       )
 
       gl.bindVertexArray(icon.vao);
-      gl.uniformMatrix4fv(iconUniforms.model, false, model);
-      gl.uniform2f(iconUniforms.resolution, width.value, height.value);
-      gl.uniform1i(iconUniforms.paletteSampler, 0);
-      gl.uniform1i(iconUniforms.lightSampler, 1);
+      gl.uniformMatrix4fv(shadedProgramInfo.uniforms.model, false, model);
+      gl.uniform2f(shadedProgramInfo.uniforms.resolution, width.value, height.value);
+      gl.uniform1i(shadedProgramInfo.uniforms.paletteSampler, 0);
+      gl.uniform1i(shadedProgramInfo.uniforms.lightSampler, 1);
       gl.drawElements(
         gl.TRIANGLES,
         icon.indexCount,

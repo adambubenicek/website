@@ -1,9 +1,9 @@
 #version 300 es
 precision highp float;
 
-in vec3 aPosition;
-in vec3 aNormal;
-in float aUV;
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in float aUV;
 uniform mat4 uModel;
 uniform vec2 uResolution;
 uniform sampler2D uPaletteSampler;
