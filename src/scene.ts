@@ -1,8 +1,8 @@
 import type { Signal } from '@preact/signals-core'
 import { effect, computed } from '@preact/signals-core'
 import { mat4, quat, vec2, vec3 } from 'gl-matrix'
-import palette from './textures/palette.png'
-import matcap from './textures/matcap.png'
+import paletteUrl from './images/palette.png'
+import matcapUrl from './images/matcap.png'
 import {
 	createShadedProgram,
 	createReflectionProgram,
@@ -13,6 +13,27 @@ import circleUrl from './geometries/circle.data?url'
 import suzanneUrl from './geometries/suzanne.data?url'
 import sphereUrl from './geometries/sphere.data?url'
 import cubeUrl from './geometries/cube.data?url'
+
+async function loadImages() {
+	const urls = {
+		matcap: matcapUrl,
+		palette: paletteUrl,
+	}
+
+	const entries = await Promise.all(Object.entries(urls).map(([name, url]) => {
+		return new Promise((resolve) => {
+			const image = new Image()
+
+			image.addEventListener("load", () => {
+				resolve([name, image])
+			}, { once: true })
+
+			image.src = url
+		})
+	}))
+
+	return Object.fromEntries(entries)
+}
 
 async function loadGeometries() {
 	const urls = {
@@ -49,7 +70,10 @@ export default async function Scene(
   gridSize: Signal<number>,
 ) {
 
-	const geometries = await loadGeometries()
+	const [
+		geometries,
+		images
+	] = await Promise.all([ loadGeometries(), loadImages() ])
 
   effect(() => {
     gl.viewport(
@@ -205,27 +229,10 @@ export default async function Scene(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
-    1,
-    1,
-    0,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    new Uint8Array([0,0,255,255])
+    images.palette
   )
-
-  const paletteImage = new Image()
-  paletteImage.src = palette;
-  paletteImage.addEventListener('load', () => {
-    gl.bindTexture(gl.TEXTURE_2D, paletteTexture)
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      paletteImage
-    )
-  }, { once: true })
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -239,32 +246,15 @@ export default async function Scene(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
-    1,
-    1,
-    0,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    new Uint8Array([0,0,255,255])
+    images.matcap
   )
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  const matcapImage = new Image()
-  matcapImage.src = matcap;
-  matcapImage.addEventListener('load', () => {
-    gl.bindTexture(gl.TEXTURE_2D, matcapTexture)
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      matcapImage
-    )
-  }, { once: true })
 
 
   const model = mat4.create()
