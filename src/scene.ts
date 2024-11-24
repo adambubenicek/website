@@ -14,7 +14,7 @@ import suzanneUrl from './geometries/suzanne.data?url'
 import sphereUrl from './geometries/sphere.data?url'
 import cubeUrl from './geometries/cube.data?url'
 
-async function loadGeometries(gl) {
+async function loadGeometries() {
 	const urls = {
 		circle: circleUrl,
 		suzanne: suzanneUrl,
@@ -68,8 +68,6 @@ export default async function Scene(
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 6)
 
-  console.log(geometries)
-
   const icons = Object.values([
 		geometries.suzanne,
 		geometries.cube,
@@ -90,8 +88,8 @@ export default async function Scene(
 	  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementArrayBuffer)
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, icon.geometry.arrayBuffer, gl.STATIC_DRAW)
 
-		const arrayBuffer = gl.createBuffer()
-	  gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer)
+		const geometryBuffer = gl.createBuffer()
+	  gl.bindBuffer(gl.ARRAY_BUFFER, geometryBuffer)
     gl.bufferData(gl.ARRAY_BUFFER, icon.geometry.arrayBuffer, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(0);
@@ -138,20 +136,6 @@ export default async function Scene(
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
 
-  // const [ circleCoords, circleUvs, circleIndices ] = await Promise.all([
-  //   import('./geometries/circle.coords?url')
-  //   .then(u => fetch(u.default))
-  //   .then(r => r.arrayBuffer()),
-  //   import('./geometries/circle.uvs?url')
-  //   .then(u => fetch(u.default))
-  //   .then(r => r.arrayBuffer()),
-  //   import('./geometries/circle.indices?url')
-  //   .then(u => fetch(u.default))
-  //   .then(r => r.arrayBuffer()),
-  // ])
-
-  // const circleIndexCount = circleIndices.byteLength / Uint16Array.BYTES_PER_ELEMENT
-
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW)
@@ -172,8 +156,8 @@ export default async function Scene(
   );
 
 
-  const backgroundPositionBuffer = gl.createBuffer()!
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
+  const backgroundGeometryBuffer = gl.createBuffer()!
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundGeometryBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(0);
@@ -186,10 +170,6 @@ export default async function Scene(
     0,
     geometries.circle.coordsOffset,
   );
-
-  const backgroundUvBuffer = gl.createBuffer()!
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundUvBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(3);
   gl.vertexAttribDivisor(3, 0);
