@@ -16,9 +16,9 @@ uvFrequencies = [0] * 256
 
 for vertex in obj.data.vertices:
     coord = obj.matrix_world @ vertex.co
-    coords[vertex.index * 3 + 0] = round(coord.x * 32767)
-    coords[vertex.index * 3 + 1] = round(coord.y * 32767)
-    coords[vertex.index * 3 + 2] = round(coord.z * 32767)
+    coords[vertex.index * 3 + 0] = round(coord.x * 32767) 
+    coords[vertex.index * 3 + 1] = round(coord.y * 32767) 
+    coords[vertex.index * 3 + 2] = round(coord.z * 32767) 
 
     normal = obj.matrix_world @ vertex.normal
     normals[vertex.index * 3 + 0] = round(normal.x * 32767)
@@ -45,19 +45,25 @@ for index in range(255):
     if uvFrequencies[index] > uvFrequencies[majorUV]:
         majorUV = index
 
-with open(f"{output_dir}{obj.name}.coords", "wb") as f:
-    f.write(struct.pack(f"{len(coords)}h", *coords))
+data = b''
 
-with open(f"{output_dir}{obj.name}.normals", "wb") as f:
-    f.write(struct.pack(f"{len(normals)}h", *normals))
+indicesOffset = len(data)
+data += struct.pack(f"<{len(indices)}H", *indices)
 
-with open(f"{output_dir}{obj.name}.indices", "wb") as f:
-    f.write(struct.pack(f"{len(indices)}H", *indices))
+coordsOffset = len(data)
+data += struct.pack(f"<{len(coords)}h", *coords)
 
-with open(f"{output_dir}{obj.name}.uvs", "wb") as f:
-    f.write(struct.pack(f"{len(uvs)}B", *uvs))
+normalsOffset = len(data)
+data += struct.pack(f"<{len(normals)}h", *normals)
 
-with open(f"{output_dir}{obj.name}.json", "w") as f:
-    json.dump({
-        "majorUV": majorUV
-        }, f)
+uvsOffset = len(data)
+data += struct.pack(f"<{len(uvs)}B", *uvs)
+
+data += struct.pack(f"<1B", majorUV)
+data += struct.pack(f"<1L", indicesOffset)
+data += struct.pack(f"<1L", coordsOffset)
+data += struct.pack(f"<1L", normalsOffset)
+data += struct.pack(f"<1L", uvsOffset)
+
+with open(f"{output_dir}{obj.name}.data", "wb") as f:
+    f.write(data)

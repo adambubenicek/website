@@ -9,6 +9,38 @@ import {
 	createShadowProgram,
 } from './programs'
 
+import circleUrl from './geometries/circle.data?url'
+import suzanneUrl from './geometries/suzanne.data?url'
+import sphereUrl from './geometries/sphere.data?url'
+import cubeUrl from './geometries/cube.data?url'
+
+async function loadGeometries(gl) {
+	const urls = {
+		circle: circleUrl,
+		suzanne: suzanneUrl,
+		sphere: sphereUrl,
+		cube: cubeUrl,
+	}
+
+	const entries = await Promise.all(Object.entries(urls).map(async ([name, url]) => {
+		const response = await fetch(url)
+		const arrayBuffer = await response.arrayBuffer()
+		const dataView = new DataView(arrayBuffer)
+
+		return [name, {
+			arrayBuffer: arrayBuffer,
+			indicesOffset: dataView.getUint32(dataView.byteLength - 16, true),
+			coordsOffset: dataView.getUint32(dataView.byteLength - 12, true),
+			normalsOffset: dataView.getUint32(dataView.byteLength - 8, true),
+			uvsOffset: dataView.getUint32(dataView.byteLength - 4, true),
+			indicesCount: dataView.getUint32(dataView.byteLength - 12, true) / Uint16Array.BYTES_PER_ELEMENT,
+			majorUV: dataView.getUint8(dataView.byteLength - 17),
+		}]
+	}))
+
+	return Object.fromEntries(entries)
+}
+
 export default async function Scene(
   gl: WebGL2RenderingContext,
   width: Signal<number>,
@@ -16,6 +48,9 @@ export default async function Scene(
   dpr: Signal<number>,
   gridSize: Signal<number>,
 ) {
+
+	const geometries = await loadGeometries()
+
   effect(() => {
     gl.viewport(
       0,
@@ -33,70 +68,42 @@ export default async function Scene(
   const iconDefaultSpeed = computed(() => gridSize.value)
   const iconSize = computed(() => gridSize.value * 6)
 
-  const icons = await Promise.all(['sphere', 'cube', 'suzanne'].map(async name => {
-    const [ data, vertices, uvs, normals, indices ] = await Promise.all([
-      import(`./geometries/${name}.json`),
-      import(`./geometries/${name}.coords?url`)
-      .then(u => fetch(u.default))
-      .then(r => r.arrayBuffer()),
-      import(`./geometries/${name}.uvs?url`)
-      .then(u => fetch(u.default))
-      .then(r => r.arrayBuffer()),
-      import(`./geometries/${name}.normals?url`)
-      .then(u => fetch(u.default))
-      .then(r => r.arrayBuffer()),
-      import(`./geometries/${name}.indices?url`)
-      .then(u => fetch(u.default))
-      .then(r => r.arrayBuffer()),
-    ])
+  console.log(geometries)
 
-    const vao = gl.createVertexArray()!;
+  const icons = Object.values([
+		geometries.suzanne,
+		geometries.cube,
+		geometries.sphere,
+  ]).map(geometry => ({
+	  vao: gl.createVertexArray(),
+		geometry: geometry,
+    rotation: quat.create(),
+    translation: vec2.create(),
+    translationVelocity: vec2.create(),
+    scale: vec3.create(),
+  }))
 
-    gl.bindVertexArray(vao);
+  for (const icon of icons) {
+	  gl.bindVertexArray(icon.vao)
 
-    const indexBuffer = gl.createBuffer()
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW)
+		const elementArrayBuffer = gl.createBuffer()
+	  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, elementArrayBuffer)
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, icon.geometry.arrayBuffer, gl.STATIC_DRAW)
 
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		const arrayBuffer = gl.createBuffer()
+	  gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, icon.geometry.arrayBuffer, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 3, gl.SHORT, false, 0, 0);
-
-    const normalBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(0, 3, gl.SHORT, false, 0, icon.geometry.coordsOffset);
 
     gl.enableVertexAttribArray(1);
-    gl.vertexAttribPointer(1, 3, gl.SHORT, false, 0, 0);
-
-    const uvBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
+    gl.vertexAttribPointer(1, 3, gl.SHORT, false, 0, icon.geometry.normalsOffset);
 
     gl.enableVertexAttribArray(2);
-    gl.vertexAttribPointer(2, 1, gl.UNSIGNED_BYTE, false, 0, 0);
+    gl.vertexAttribPointer(2, 1, gl.UNSIGNED_BYTE, false, 0, icon.geometry.uvsOffset);
+  }
 
-    const translation = vec2.create()
-
-    const translationVelocity = vec2.create()
-    vec2.random(
-      translationVelocity,
-      iconDefaultSpeed.value
-    )
-
-    return {
-      vao: vao,
-      rotation: quat.create(),
-      translation: translation,
-      translationVelocity: translationVelocity,
-      scale: vec3.create(),
-      majorUV: data.majorUV,
-      indexCount: indices.byteLength / Uint16Array.BYTES_PER_ELEMENT,
-    };
-  }))
 
   let iconsPlaced = false;
   effect(() => {
@@ -107,8 +114,8 @@ export default async function Scene(
     for (const icon of icons) {
       vec2.set(
         icon.translation,
-        iconSize.value,
-        iconSize.value,
+        width.value * Math.random(),
+        height.value * Math.random(),
       )
     }
 
@@ -131,27 +138,27 @@ export default async function Scene(
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
 
-  const [ circleCoords, circleUvs, circleIndices ] = await Promise.all([
-    import('./geometries/circle.coords?url')
-    .then(u => fetch(u.default))
-    .then(r => r.arrayBuffer()),
-    import('./geometries/circle.uvs?url')
-    .then(u => fetch(u.default))
-    .then(r => r.arrayBuffer()),
-    import('./geometries/circle.indices?url')
-    .then(u => fetch(u.default))
-    .then(r => r.arrayBuffer()),
-  ])
+  // const [ circleCoords, circleUvs, circleIndices ] = await Promise.all([
+  //   import('./geometries/circle.coords?url')
+  //   .then(u => fetch(u.default))
+  //   .then(r => r.arrayBuffer()),
+  //   import('./geometries/circle.uvs?url')
+  //   .then(u => fetch(u.default))
+  //   .then(r => r.arrayBuffer()),
+  //   import('./geometries/circle.indices?url')
+  //   .then(u => fetch(u.default))
+  //   .then(r => r.arrayBuffer()),
+  // ])
 
-  const circleIndexCount = circleIndices.byteLength / Uint16Array.BYTES_PER_ELEMENT
+  // const circleIndexCount = circleIndices.byteLength / Uint16Array.BYTES_PER_ELEMENT
 
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, circleIndices, gl.STATIC_DRAW)
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW)
 
   const backgroundMajorUVBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundMajorUVBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(icons.map(i => i.majorUV)), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(icons.map(i => i.geometry.majorUV)), gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(2);
   gl.vertexAttribDivisor(2, 1);
@@ -167,7 +174,7 @@ export default async function Scene(
 
   const backgroundPositionBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundPositionBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, circleCoords, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(0);
   gl.vertexAttribDivisor(0, 0);
@@ -177,12 +184,12 @@ export default async function Scene(
     gl.SHORT,
     false,
     0,
-    0,
+    geometries.circle.coordsOffset,
   );
 
   const backgroundUvBuffer = gl.createBuffer()!
   gl.bindBuffer(gl.ARRAY_BUFFER, backgroundUvBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, circleUvs, gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW);
 
   gl.enableVertexAttribArray(3);
   gl.vertexAttribDivisor(3, 0);
@@ -192,7 +199,7 @@ export default async function Scene(
     gl.UNSIGNED_BYTE,
     false,
     0,
-    0,
+    geometries.circle.uvsOffset,
   );
 
   const backgroundIconPositionBuffer = gl.createBuffer()!
@@ -316,7 +323,7 @@ export default async function Scene(
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
-      circleIndexCount,
+      geometries.circle.indicesCount,
       gl.UNSIGNED_SHORT,
       0, 
       backgroundIconPositions.length / 2
@@ -328,7 +335,7 @@ export default async function Scene(
 
     gl.drawElementsInstanced(
       gl.TRIANGLES,
-      circleIndexCount,
+      geometries.circle.indicesCount,
       gl.UNSIGNED_SHORT,
       0, 
       backgroundIconPositions.length / 2
@@ -460,7 +467,7 @@ export default async function Scene(
       gl.uniform1i(shadedProgramInfo.uniforms.lightSampler, 1);
       gl.drawElements(
         gl.TRIANGLES,
-        icon.indexCount,
+        icon.geometry.indicesCount,
         gl.UNSIGNED_SHORT,
         0,
       );
