@@ -41,8 +41,7 @@ async function main() {
 	document.body.appendChild(renderer.canvasElement)
 
 	for (const icon of renderer.icons) {
-		icon.translation = vec2.fromValues(width * Math.random(), height * Math.random())
-		icon.scale = vec3.fromValues(80, 80, 80)
+		vec3.set(icon.translation, Math.random() * width, Math.random() * height, 240)
 	}
 
   const force = vec2.create()
@@ -63,6 +62,9 @@ async function main() {
     const iconRadius = 40
     const iconDiameter = iconRadius * 2
     const iconDefaultSpeed = 40
+
+
+
 
 
     for (let i = 0; i < iconCount; i++) {
@@ -158,12 +160,12 @@ async function main() {
       quat.rotateX(
         icon.rotation,
         icon.rotation,
-        icon.translationVelocity[0] * iconDefaultSpeed * delta * 0.01
+        icon.translationVelocity[0] * iconDefaultSpeed * delta * 0.001
       )
       quat.rotateY(
         icon.rotation,
         icon.rotation,
-        icon.translationVelocity[1] * iconDefaultSpeed * delta * 0.01
+        icon.translationVelocity[1] * iconDefaultSpeed * delta * 0.001
       )
       quat.rotateZ(
         icon.rotation,

@@ -61,7 +61,6 @@ export function createShadedProgram(
   const uniforms = {
     model: gl.getUniformLocation(program, "uModel")!,
     projectionView: gl.getUniformLocation(program, "uProjectionView")!,
-    resolution: gl.getUniformLocation(program, "uResolution")!,
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!,
     lightSampler: gl.getUniformLocation(program, "uMatcapSampler")!,
   }
@@ -90,7 +89,7 @@ export function createShadowProgram(
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
     size: gl.getUniformLocation(program, "uSize")!,
-    resolution: gl.getUniformLocation(program, "uResolution")!,
+    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!
   }
 
@@ -118,7 +117,7 @@ export function createReflectionProgram(
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
     size: gl.getUniformLocation(program, "uSize")!,
-    resolution: gl.getUniformLocation(program, "uResolution")!,
+    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!
   }
 

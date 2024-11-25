@@ -85,7 +85,7 @@ export async function createRenderer() {
 	  vao: gl.createVertexArray(),
 		geometry: geometry,
     rotation: quat.create(),
-    translation: vec2.create(),
+    translation: vec3.create(),
     translationVelocity: vec2.create(),
     scale: vec3.create(),
   }))
@@ -167,14 +167,14 @@ export async function createRenderer() {
   gl.vertexAttribDivisor(1, 1);
   gl.vertexAttribPointer(
     1,
-    2,
+    3,
     gl.FLOAT,
     false,
     0,
     0
   );
 
-  let backgroundIconPositions = new Float32Array(icons.length * 2);
+  let backgroundIconPositions = new Float32Array(icons.length * 3);
 
 
   const paletteTexture = gl.createTexture()
@@ -235,15 +235,18 @@ export async function createRenderer() {
 		  canvasElement.style.width = `${Math.round(width)}px`;
 		  canvasElement.style.height = `${Math.round(height)}px`;
 
+		  const depth = height * 3
+		  const fov = Math.atan((height * 0.5) / depth * 2)
+
 		  const projection = mat4.create()
-		  const fov = Math.atan((height * 0.5) / (height * 3) * 2)
-			mat4.perspective(projection, fov, width / height, height * 2, height * 4)
+			mat4.perspective(projection, fov, width / height, depth - height, depth + height)
 
 		  const view = mat4.create()
-		  const eye = vec3.fromValues(width / 2, height / 2, -height * 3)
-		  const center = vec3.fromValues(width / 2, height / 2, 0)
-		  const up = vec3.fromValues(0, -1, 0)
-			mat4.lookAt(view, eye, center, up)
+		  mat4.fromTranslation(view, vec3.fromValues(
+				-width * 0.5,
+				-height * 0.5,
+				-depth
+		  ))
 
 			mat4.multiply(projectionView, projection, view)
 		},
@@ -259,13 +262,14 @@ export async function createRenderer() {
 
 	    for (let i = 0; i < icons.length; i++) {
 	      const icon = icons[i]
-	      backgroundIconPositions[i * 2] = icon.translation[0]
-	      backgroundIconPositions[i * 2 + 1] = icon.translation[1]
+	      backgroundIconPositions[i * 3] = icon.translation[0]
+	      backgroundIconPositions[i * 3 + 1] = icon.translation[1]
+	      backgroundIconPositions[i * 3 + 2] = icon.translation[2]
 	    }
 	    gl.bufferData(gl.ARRAY_BUFFER, backgroundIconPositions, gl.DYNAMIC_DRAW);
 
 	    gl.useProgram(reflectionProgramInfo.program)
-	    gl.uniform2f(reflectionProgramInfo.uniforms.resolution, width, height);
+      gl.uniformMatrix4fv(reflectionProgramInfo.uniforms.projectionView, false, projectionView);
 	    gl.uniform1f(reflectionProgramInfo.uniforms.size, iconDiameter);
 
 	    gl.drawElementsInstanced(
@@ -273,11 +277,11 @@ export async function createRenderer() {
 	      geometries.circle.indicesCount,
 	      gl.UNSIGNED_SHORT,
 	      0, 
-	      backgroundIconPositions.length / 2
+	      backgroundIconPositions.length / 3
 	    );
 
 	    gl.useProgram(shadowProgramInfo.program)
-	    gl.uniform2f(shadowProgramInfo.uniforms.resolution, width, height);
+      gl.uniformMatrix4fv(shadowProgramInfo.uniforms.projectionView, false, projectionView);
 	    gl.uniform1f(shadowProgramInfo.uniforms.size, iconDiameter);
 
 	    gl.drawElementsInstanced(
@@ -285,7 +289,7 @@ export async function createRenderer() {
 	      geometries.circle.indicesCount,
 	      gl.UNSIGNED_SHORT,
 	      0, 
-	      backgroundIconPositions.length / 2
+	      backgroundIconPositions.length / 3
 	    );
 
 	    gl.disable(gl.BLEND);
@@ -296,11 +300,7 @@ export async function createRenderer() {
 	      mat4.fromRotationTranslationScale(
 	        model,
 	        icon.rotation,
-	        vec3.fromValues(
-	          icon.translation[0],
-	          icon.translation[1],
-	          0
-	        ),
+	        icon.translation,
 	        icon.scale,
 	      )
 	      gl.bindVertexArray(icon.vao);
