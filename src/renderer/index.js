@@ -213,6 +213,7 @@ export async function createRenderer() {
 
 
   const model = mat4.create()
+  const projectionView = mat4.create()
 
   return  {
 	  icons: icons,
@@ -233,6 +234,18 @@ export async function createRenderer() {
 
 		  canvasElement.style.width = `${Math.round(width)}px`;
 		  canvasElement.style.height = `${Math.round(height)}px`;
+
+		  const projection = mat4.create()
+		  const fov = Math.atan((height * 0.5) / (height * 3) * 2)
+			mat4.perspective(projection, fov, width / height, height * 2, height * 4)
+
+		  const view = mat4.create()
+		  const eye = vec3.fromValues(width / 2, height / 2, -height * 3)
+		  const center = vec3.fromValues(width / 2, height / 2, 0)
+		  const up = vec3.fromValues(0, -1, 0)
+			mat4.lookAt(view, eye, center, up)
+
+			mat4.multiply(projectionView, projection, view)
 		},
 		render(iconDiameter) {
 	    gl.clearColor(0, 0, 0, 0);
@@ -292,6 +305,7 @@ export async function createRenderer() {
 	      )
 	      gl.bindVertexArray(icon.vao);
 	      gl.uniformMatrix4fv(shadedProgramInfo.uniforms.model, false, model);
+	      gl.uniformMatrix4fv(shadedProgramInfo.uniforms.projectionView, false, projectionView);
 	      gl.uniform2f(shadedProgramInfo.uniforms.resolution, width, height);
 	      gl.uniform1i(shadedProgramInfo.uniforms.paletteSampler, 0);
 	      gl.uniform1i(shadedProgramInfo.uniforms.lightSampler, 1);

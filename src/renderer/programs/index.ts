@@ -60,6 +60,7 @@ export function createShadedProgram(
 
   const uniforms = {
     model: gl.getUniformLocation(program, "uModel")!,
+    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
     resolution: gl.getUniformLocation(program, "uResolution")!,
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!,
     lightSampler: gl.getUniformLocation(program, "uMatcapSampler")!,
