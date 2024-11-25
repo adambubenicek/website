@@ -5,29 +5,21 @@ import shadowFragmentShaderSource from "./shadow.frag?raw";
 import reflectionVertexShaderSource from "./reflection.vert?raw";
 import reflectionFragmentShaderSource from "./reflection.frag?raw";
 
-function createShader(
-  gl: WebGL2RenderingContext,
-  type: GLenum,
-  source: string
-): WebGLShader {
-  const shader = gl.createShader(type)!;
+function createShader(gl, type, source) {
+  const shader = gl.createShader(type);
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    throw gl.getShaderInfoLog(shader);
+    gl.getShaderInfoLog(shader);
   }
 
   return shader;
 }
 
 
-function createProgram(
-  gl: WebGL2RenderingContext,
-  vertexShader: WebGLShader,
-  fragmentShader: WebGLShader
-): WebGLProgram {
-  const program = gl.createProgram()!;
+function createProgram(gl, vertexShader, fragmentShader) {
+  const program = gl.createProgram();
 
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
@@ -41,9 +33,7 @@ function createProgram(
   return program;
 }
 
-export function createShadedProgram(
-	gl: WebGL2RenderingContext,
-) {
+export function createShadedProgram(gl) {
   const vertexShader = createShader(
 	  gl,
     gl.VERTEX_SHADER,
@@ -59,10 +49,10 @@ export function createShadedProgram(
   const program = createProgram(gl, vertexShader, fragmentShader);
 
   const uniforms = {
-    model: gl.getUniformLocation(program, "uModel")!,
-    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
-    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!,
-    lightSampler: gl.getUniformLocation(program, "uMatcapSampler")!,
+    model: gl.getUniformLocation(program, "uModel"),
+    projectionView: gl.getUniformLocation(program, "uProjectionView"),
+    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler"),
+    lightSampler: gl.getUniformLocation(program, "uMatcapSampler"),
   }
 
   return {
@@ -71,9 +61,7 @@ export function createShadedProgram(
   }
 }
 
-export function createShadowProgram(
-	gl: WebGL2RenderingContext
-) {
+export function createShadowProgram(gl) {
   const vertexShader = createShader(
 	  gl,
     gl.VERTEX_SHADER,
@@ -88,9 +76,9 @@ export function createShadowProgram(
 
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
-    size: gl.getUniformLocation(program, "uSize")!,
-    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
-    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!
+    size: gl.getUniformLocation(program, "uSize"),
+    projectionView: gl.getUniformLocation(program, "uProjectionView"),
+    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")
   }
 
   return {
@@ -99,9 +87,7 @@ export function createShadowProgram(
   }
 }
 
-export function createReflectionProgram(
-	gl: WebGL2RenderingContext
-) {
+export function createReflectionProgram(gl) {
   const vertexShader = createShader(
 	  gl,
     gl.VERTEX_SHADER,
@@ -116,9 +102,9 @@ export function createReflectionProgram(
 
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
-    size: gl.getUniformLocation(program, "uSize")!,
-    projectionView: gl.getUniformLocation(program, "uProjectionView")!,
-    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")!
+    size: gl.getUniformLocation(program, "uSize"),
+    projectionView: gl.getUniformLocation(program, "uProjectionView"),
+    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")
   }
 
   return {

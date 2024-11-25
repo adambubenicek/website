@@ -72,6 +72,7 @@ export async function createRenderer() {
 		images
 	] = await Promise.all([ loadGeometries(), loadImages() ])
 
+
 	const shadedProgramInfo = createShadedProgram(gl)
 	const reflectionProgramInfo = createReflectionProgram(gl)
 	const shadowProgramInfo = createShadowProgram(gl)
