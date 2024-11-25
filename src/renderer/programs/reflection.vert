@@ -21,7 +21,7 @@ void main() {
   float u = aIconUV - v * 16.0;
   vec4 color = texture(uPaletteSampler, vec2(u, v) / 16.0);
 
-  vColor = vec4(color.rgb, aUv / 256.0 * 0.3);
+  vColor = vec4(color.rgb, aUv / 256.0 * 0.6);
 
   gl_Position = uProjectionView * position;
 }
