@@ -40,8 +40,17 @@ async function main() {
 
 	document.body.appendChild(renderer.canvasElement)
 
+	const iconCount = renderer.icons.length
+  const iconDefaultSpeed = 40
+
 	for (const icon of renderer.icons) {
 		vec3.set(icon.translation, Math.random() * width, Math.random() * height, 240)
+    vec3.set(icon.scale,
+			icon.scaleBase * icon.geometry.size[0] * 30,
+			icon.scaleBase * icon.geometry.size[1] * 30,
+			icon.scaleBase * icon.geometry.size[2] * 30
+    )
+    icon.radius = vec3.length(icon.scale) / 2
 	}
 
   const force = vec2.create()
@@ -58,26 +67,16 @@ async function main() {
       return requestAnimationFrame(handleAnimationFrame)
     }
 
-		const iconCount = renderer.icons.length
-    const iconRadius = 40
-    const iconDiameter = iconRadius * 2
-    const iconDefaultSpeed = 40
-
-
-
-
 
     for (let i = 0; i < iconCount; i++) {
       const icon = renderer.icons[i];
-
-      vec3.set(icon.scale, iconDiameter, iconDiameter, iconDiameter)
 
       for (let j = i + 1; j < iconCount; j++) {
         const icon2 = renderer.icons[j]
         const distance = Math.max(1, vec2.distance(
           icon.translation,
           icon2.translation,
-        ) - iconDiameter)
+        ) - icon.radius - icon2.radius)
 
         vec2.subtract(force, icon.translation, icon2.translation)
         vec2.normalize(force, force)
@@ -102,7 +101,7 @@ async function main() {
       }
 
       if (icon.translation[0] < width * 0.5) {
-        const distance = Math.max(1, icon.translation[0] - paddingX - iconRadius)
+        const distance = Math.max(1, icon.translation[0] - paddingX - icon.radius)
         vec2.set(force, 1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -111,7 +110,7 @@ async function main() {
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
-        const distance = Math.max(1, width - icon.translation[0] - paddingX - iconRadius)
+        const distance = Math.max(1, width - icon.translation[0] - paddingX - icon.radius)
         vec2.set(force, -1, 0)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -122,7 +121,7 @@ async function main() {
       }
 
       if (icon.translation[1] < height * 0.5) {
-        const distance = Math.max(1, icon.translation[1] - paddingY - iconRadius)
+        const distance = Math.max(1, icon.translation[1] - paddingY - icon.radius)
         vec2.set(force, 0, 1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -131,7 +130,7 @@ async function main() {
           repulsionCoefficient / (distance * distance) * delta
         )
       } else {
-        const distance = Math.max(1, height - icon.translation[1] - paddingY - iconRadius) 
+        const distance = Math.max(1, height - icon.translation[1] - paddingY - icon.radius) 
         vec2.set(force, 0, -1)
         vec2.scaleAndAdd(
           icon.translationVelocity,
@@ -174,7 +173,7 @@ async function main() {
       )
     }
 
-		renderer.render(iconDiameter)
+		renderer.render()
 
     requestAnimationFrame(handleAnimationFrame)
   }

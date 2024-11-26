@@ -60,6 +60,7 @@ data += struct.pack(f"<{len(normals)}b", *normals)
 uvsOffset = len(data)
 data += struct.pack(f"<{len(uvs)}B", *uvs)
 
+data += struct.pack(f"<3f", size.x, size.y, size.z)
 data += struct.pack(f"<1L", indicesOffset)
 data += struct.pack(f"<1L", coordsOffset)
 data += struct.pack(f"<1L", normalsOffset)

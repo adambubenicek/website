@@ -52,8 +52,13 @@ async function loadGeometries() {
 			coordsOffset: dataView.getUint32(dataView.byteLength - 12, true),
 			normalsOffset: dataView.getUint32(dataView.byteLength - 8, true),
 			uvsOffset: dataView.getUint32(dataView.byteLength - 4, true),
+			size: vec3.fromValues(
+				dataView.getFloat32(dataView.byteLength - 28, true),
+				dataView.getFloat32(dataView.byteLength - 24, true),
+				dataView.getFloat32(dataView.byteLength - 20, true),
+			),
+
 			indicesCount: dataView.getUint32(dataView.byteLength - 12, true) / Uint16Array.BYTES_PER_ELEMENT,
-			majorUV: dataView.getUint8(dataView.byteLength - 17),
 		}]
 	}))
 
@@ -79,16 +84,19 @@ export async function createRenderer() {
 
 
   const icons = Object.values([
-		geometries.suzanne,
-		geometries.cube,
-		geometries.sphere,
-  ]).map(geometry => ({
+		{ geometry: geometries.suzanne, scaleBase: 0.6, color: vec3.fromValues(0.086, 0.639, 0.29) },
+		{ geometry: geometries.cube, scaleBase: 0.8, color: vec3.fromValues(0.98,0.8,0.082) },
+		{ geometry: geometries.sphere, scaleBase: 1, color: vec3.fromValues(0.078, 0.722, 0.651) },
+  ]).map(({ geometry, scaleBase, color }) => ({
 	  vao: gl.createVertexArray(),
 		geometry: geometry,
+		color: color,
     rotation: quat.create(),
     translation: vec3.create(),
     translationVelocity: vec2.create(),
+    scaleBase: scaleBase,
     scale: vec3.create(),
+    radius: 0,
   }))
 
   for (const icon of icons) {
@@ -116,24 +124,9 @@ export async function createRenderer() {
   const backgroundVOA = gl.createVertexArray()
   gl.bindVertexArray(backgroundVOA)
 
-  const indexBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
+  const backgroundIndexBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, backgroundIndexBuffer)
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometries.circle.arrayBuffer, gl.STATIC_DRAW)
-
-  const backgroundMajorUVBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundMajorUVBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(icons.map(i => i.geometry.majorUV)), gl.STATIC_DRAW);
-
-  gl.enableVertexAttribArray(2);
-  gl.vertexAttribDivisor(2, 1);
-  gl.vertexAttribPointer(
-    2,
-    1,
-    gl.UNSIGNED_BYTE,
-    false,
-    0,
-    0,
-  );
 
 
   const backgroundGeometryBuffer = gl.createBuffer()
@@ -151,10 +144,11 @@ export async function createRenderer() {
     geometries.circle.coordsOffset,
   );
 
-  gl.enableVertexAttribArray(3);
-  gl.vertexAttribDivisor(3, 0);
+
+  gl.enableVertexAttribArray(1);
+  gl.vertexAttribDivisor(1, 0);
   gl.vertexAttribPointer(
-    3,
+    1,
     1,
     gl.UNSIGNED_BYTE,
     false,
@@ -162,21 +156,22 @@ export async function createRenderer() {
     geometries.circle.uvsOffset,
   );
 
-  const backgroundIconPositionBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundIconPositionBuffer);
-  gl.enableVertexAttribArray(1);
-  gl.vertexAttribDivisor(1, 1);
-  gl.vertexAttribPointer(
-    1,
-    3,
-    gl.FLOAT,
-    false,
-    0,
-    0
-  );
+  const backgroundIconInfoBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, backgroundIconInfoBuffer);
 
-  let backgroundIconPositions = new Float32Array(icons.length * 3);
+  gl.enableVertexAttribArray(2);
+  gl.vertexAttribDivisor(2, 1);
+  gl.vertexAttribPointer(2, 3, gl.FLOAT, false, 7 * 4, 0);
 
+  gl.enableVertexAttribArray(3);
+  gl.vertexAttribDivisor(3, 1);
+  gl.vertexAttribPointer(3, 3, gl.FLOAT, false, 7 * 4, 3 * 4);
+
+  gl.enableVertexAttribArray(4);
+  gl.vertexAttribDivisor(4, 1);
+  gl.vertexAttribPointer(4, 1, gl.FLOAT, false, 7 * 4, 6 * 4);
+
+  let backgroundIconInfo = new Float32Array(icons.length * 7)
 
   const paletteTexture = gl.createTexture()
   gl.activeTexture(gl.TEXTURE0);
@@ -251,7 +246,7 @@ export async function createRenderer() {
 
 			mat4.multiply(projectionView, projection, view)
 		},
-		render(iconDiameter) {
+		render() {
 	    gl.clearColor(0, 0, 0, 0);
 	    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -263,34 +258,39 @@ export async function createRenderer() {
 
 	    for (let i = 0; i < icons.length; i++) {
 	      const icon = icons[i]
-	      backgroundIconPositions[i * 3] = icon.translation[0]
-	      backgroundIconPositions[i * 3 + 1] = icon.translation[1]
-	      backgroundIconPositions[i * 3 + 2] = icon.translation[2]
+	      backgroundIconInfo[i * 7 + 0] = icon.translation[0]
+	      backgroundIconInfo[i * 7 + 1] = icon.translation[1]
+	      backgroundIconInfo[i * 7 + 2] = icon.translation[2]
+
+	      backgroundIconInfo[i * 7 + 3] = icon.color[0]
+	      backgroundIconInfo[i * 7 + 4] = icon.color[1]
+	      backgroundIconInfo[i * 7 + 5] = icon.color[2]
+
+	      backgroundIconInfo[i * 7 + 6] = icon.radius
 	    }
-	    gl.bufferData(gl.ARRAY_BUFFER, backgroundIconPositions, gl.DYNAMIC_DRAW);
+
+	    gl.bufferData(gl.ARRAY_BUFFER, backgroundIconInfo, gl.DYNAMIC_DRAW);
 
 	    gl.useProgram(reflectionProgramInfo.program)
       gl.uniformMatrix4fv(reflectionProgramInfo.uniforms.projectionView, false, projectionView);
-	    gl.uniform1f(reflectionProgramInfo.uniforms.size, iconDiameter);
 
 	    gl.drawElementsInstanced(
 	      gl.TRIANGLES,
 	      geometries.circle.indicesCount,
 	      gl.UNSIGNED_SHORT,
 	      0, 
-	      backgroundIconPositions.length / 3
+	      backgroundIconInfo.length / 7
 	    );
 
 	    gl.useProgram(shadowProgramInfo.program)
       gl.uniformMatrix4fv(shadowProgramInfo.uniforms.projectionView, false, projectionView);
-	    gl.uniform1f(shadowProgramInfo.uniforms.size, iconDiameter);
 
 	    gl.drawElementsInstanced(
 	      gl.TRIANGLES,
 	      geometries.circle.indicesCount,
 	      gl.UNSIGNED_SHORT,
 	      0, 
-	      backgroundIconPositions.length / 3
+	      backgroundIconInfo.length / 7
 	    );
 
 	    gl.disable(gl.BLEND);

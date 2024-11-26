@@ -76,9 +76,7 @@ export function createShadowProgram(gl) {
 
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
-    size: gl.getUniformLocation(program, "uSize"),
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
-    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")
   }
 
   return {
@@ -102,9 +100,7 @@ export function createReflectionProgram(gl) {
 
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
-    size: gl.getUniformLocation(program, "uSize"),
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
-    paletteSampler: gl.getUniformLocation(program, "uPaletteSampler")
   }
 
   return {
