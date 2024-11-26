@@ -311,7 +311,7 @@ export async function createRenderer() {
       canvasElement.style.width = `${Math.round(width)}px`;
       canvasElement.style.height = `${Math.round(height)}px`;
 
-      const depth = height * 3;
+      const depth = height * 5;
       const fov = Math.atan(((height * 0.5) / depth) * 2);
 
       const projection = mat4.create();
