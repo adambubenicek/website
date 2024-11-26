@@ -8,7 +8,9 @@ uniform mat4 uModel;
 uniform mat4 uProjectionView;
 uniform vec2 uResolution;
 uniform sampler2D uPaletteSampler;
-uniform sampler2D uMatcapSampler;
+uniform sampler2D uDiffuseDISampler;
+uniform sampler2D uDiffuseCSampler;
+uniform sampler2D uGlossyDICSampler;
 
 out vec4 vColor;
 out vec2 vMatcapUV;

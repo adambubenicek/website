@@ -51,7 +51,9 @@ export function createShadedProgram(gl) {
     model: gl.getUniformLocation(program, "uModel"),
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler"),
-    lightSampler: gl.getUniformLocation(program, "uMatcapSampler"),
+    diffuseDISampler: gl.getUniformLocation(program, "uDiffuseDISampler"),
+    diffuseCSampler: gl.getUniformLocation(program, "uDiffuseCSampler"),
+    glossyDICSampler: gl.getUniformLocation(program, "uGlossyDICSampler"),
   };
 
   return {

@@ -1,21 +1,26 @@
 import { mat4, quat, vec2, vec3 } from "gl-matrix";
-import paletteUrl from "./images/palette.png";
-import matcapUrl from "./images/matcap.png";
+import palette from "./images/palette.png";
+import diffuseDI from "./images/diffuse_di.png";
+import diffuseC from "./images/diffuse_c.png";
+import glossyDIC from "./images/glossy_dic.png";
+
 import {
   createShadedProgram,
   createReflectionProgram,
   createShadowProgram,
 } from "./programs";
 
-import circleUrl from "./geometries/circle.data?url";
-import suzanneUrl from "./geometries/suzanne.data?url";
-import sphereUrl from "./geometries/sphere.data?url";
-import cubeUrl from "./geometries/cube.data?url";
+import circle from "./geometries/circle.data?url";
+import suzanne from "./geometries/suzanne.data?url";
+import sphere from "./geometries/sphere.data?url";
+import cube from "./geometries/cube.data?url";
 
 async function loadImages() {
   const urls = {
-    matcap: matcapUrl,
-    palette: paletteUrl,
+    palette: palette,
+    glossyDIC: glossyDIC,
+    diffuseDI: diffuseDI,
+    diffuseC: diffuseC,
   };
 
   const entries = await Promise.all(
@@ -41,10 +46,10 @@ async function loadImages() {
 
 async function loadGeometries() {
   const urls = {
-    circle: circleUrl,
-    suzanne: suzanneUrl,
-    sphere: sphereUrl,
-    cube: cubeUrl,
+    circle: circle,
+    suzanne: suzanne,
+    sphere: sphere,
+    cube: cube,
   };
 
   const entries = await Promise.all(
@@ -232,16 +237,50 @@ export async function createRenderer() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const matcapTexture = gl.createTexture();
+  const diffuseDITexture = gl.createTexture();
   gl.activeTexture(gl.TEXTURE1);
-  gl.bindTexture(gl.TEXTURE_2D, matcapTexture);
+  gl.bindTexture(gl.TEXTURE_2D, diffuseDITexture);
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    images.matcap,
+    images.diffuseDI,
+  );
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const diffuseCTexture = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE2);
+  gl.bindTexture(gl.TEXTURE_2D, diffuseCTexture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    images.diffuseC,
+  );
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  const glossyDICTexture = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE3);
+  gl.bindTexture(gl.TEXTURE_2D, glossyDICTexture );
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    images.glossyDIC,
   );
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -367,7 +406,9 @@ export async function createRenderer() {
         );
         gl.uniform2f(shadedProgramInfo.uniforms.resolution, width, height);
         gl.uniform1i(shadedProgramInfo.uniforms.paletteSampler, 0);
-        gl.uniform1i(shadedProgramInfo.uniforms.lightSampler, 1);
+        gl.uniform1i(shadedProgramInfo.uniforms.diffuseDISampler, 1);
+        gl.uniform1i(shadedProgramInfo.uniforms.diffuseCSampler, 2);
+        gl.uniform1i(shadedProgramInfo.uniforms.glossyDICSampler, 3);
         gl.drawElements(
           gl.TRIANGLES,
           icon.geometry.indicesCount,
