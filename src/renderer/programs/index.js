@@ -17,7 +17,6 @@ function createShader(gl, type, source) {
   return shader;
 }
 
-
 function createProgram(gl, vertexShader, fragmentShader) {
   const program = gl.createProgram();
 
@@ -35,13 +34,13 @@ function createProgram(gl, vertexShader, fragmentShader) {
 
 export function createShadedProgram(gl) {
   const vertexShader = createShader(
-	  gl,
+    gl,
     gl.VERTEX_SHADER,
     shadedVertexShaderSource,
   );
 
   const fragmentShader = createShader(
-	  gl,
+    gl,
     gl.FRAGMENT_SHADER,
     shadedFragmentShaderSource,
   );
@@ -53,23 +52,23 @@ export function createShadedProgram(gl) {
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
     paletteSampler: gl.getUniformLocation(program, "uPaletteSampler"),
     lightSampler: gl.getUniformLocation(program, "uMatcapSampler"),
-  }
+  };
 
   return {
-	  program,
-	  uniforms
-  }
+    program,
+    uniforms,
+  };
 }
 
 export function createShadowProgram(gl) {
   const vertexShader = createShader(
-	  gl,
+    gl,
     gl.VERTEX_SHADER,
     shadowVertexShaderSource,
   );
 
   const fragmentShader = createShader(
-	  gl,
+    gl,
     gl.FRAGMENT_SHADER,
     shadowFragmentShaderSource,
   );
@@ -77,23 +76,23 @@ export function createShadowProgram(gl) {
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
-  }
+  };
 
   return {
-	  program,
-	  uniforms
-  }
+    program,
+    uniforms,
+  };
 }
 
 export function createReflectionProgram(gl) {
   const vertexShader = createShader(
-	  gl,
+    gl,
     gl.VERTEX_SHADER,
     reflectionVertexShaderSource,
   );
 
   const fragmentShader = createShader(
-	  gl,
+    gl,
     gl.FRAGMENT_SHADER,
     reflectionFragmentShaderSource,
   );
@@ -101,10 +100,10 @@ export function createReflectionProgram(gl) {
   const program = createProgram(gl, vertexShader, fragmentShader);
   const uniforms = {
     projectionView: gl.getUniformLocation(program, "uProjectionView"),
-  }
+  };
 
   return {
-	  program,
-	  uniforms
-  }
- }
+    program,
+    uniforms,
+  };
+}

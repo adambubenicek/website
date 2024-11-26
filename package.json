@@ -6,7 +6,7 @@
     "dev": "vite",
     "preview": "vite preview",
     "build": "vite build",
-    "format": "prettier --write ./src"
+    "format": "prettier --write **/*.{js,css,html}"
   },
   "author": "",
   "license": "ISC",

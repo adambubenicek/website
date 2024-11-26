@@ -27,8 +27,8 @@ uvFrequencies = [0] * 256
 for vertex in obj.data.vertices:
   for dimension in [0, 1, 2]:
     coords[vertex.index * 3 + dimension] = round(
-	    (vertex.co[dimension] + origin[dimension]) / size[dimension] * 255
-	  ) - 128 if size[dimension] > 0 else 0
+      (vertex.co[dimension] + origin[dimension]) / size[dimension] * 255
+    ) - 128 if size[dimension] > 0 else 0
 
     normals[vertex.index * 3 + dimension] = round(vertex.normal[dimension] * 127)
 
