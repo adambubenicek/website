@@ -103,10 +103,10 @@ export async function createRenderer() {
     gl.bufferData(gl.ARRAY_BUFFER, icon.geometry.arrayBuffer, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 3, gl.SHORT, false, 0, icon.geometry.coordsOffset);
+    gl.vertexAttribPointer(0, 3, gl.BYTE, false, 0, icon.geometry.coordsOffset);
 
     gl.enableVertexAttribArray(1);
-    gl.vertexAttribPointer(1, 3, gl.SHORT, false, 0, icon.geometry.normalsOffset);
+    gl.vertexAttribPointer(1, 3, gl.BYTE, false, 0, icon.geometry.normalsOffset);
 
     gl.enableVertexAttribArray(2);
     gl.vertexAttribPointer(2, 1, gl.UNSIGNED_BYTE, false, 0, icon.geometry.uvsOffset);
@@ -145,7 +145,7 @@ export async function createRenderer() {
   gl.vertexAttribPointer(
     0,
     3,
-    gl.SHORT,
+    gl.BYTE,
     false,
     0,
     geometries.circle.coordsOffset,
