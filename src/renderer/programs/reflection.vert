@@ -11,12 +11,12 @@ uniform mat4 uProjectionView;
 out vec4 vColor;
 
 void main() {
-  vec4 position = vec4(aPosition * 0.00392156862745098 * aIconRadius * 6.0, 1.0);
+  vec4 position = vec4(aPosition * 0.00392156862745098 * aIconRadius * 4.0, 1.0);
   position.x += aIconPosition.x;
   position.y += aIconPosition.y;
   position.z -= aIconPosition.z;
 
-  vColor = vec4(aIconColor, aUv * 0.00392156862745098 * 0.6);
+  vColor = vec4(aIconColor, aUv * 0.00392156862745098 * 0.5);
 
   gl_Position = uProjectionView * position;
 }
