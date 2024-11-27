@@ -37,7 +37,11 @@ main {
   background-size: calc(var(--grid-size) * 1) calc(var(--grid-size) * 1);
   background-image: linear-gradient(to right, #1e293b 1px, transparent 1px),
     linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-   background-image: radial-gradient(circle at top left, #334155 1px, transparent 0);
+  background-image: radial-gradient(
+    circle at top left,
+    #334155 1px,
+    transparent 0
+  );
   border-radius: var(--grid-size);
   border: 1px solid #1e293b;
 }

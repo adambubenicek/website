@@ -317,8 +317,9 @@ export async function createRenderer() {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE);
+
       gl.disable(gl.DEPTH_TEST);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       gl.bindVertexArray(backgroundVOA);
 
@@ -335,6 +336,7 @@ export async function createRenderer() {
         backgroundIconInfo[i * 7 + 6] = icon.radius;
       }
 
+      gl.bindBuffer(gl.ARRAY_BUFFER, backgroundIconInfoBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, backgroundIconInfo, gl.DYNAMIC_DRAW);
 
       gl.useProgram(reflectionProgramInfo.program);
