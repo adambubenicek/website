@@ -1,8 +1,7 @@
 import { mat4, quat, vec2, vec3 } from "gl-matrix";
 import palette from "./images/palette.png";
-import diffuseDI from "./images/diffuse_di.png";
-import diffuseC from "./images/diffuse_c.png";
-import glossyDIC from "./images/glossy_dic.png";
+import diffuse from "./images/diffuse.png";
+import glossy from "./images/glossy.png";
 
 import {
   createShadedProgram,
@@ -18,9 +17,8 @@ import cube from "./geometries/cube.data?url";
 async function loadImages() {
   const urls = {
     palette: palette,
-    glossyDIC: glossyDIC,
-    diffuseDI: diffuseDI,
-    diffuseC: diffuseC,
+    diffuse: diffuse,
+    glossy: glossy,
   };
 
   const entries = await Promise.all(
@@ -237,16 +235,16 @@ export async function createRenderer() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const diffuseDITexture = gl.createTexture();
+  const diffuseTexture = gl.createTexture();
   gl.activeTexture(gl.TEXTURE1);
-  gl.bindTexture(gl.TEXTURE_2D, diffuseDITexture);
+  gl.bindTexture(gl.TEXTURE_2D, diffuseTexture);
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    images.diffuseDI,
+    images.diffuse,
   );
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -254,33 +252,16 @@ export async function createRenderer() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  const diffuseCTexture = gl.createTexture();
+  const glossyTexture = gl.createTexture();
   gl.activeTexture(gl.TEXTURE2);
-  gl.bindTexture(gl.TEXTURE_2D, diffuseCTexture);
+  gl.bindTexture(gl.TEXTURE_2D, glossyTexture);
   gl.texImage2D(
     gl.TEXTURE_2D,
     0,
     gl.RGBA,
     gl.RGBA,
     gl.UNSIGNED_BYTE,
-    images.diffuseC,
-  );
-
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  const glossyDICTexture = gl.createTexture();
-  gl.activeTexture(gl.TEXTURE3);
-  gl.bindTexture(gl.TEXTURE_2D, glossyDICTexture );
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.RGBA,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    images.glossyDIC,
+    images.glossy,
   );
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -406,9 +387,8 @@ export async function createRenderer() {
         );
         gl.uniform2f(shadedProgramInfo.uniforms.resolution, width, height);
         gl.uniform1i(shadedProgramInfo.uniforms.paletteSampler, 0);
-        gl.uniform1i(shadedProgramInfo.uniforms.diffuseDISampler, 1);
-        gl.uniform1i(shadedProgramInfo.uniforms.diffuseCSampler, 2);
-        gl.uniform1i(shadedProgramInfo.uniforms.glossyDICSampler, 3);
+        gl.uniform1i(shadedProgramInfo.uniforms.diffuseSampler, 1);
+        gl.uniform1i(shadedProgramInfo.uniforms.glossySampler, 2);
         gl.drawElements(
           gl.TRIANGLES,
           icon.geometry.indicesCount,
