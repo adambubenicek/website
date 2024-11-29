@@ -1,70 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 * {
   margin: 0;
   padding: 0;
 }
 
 body {
-  height: 100svh;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #020617;
-  color: #e2e8f0;
-  font-family: "Noto Sans Mono", monospace, ui-monospace;
-  font-size: 20px;
-  line-height: calc(var(--grid-size) * 3);
-  letter-spacing: calc(var(--grid-size) - 1ch);
-  --grid-size: round(up, 1ch, 1px);
-}
+	background: #0a0a0a;
+	color: #cccccc;
+	height: 100svh;
 
-@media (min-width: 800px) {
-  body {
-    font-size: 24px;
-  }
+  --grid-size: round(min(16.667vw, 80px), 1px);
+
+	display: grid;
+	grid-template-columns: 1fr calc(var(--grid-size) * 6) 1fr;
+	grid-template-rows: 1fr calc(var(--grid-size) * 4) 1fr;
+	font-family: "Inter", sans-serif;
 }
 
 main {
-  position: relative;
-  height: calc(
-    round(down, calc(100svh - var(--grid-size) * 4), var(--grid-size)) - 1px
-  );
-  width: calc(
-    round(down, calc(100vw - var(--grid-size) * 4), var(--grid-size)) - 1px
-  );
-  background-color: #0f172a;
-  background-position: -1px -1px;
-  background-size: calc(var(--grid-size) * 1) calc(var(--grid-size) * 1);
-  background-image: linear-gradient(to right, #1e293b 1px, transparent 1px),
-    linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-  background-image: radial-gradient(
-    circle at top left,
-    #334155 1px,
-    transparent 0
-  );
-  border-radius: var(--grid-size);
-  border: 1px solid #1e293b;
+	grid-column: 2 / 3;
+	grid-row: 2 / 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
+/* Rectangle with 3/2 aspect ratio which contains another
+ * rectangle with the size of 85.60mm x 53.98mm (ISO 7810) with equal
+ * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
 article {
-  padding: calc(var(--grid-size) * 3);
+	height: 85.357%; /* 53.98mm / 63.24mm */
+	width: 90.238%; /* 85.60mm / 94.86mm */
+	border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
+	container-type: size;
+	background: #0e0e0e;
+	border: 1px solid #1e1e1e;
+	box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
+	;
 }
 
 h1 {
-  display: inline;
-  font-size: inherit;
-  letter-spacing: inherit;
+	margin-top: 13cqh;
+	margin-left: 13cqh;
+	margin-bottom: 8cqh;
+	font-size: 10cqh;
+	font-weight: 700;
+}
+
+p {
+	margin-left: 13cqh;
+	font-size: 5cqh;
+}
+
+.grid-column-left,
+.grid-column-middle,
+.grid-column-right,
+.grid-row-top,
+.grid-row-middle,
+.grid-row-bottom {
+  background-size: var(--grid-size) var(--grid-size);
+  z-index: -1;
+}
+
+.grid-column-left {
+  background-position: right;
+  background-image: repeating-linear-gradient(to left, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 1 / 2;
+  grid-row: 1 / 4;
+}
+
+.grid-column-middle {
+  background-position: left;
+  margin-left: var(--grid-size);
+  margin-right: 2px;
+  background-image: repeating-linear-gradient(to right, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 2 / 3;
+  grid-row: 1 / 4;
+}
+
+.grid-column-right {
+  background-position: left;
+  background-image: repeating-linear-gradient(to right, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 3 / 4;
+  grid-row: 1 / 4;
+}
+
+.grid-row-top{
+  background-position: bottom;
+  background-image: repeating-linear-gradient(to top, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 1 / 4;
+  grid-row: 1 / 2;
+}
+
+.grid-row-middle {
+  background-position: top;
+  margin-top: var(--grid-size);
+  margin-bottom: 2px;
+  background-image: repeating-linear-gradient(to bottom, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 1 / 4;
+  grid-row: 2 / 3;
+}
+
+.grid-row-bottom {
+  background-position: top;
+  background-image: repeating-linear-gradient(to bottom, #1e1e1e 0 1px, transparent 1px 100%);
+  grid-column: 1 / 4;
+  grid-row: 3 / 4;
 }
 
 canvas {
-  position: absolute;
-  width: 100vw;
-  height: 100svh;
-}
-
-#grid-size {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--grid-size);
+	position: absolute;
+	top: 0;
+	left: 0;
 }

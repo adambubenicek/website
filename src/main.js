@@ -1,6 +1,31 @@
 import { vec2, vec3, quat } from "gl-matrix";
 import { createRenderer } from "./renderer";
 
+function main2() {
+  const bodyElement = document.body;
+  const mainElement = document.querySelector("main");
+
+	let width = 0;
+	let height = 0;
+	let mainWidth = 0;
+	let mainHeight = 0;
+
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.target === bodyElement) {
+        width = entry.contentBoxSize[0].inlineSize;
+        height = entry.contentBoxSize[0].blockSize;
+      } else if (entry.target === mainElement) {
+        mainWidth = entry.contentBoxSize[0].inlineSize;
+        mainHeight = entry.contentBoxSize[0].blockSize;
+      }
+    }
+  });
+
+  resizeObserver.observe(bodyElement);
+  resizeObserver.observe(mainElement);
+}
+
 async function main() {
   const bodyElement = document.body;
   const mainElement = document.querySelector("main");
@@ -110,7 +135,7 @@ async function main() {
       if (icon.translation[0] < width * 0.5) {
         const distance = Math.max(
           1,
-          icon.translation[0] - paddingX - icon.radius,
+          icon.translation[0] - icon.radius,
         );
         vec2.set(force, 1, 0);
         vec2.scaleAndAdd(
@@ -122,7 +147,7 @@ async function main() {
       } else {
         const distance = Math.max(
           1,
-          width - icon.translation[0] - paddingX - icon.radius,
+          width - icon.translation[0] - icon.radius,
         );
         vec2.set(force, -1, 0);
         vec2.scaleAndAdd(
@@ -136,7 +161,7 @@ async function main() {
       if (icon.translation[1] < height * 0.5) {
         const distance = Math.max(
           1,
-          icon.translation[1] - paddingY - icon.radius,
+          icon.translation[1] - icon.radius,
         );
         vec2.set(force, 0, 1);
         vec2.scaleAndAdd(
@@ -148,7 +173,7 @@ async function main() {
       } else {
         const distance = Math.max(
           1,
-          height - icon.translation[1] - paddingY - icon.radius,
+          height - icon.translation[1] - icon.radius,
         );
         vec2.set(force, 0, -1);
         vec2.scaleAndAdd(
