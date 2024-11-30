@@ -105,9 +105,9 @@ async function loadGeometry(url) {
     normalsOffset: dataView.getUint32(dataView.byteLength - 8, true),
     uvsOffset: dataView.getUint32(dataView.byteLength - 4, true),
     size: vec3.fromValues(
-      dataView.getFloat32(dataView.byteLength - 28, true),
-      dataView.getFloat32(dataView.byteLength - 24, true),
-      dataView.getFloat32(dataView.byteLength - 20, true),
+      dataView.getFloat32(dataView.byteLength - 28, true) / 256,
+      dataView.getFloat32(dataView.byteLength - 24, true) / 256,
+      dataView.getFloat32(dataView.byteLength - 20, true) / 256,
     ),
     indexCount:
       dataView.getUint32(dataView.byteLength - 12, true) /

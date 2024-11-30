@@ -21,7 +21,7 @@ void main() {
   float u = aUV - v * 16.0;
   vColor = texture(uPaletteSampler, vec2(u, v) * 0.0625);
 
-  vec4 position = uProjectionView * uModel * vec4(aPosition * 0.00392156862745098, 1.0);
+  vec4 position = uProjectionView * uModel * vec4(aPosition, 1.0);
 
   gl_Position = position;
 }

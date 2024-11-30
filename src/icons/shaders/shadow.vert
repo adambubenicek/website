@@ -12,7 +12,7 @@ uniform sampler2D vColorSampler;
 out vec4 vColor;
 
 void main() {
-  vec4 position = vec4(aPosition * 0.00392156862745098 * aIconRadius * 2.0, 1.0);
+  vec4 position = vec4(aPosition * aIconRadius * 2.0, 1.0);
   position.x += aIconPosition.x + aIconPosition.x * -0.05;
   position.y += aIconPosition.y + aIconPosition.z * -0.05 + aIconPosition.z;
 
