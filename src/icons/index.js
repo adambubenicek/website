@@ -292,13 +292,14 @@ icons.forEach(async (icon) => {
   icon.translation = vec3.fromValues(
     Math.random() * width,
     Math.random() * height,
-    0,
+    100,
   );
   icon.scale = vec3.fromValues(
     40 * icon.scaleBase * geometry.size[0],
     40 * icon.scaleBase * geometry.size[1],
     40 * icon.scaleBase * geometry.size[2],
   );
+  icon.radius = vec3.length(icon.scale);
   icon.rotation = quat.create();
   icon.indexCount = geometry.indexCount;
   icon.size = geometry.size;
