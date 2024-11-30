@@ -6,12 +6,12 @@ import circle from "./geometries/circle.data?url";
 import suzanne from "./geometries/suzanne.data?url";
 import sphere from "./geometries/sphere.data?url";
 import cube from "./geometries/cube.data?url";
-import shadedVertex from "./programs/shaded.vert?raw";
-import shadedFragment from "./programs/shaded.frag?raw";
-import shadowVertex from "./programs/shadow.vert?raw";
-import shadowFragment from "./programs/shadow.frag?raw";
-import reflectionVertex from "./programs/reflection.vert?raw";
-import reflectionFragment from "./programs/reflection.frag?raw";
+import shadedVertex from "./shaders/shaded.vert?raw";
+import shadedFragment from "./shaders/shaded.frag?raw";
+import shadowVertex from "./shaders/shadow.vert?raw";
+import shadowFragment from "./shaders/shadow.frag?raw";
+import reflectionVertex from "./shaders/reflection.vert?raw";
+import reflectionFragment from "./shaders/reflection.frag?raw";
 
 const bodyElement = document.body;
 const mainElement = document.querySelector("main");
