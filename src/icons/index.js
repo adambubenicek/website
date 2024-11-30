@@ -1,7 +1,7 @@
 import { vec3, quat, mat4 } from "gl-matrix";
-import palette from "./images/palette.png";
-import diffuse from "./images/diffuse.png";
-import glossy from "./images/glossy.png";
+import palette from "./textures/palette.png";
+import diffuse from "./textures/diffuse.png";
+import glossy from "./textures/glossy.png";
 import circle from "./geometries/circle.data?url";
 import suzanne from "./geometries/suzanne.data?url";
 import sphere from "./geometries/sphere.data?url";
