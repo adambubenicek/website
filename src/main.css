@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 * {
   margin: 0;
@@ -6,51 +6,50 @@
 }
 
 body {
-	background: #0a0a0a;
-	color: #cccccc;
-	height: 100svh;
+  background: #0a0a0a;
+  color: #cccccc;
+  height: 100svh;
 
   --grid-size: round(min(16.667vw, 80px), 1px);
 
-	display: grid;
-	grid-template-columns: 1fr calc(var(--grid-size) * 6) 1fr;
-	grid-template-rows: 1fr calc(var(--grid-size) * 4) 1fr;
-	font-family: "Inter", sans-serif;
+  display: grid;
+  grid-template-columns: 1fr calc(var(--grid-size) * 6) 1fr;
+  grid-template-rows: 1fr calc(var(--grid-size) * 4) 1fr;
+  font-family: "Inter", sans-serif;
 }
 
 main {
-	grid-column: 2 / 3;
-	grid-row: 2 / 3;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Rectangle with 3/2 aspect ratio which contains another
  * rectangle with the size of 85.60mm x 53.98mm (ISO 7810) with equal
  * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
 article {
-	height: 85.357%; /* 53.98mm / 63.24mm */
-	width: 90.238%; /* 85.60mm / 94.86mm */
-	border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
-	container-type: size;
-	background: #0e0e0e;
-	border: 1px solid #1e1e1e;
-	box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
-	;
+  height: 85.357%; /* 53.98mm / 63.24mm */
+  width: 90.238%; /* 85.60mm / 94.86mm */
+  border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
+  container-type: size;
+  background: #0e0e0e;
+  border: 1px solid #1e1e1e;
+  box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
 }
 
 h1 {
-	margin-top: 13cqh;
-	margin-left: 13cqh;
-	margin-bottom: 8cqh;
-	font-size: 10cqh;
-	font-weight: 700;
+  margin-top: 13cqh;
+  margin-left: 13cqh;
+  margin-bottom: 8cqh;
+  font-size: 10cqh;
+  font-weight: 700;
 }
 
 p {
-	margin-left: 13cqh;
-	font-size: 5cqh;
+  margin-left: 13cqh;
+  font-size: 5cqh;
 }
 
 .grid-column-left,
@@ -65,7 +64,11 @@ p {
 
 .grid-column-left {
   background-position: right;
-  background-image: repeating-linear-gradient(to left, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to left,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 1 / 2;
   grid-row: 1 / 4;
 }
@@ -74,21 +77,33 @@ p {
   background-position: left;
   margin-left: var(--grid-size);
   margin-right: 2px;
-  background-image: repeating-linear-gradient(to right, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to right,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 2 / 3;
   grid-row: 1 / 4;
 }
 
 .grid-column-right {
   background-position: left;
-  background-image: repeating-linear-gradient(to right, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to right,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 3 / 4;
   grid-row: 1 / 4;
 }
 
-.grid-row-top{
+.grid-row-top {
   background-position: bottom;
-  background-image: repeating-linear-gradient(to top, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to top,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 1 / 4;
   grid-row: 1 / 2;
 }
@@ -97,20 +112,28 @@ p {
   background-position: top;
   margin-top: var(--grid-size);
   margin-bottom: 2px;
-  background-image: repeating-linear-gradient(to bottom, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 1 / 4;
   grid-row: 2 / 3;
 }
 
 .grid-row-bottom {
   background-position: top;
-  background-image: repeating-linear-gradient(to bottom, #1e1e1e 0 1px, transparent 1px 100%);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #1e1e1e 0 1px,
+    transparent 1px 100%
+  );
   grid-column: 1 / 4;
   grid-row: 3 / 4;
 }
 
 canvas {
-	position: absolute;
-	top: 0;
-	left: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
