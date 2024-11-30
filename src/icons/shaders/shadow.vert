@@ -12,10 +12,10 @@ uniform sampler2D vColorSampler;
 out vec4 vColor;
 
 void main() {
-  vec4 position = vec4(aPosition * 0.00392156862745098 * aIconRadius * 8.0, 1.0);
-  position.x += aIconPosition.x - aIconPosition.z * 0.1;
-  position.y += aIconPosition.y - aIconPosition.z * 0.3;
+  vec4 position = vec4(aPosition * 0.00392156862745098 * aIconRadius * 2.0, 1.0);
+  position.x += aIconPosition.x + aIconPosition.x * -0.05;
+  position.y += aIconPosition.y + aIconPosition.z * -0.05 + aIconPosition.z;
 
-  vColor = vec4(0.0, 0.0, 0.0, aUv * 0.00392156862745098 * 0.65);
+  vColor = vec4(0.0, 0.0, 0.0, aUv * 0.00392156862745098 * 0.8);
   gl_Position = uProjectionView * position;
 }

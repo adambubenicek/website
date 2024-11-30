@@ -146,25 +146,15 @@ function createProgram(vertexShaderSource, fragmentShaderSource) {
 }
 
 function updateProjectionView() {
-  const depth = height * 5;
-  const fov = Math.atan(((height * 0.5) / depth) * 2);
-
-  const projection = mat4.create();
-  mat4.perspective(
-    projection,
-    fov,
-    width / height,
-    depth - height,
-    depth + height,
-  );
-
-  const view = mat4.create();
-  mat4.fromTranslation(
-    view,
-    vec3.fromValues(-width * 0.5, -height * 0.5, -depth),
-  );
-
-  mat4.multiply(projectionView, projection, view);
+  mat4.ortho(
+		projectionView,
+		width * -0.5,
+		width * 0.5,
+		height * 0.5,
+		height * -0.5,
+		1,
+		-400,
+  )
 }
 
 function updateCanvas() {
@@ -193,7 +183,7 @@ function handleAnimationFrame(renderTime) {
 
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
-    quat.rotateZ(icon.rotation, icon.rotation, 0.01);
+    quat.rotateX(icon.rotation, icon.rotation, 0.01);
 
     reflectionShadowIconData[i * 7 + 0] = icon.translation[0];
     reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
@@ -287,8 +277,8 @@ icons.forEach(async (icon) => {
 
   icon.VAO = gl.createVertexArray();
   icon.translation = vec3.fromValues(
-    Math.random() * width,
-    Math.random() * height,
+    (Math.random() -0.5) * width,
+    (Math.random() -0.5) * height,
     100,
   );
   icon.scale = vec3.fromValues(
