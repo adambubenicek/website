@@ -14,7 +14,7 @@ import reflectionVertex from "./shaders/reflection.vert?raw";
 import reflectionFragment from "./shaders/reflection.frag?raw";
 
 const bodyElement = document.body;
-const mainElement = document.querySelector("main");
+const cardElement = document.querySelector(".card");
 const canvasElement = document.querySelector("canvas");
 
 const gl = canvasElement.getContext("webgl2");
@@ -74,8 +74,8 @@ const glossyTexture = gl.createTexture();
 
 let width = 0;
 let height = 0;
-let mainWidth = 0;
-let mainHeight = 0;
+let cardWidth = 0;
+let cardHeight = 0;
 let lastRenderTime = 0;
 
 async function loadImage(url) {
@@ -262,15 +262,15 @@ const resizeObserver = new ResizeObserver((entries) => {
       height = entry.contentBoxSize[0].blockSize;
       updateProjectionView();
       updateCanvas();
-    } else if (entry.target === mainElement) {
-      mainWidth = entry.contentBoxSize[0].inlineSize;
-      mainHeight = entry.contentBoxSize[0].blockSize;
+    } else if (entry.target === cardElement) {
+      cardWidth = entry.contentBoxSize[0].inlineSize;
+      cardHeight = entry.contentBoxSize[0].blockSize;
     }
   }
 });
 
 resizeObserver.observe(bodyElement);
-resizeObserver.observe(mainElement);
+resizeObserver.observe(cardElement);
 
 icons.forEach(async (icon) => {
   const geometry = await loadGeometry(icon.geometryUrl);

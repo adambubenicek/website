@@ -24,18 +24,30 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
 }
 
 /* Rectangle with 3/2 aspect ratio which contains another
  * rectangle with the size of 85.60mm x 53.98mm (ISO 7810) with equal
  * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
-article {
+.card, .card-shadow {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  justify-self: center;
+  align-self: center;
   height: 85.357%; /* 53.98mm / 63.24mm */
   width: 90.238%; /* 85.60mm / 94.86mm */
   border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
-  container-type: size;
+}
+
+.card {
+  z-index: 10;
   background: #0e0e0e;
   border: 1px solid #1e1e1e;
+  container-type: size;
+}
+
+.card-shadow {
   box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
 }
 
