@@ -193,7 +193,17 @@ function handleAnimationFrame(renderTime) {
 
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
-    quat.rotateX(icon.rotation, icon.rotation, 0.01);
+    quat.rotateZ(icon.rotation, icon.rotation, 0.01);
+
+    reflectionShadowIconData[i * 7 + 0] = icon.translation[0];
+    reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
+    reflectionShadowIconData[i * 7 + 2] = icon.translation[2];
+
+    reflectionShadowIconData[i * 7 + 3] = icon.color[0];
+    reflectionShadowIconData[i * 7 + 4] = icon.color[1];
+    reflectionShadowIconData[i * 7 + 5] = icon.color[2];
+
+    reflectionShadowIconData[i * 7 + 6] = icon.radius;
   }
 
   gl.clearColor(0, 0, 0, 0);
@@ -205,19 +215,6 @@ function handleAnimationFrame(renderTime) {
   gl.disable(gl.DEPTH_TEST);
 
   gl.bindVertexArray(reflectionShadowVOA);
-
-  for (let i = 0; i < loadedIconsCount; i++) {
-    const icon = loadedIcons[i];
-    reflectionShadowIconData[i * 7 + 0] = icon.translation[0];
-    reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
-    reflectionShadowIconData[i * 7 + 2] = icon.translation[2];
-
-    reflectionShadowIconData[i * 7 + 3] = icon.color[0];
-    reflectionShadowIconData[i * 7 + 4] = icon.color[1];
-    reflectionShadowIconData[i * 7 + 5] = icon.color[2];
-
-    reflectionShadowIconData[i * 7 + 6] = icon.radius;
-  }
 
   gl.bindBuffer(gl.ARRAY_BUFFER, reflectionShadowIconsBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, reflectionShadowIconData, gl.DYNAMIC_DRAW);
