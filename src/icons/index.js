@@ -15,6 +15,7 @@ import reflectionFragment from "./shaders/reflection.frag?raw";
 
 const bodyElement = document.body;
 const cardElement = document.querySelector(".card");
+const gridElement = document.querySelector(".grid");
 const canvasElement = document.querySelector("canvas");
 
 const gl = canvasElement.getContext("webgl2");
@@ -76,6 +77,7 @@ let width = 0;
 let height = 0;
 let cardWidth = 0;
 let cardHeight = 0;
+let gridSize = 0;
 let lastRenderTime = 0;
 
 async function loadImage(url) {
@@ -327,12 +329,15 @@ const resizeObserver = new ResizeObserver((entries) => {
     } else if (entry.target === cardElement) {
       cardWidth = entry.contentBoxSize[0].inlineSize;
       cardHeight = entry.contentBoxSize[0].blockSize;
+    } else if (entry.target === gridElement) {
+      gridSize = entry.contentBoxSize[0].inlineSize;
     }
   }
 });
 
 resizeObserver.observe(bodyElement);
 resizeObserver.observe(cardElement);
+resizeObserver.observe(gridElement);
 
 icons.forEach(async (icon) => {
   const geometry = await loadGeometry(icon.geometryUrl);

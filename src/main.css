@@ -30,7 +30,8 @@ main {
 /* Rectangle with 3/2 aspect ratio which contains another
  * rectangle with the size of 85.60mm x 53.98mm (ISO 7810) with equal
  * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
-.card, .card-shadow {
+.card,
+.card-shadow {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
   justify-self: center;
@@ -142,6 +143,13 @@ p {
   );
   grid-column: 1 / 4;
   grid-row: 3 / 4;
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--grid-size);
 }
 
 canvas {
