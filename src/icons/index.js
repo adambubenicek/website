@@ -183,11 +183,73 @@ function handleAnimationFrame(renderTime) {
 
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
-    quat.rotateX(icon.rotation, icon.rotation, 0.01);
 
-    reflectionShadowIconData[i * 7 + 0] = icon.translation[0];
-    reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
-    reflectionShadowIconData[i * 7 + 2] = icon.translation[2];
+		const springForce = vec3.create()
+		vec3.subtract(springForce, icon.translation, icon.translationCurrent)
+		vec3.normalize(springForce, springForce)
+		const distance = vec3.distance(icon.translation, icon.translationCurrent)
+		vec3.scaleAndAdd(
+  		icon.translationForce, 
+  		icon.translationForce, 
+  		springForce,
+      500 * distance
+		)
+
+		for (let j = i + 1; j < loadedIconsCount; j++) {
+  		const repulsionForce = vec3.create() 
+
+      const icon2 = loadedIcons[j];
+  		const distance = Math.max(
+    		1, 
+    		vec3.distance(
+      		icon2.translationCurrent, 
+      		icon.translationCurrent
+    		) - 160
+  		)
+
+			vec3.subtract(repulsionForce, icon.translationCurrent, icon2.translationCurrent)
+			vec3.normalize(repulsionForce, repulsionForce)
+
+			vec3.scaleAndAdd(
+				icon.translationForce,
+				icon.translationForce,
+				repulsionForce,
+				500000 / (distance * distance)
+			)
+
+			vec3.scaleAndAdd(
+				icon2.translationForce,
+				icon2.translationForce,
+				repulsionForce,
+				-500000 / (distance * distance)
+			)
+		}
+
+		vec3.scaleAndAdd(
+  		icon.translationVelocity,
+  		icon.translationVelocity,
+  		icon.translationForce,
+  		delta
+		)
+
+		vec3.set(icon.translationForce, 0,0,0)
+
+		vec3.scale(
+			icon.translationVelocity,
+			icon.translationVelocity,
+			1 - delta * 20
+		)
+
+		vec3.scaleAndAdd(
+  		icon.translationCurrent,
+  		icon.translationCurrent,
+  		icon.translationVelocity,
+  		delta
+		)
+
+    reflectionShadowIconData[i * 7 + 0] = icon.translationCurrent[0];
+    reflectionShadowIconData[i * 7 + 1] = icon.translationCurrent[1];
+    reflectionShadowIconData[i * 7 + 2] = icon.translationCurrent[2];
 
     reflectionShadowIconData[i * 7 + 3] = icon.color[0];
     reflectionShadowIconData[i * 7 + 4] = icon.color[1];
@@ -240,7 +302,7 @@ function handleAnimationFrame(renderTime) {
     mat4.fromRotationTranslationScale(
       model,
       icon.rotation,
-      icon.translation,
+      icon.translationCurrent,
       icon.scale,
     );
     gl.bindVertexArray(icon.VAO);
@@ -281,6 +343,9 @@ icons.forEach(async (icon) => {
     (Math.random() -0.5) * height,
     100,
   );
+  icon.translationVelocity = vec3.fromValues(0, 5, 0);
+  icon.translationCurrent = vec3.clone(icon.translation);
+  icon.translationForce = vec3.create()
   icon.scale = vec3.fromValues(
     40 * icon.scaleBase * geometry.size[0],
     40 * icon.scaleBase * geometry.size[1],
@@ -313,6 +378,11 @@ icons.forEach(async (icon) => {
   loadedIcons.push(icon);
   loadedIconsCount = loadedIcons.length;
 });
+
+bodyElement.addEventListener('mousemove', event => {
+  icons[0].translation[0] = event.pageX - width * 0.5
+  icons[0].translation[1] = event.pageY - height * 0.5
+})
 
 Promise.all([
   loadImage(palette),
