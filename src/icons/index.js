@@ -332,9 +332,9 @@ const resizeObserver = new ResizeObserver((entries) => {
       for (let i = 0; i < loadedIconsCount; i++) {
         const icon = loadedIcons[i];
         icon.scale = vec3.fromValues(
-          gridSize * icon.size[0],
-          gridSize * icon.size[1],
-          gridSize * icon.size[2],
+          gridSize * 0.5 * icon.size[0],
+          gridSize * 0.5 * icon.size[1],
+          gridSize * 0.5 * icon.size[2],
         );
       }
     }
@@ -359,9 +359,9 @@ icons.forEach(async (icon) => {
   icon.translationForce = vec3.create();
   icon.size = geometry.size;
   icon.scale = vec3.fromValues(
-    gridSize * icon.size[0],
-    gridSize * icon.size[1],
-    gridSize * icon.size[2],
+    gridSize * 0.5 * icon.size[0],
+    gridSize * 0.5 * icon.size[1],
+    gridSize * 0.5 * icon.size[2],
   );
   icon.radius = vec3.length(icon.scale);
   icon.rotation = quat.create();

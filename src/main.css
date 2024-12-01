@@ -10,7 +10,7 @@ body {
   color: #cccccc;
   height: 100svh;
 
-  --grid-size: round(min(16.667vw, 80px), 1px);
+  --grid-size: round(min(16.667vw, 160px), 1px);
 
   display: grid;
   grid-template-columns: 1fr calc(var(--grid-size) * 6) 1fr;
@@ -50,6 +50,17 @@ main {
 
 .card-shadow {
   box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
+}
+@media (min-width: 800px) {
+  body {
+    grid-template-columns: 1fr calc(var(--grid-size) * 3) 1fr;
+    grid-template-rows: 1fr calc(var(--grid-size) * 2) 1fr;
+  }
+
+  .card-shadow {
+    box-shadow: 0 calc(var(--grid-size) * 0.5) calc(var(--grid-size) * 0.5)
+      #00000080;
+  }
 }
 
 h1 {
