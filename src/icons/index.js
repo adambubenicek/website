@@ -210,14 +210,12 @@ function handleAnimationFrame(renderTime) {
       );
       vec3.normalize(repulsionForce, repulsionForce);
 
-      if (i !== 0) {
-        vec3.scaleAndAdd(
-          icon.translationForce,
-          icon.translationForce,
-          repulsionForce,
-          500000 / distance,
-        );
-      }
+      vec3.scaleAndAdd(
+        icon.translationForce,
+        icon.translationForce,
+        repulsionForce,
+        500000 / distance,
+      );
 
       vec3.scaleAndAdd(
         icon2.translationForce,
