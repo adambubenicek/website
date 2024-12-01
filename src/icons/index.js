@@ -23,17 +23,14 @@ const gl = canvasElement.getContext("webgl2");
 const icons = [
   {
     geometryUrl: suzanne,
-    scaleBase: 0.6,
     color: vec3.fromValues(0.086, 0.639, 0.29),
   },
   {
     geometryUrl: cube,
-    scaleBase: 0.8,
     color: vec3.fromValues(0.98, 0.8, 0.082),
   },
   {
     geometryUrl: sphere,
-    scaleBase: 1,
     color: vec3.fromValues(0.078, 0.722, 0.651),
   },
 ];
@@ -149,14 +146,14 @@ function createProgram(vertexShaderSource, fragmentShaderSource) {
 
 function updateProjectionView() {
   mat4.ortho(
-		projectionView,
-		width * -0.5,
-		width * 0.5,
-		height * 0.5,
-		height * -0.5,
-		1,
-		-400,
-  )
+    projectionView,
+    width * -0.5,
+    width * 0.5,
+    height * 0.5,
+    height * -0.5,
+    1,
+    -400,
+  );
 }
 
 function updateCanvas() {
@@ -186,68 +183,71 @@ function handleAnimationFrame(renderTime) {
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
 
-		const springForce = vec3.create()
-		vec3.subtract(springForce, icon.translation, icon.translationCurrent)
-		vec3.normalize(springForce, springForce)
-		const distance = vec3.distance(icon.translation, icon.translationCurrent)
-		vec3.scaleAndAdd(
-  		icon.translationForce, 
-  		icon.translationForce, 
-  		springForce,
-      500 * distance
-		)
+    const springForce = vec3.create();
+    vec3.subtract(springForce, icon.translation, icon.translationCurrent);
+    vec3.normalize(springForce, springForce);
+    const distance = vec3.distance(icon.translation, icon.translationCurrent);
+    vec3.scaleAndAdd(
+      icon.translationForce,
+      icon.translationForce,
+      springForce,
+      500 * distance,
+    );
 
-		for (let j = i + 1; j < loadedIconsCount; j++) {
-  		const repulsionForce = vec3.create() 
+    for (let j = i + 1; j < loadedIconsCount; j++) {
+      const repulsionForce = vec3.create();
 
       const icon2 = loadedIcons[j];
-  		const distance = Math.max(
-    		1, 
-    		vec3.distance(
-      		icon2.translationCurrent, 
-      		icon.translationCurrent
-    		) - 160
-  		)
+      const distance = Math.max(
+        1,
+        vec3.distance(icon2.translationCurrent, icon.translationCurrent) - 160,
+      );
 
-			vec3.subtract(repulsionForce, icon.translationCurrent, icon2.translationCurrent)
-			vec3.normalize(repulsionForce, repulsionForce)
+      vec3.subtract(
+        repulsionForce,
+        icon.translationCurrent,
+        icon2.translationCurrent,
+      );
+      vec3.normalize(repulsionForce, repulsionForce);
 
-			vec3.scaleAndAdd(
-				icon.translationForce,
-				icon.translationForce,
-				repulsionForce,
-				500000 / (distance * distance)
-			)
+      if (i !== 0) {
+        vec3.scaleAndAdd(
+          icon.translationForce,
+          icon.translationForce,
+          repulsionForce,
+          500000 / distance,
+        );
+      }
 
-			vec3.scaleAndAdd(
-				icon2.translationForce,
-				icon2.translationForce,
-				repulsionForce,
-				-500000 / (distance * distance)
-			)
-		}
+      vec3.scaleAndAdd(
+        icon2.translationForce,
+        icon2.translationForce,
+        repulsionForce,
+        -500000 / distance,
+      );
+    }
 
-		vec3.scaleAndAdd(
-  		icon.translationVelocity,
-  		icon.translationVelocity,
-  		icon.translationForce,
-  		delta
-		)
+    vec3.scaleAndAdd(
+      icon.translationVelocity,
+      icon.translationVelocity,
+      icon.translationForce,
+      delta,
+    );
 
-		vec3.set(icon.translationForce, 0,0,0)
+    vec3.set(icon.translationForce, 0, 0, 0);
 
-		vec3.scale(
-			icon.translationVelocity,
-			icon.translationVelocity,
-			1 - delta * 20
-		)
+    vec3.scale(
+      icon.translationVelocity,
+      icon.translationVelocity,
+      1 - delta * 20,
+    );
 
-		vec3.scaleAndAdd(
-  		icon.translationCurrent,
-  		icon.translationCurrent,
-  		icon.translationVelocity,
-  		delta
-		)
+    vec3.scaleAndAdd(
+      icon.translationCurrent,
+      icon.translationCurrent,
+      icon.translationVelocity,
+      delta,
+    );
 
     reflectionShadowIconData[i * 7 + 0] = icon.translationCurrent[0];
     reflectionShadowIconData[i * 7 + 1] = icon.translationCurrent[1];
@@ -331,6 +331,14 @@ const resizeObserver = new ResizeObserver((entries) => {
       cardHeight = entry.contentBoxSize[0].blockSize;
     } else if (entry.target === gridElement) {
       gridSize = entry.contentBoxSize[0].inlineSize;
+      for (let i = 0; i < loadedIconsCount; i++) {
+        const icon = loadedIcons[i];
+        icon.scale = vec3.fromValues(
+          gridSize * icon.size[0],
+          gridSize * icon.size[1],
+          gridSize * icon.size[2],
+        );
+      }
     }
   }
 });
@@ -344,22 +352,22 @@ icons.forEach(async (icon) => {
 
   icon.VAO = gl.createVertexArray();
   icon.translation = vec3.fromValues(
-    (Math.random() -0.5) * width,
-    (Math.random() -0.5) * height,
+    (Math.random() - 0.5) * width,
+    (Math.random() - 0.5) * height,
     100,
   );
   icon.translationVelocity = vec3.fromValues(0, 5, 0);
   icon.translationCurrent = vec3.clone(icon.translation);
-  icon.translationForce = vec3.create()
+  icon.translationForce = vec3.create();
+  icon.size = geometry.size;
   icon.scale = vec3.fromValues(
-    40 * icon.scaleBase * geometry.size[0],
-    40 * icon.scaleBase * geometry.size[1],
-    40 * icon.scaleBase * geometry.size[2],
+    gridSize * icon.size[0],
+    gridSize * icon.size[1],
+    gridSize * icon.size[2],
   );
   icon.radius = vec3.length(icon.scale);
   icon.rotation = quat.create();
   icon.indexCount = geometry.indexCount;
-  icon.size = geometry.size;
 
   gl.bindVertexArray(icon.VAO);
 
@@ -384,10 +392,10 @@ icons.forEach(async (icon) => {
   loadedIconsCount = loadedIcons.length;
 });
 
-bodyElement.addEventListener('mousemove', event => {
-  icons[0].translation[0] = event.pageX - width * 0.5
-  icons[0].translation[1] = event.pageY - height * 0.5
-})
+bodyElement.addEventListener("mousemove", (event) => {
+  icons[0].translation[0] = event.pageX - width * 0.5;
+  icons[0].translation[1] = event.pageY - height * 0.5;
+});
 
 Promise.all([
   loadImage(palette),

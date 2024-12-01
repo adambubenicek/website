@@ -15,9 +15,6 @@ size = boundingBoxMax - boundingBoxMin
 
 origin = -boundingBoxMin
 
-print(size)
-print(origin)
-
 coords = [None] * len(obj.data.vertices) * 3
 normals = [None] * len(obj.data.vertices) * 3
 indices = [None] * len(obj.data.loop_triangles) * 3
@@ -45,6 +42,8 @@ for triangle in obj.data.loop_triangles:
         v = math.floor((1 - uvlayer.data[loopIndex].uv.y) * 16)
         uv = (v * 16 + u)
         uvs[vertexIndex] = uv
+
+size = obj.matrix_world @ size
 
 data = b''
 
