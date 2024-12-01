@@ -108,6 +108,12 @@ async function loadGeometry(url) {
       dataView.getFloat32(dataView.byteLength - 24, true) / 255,
       dataView.getFloat32(dataView.byteLength - 20, true) / 255,
     ),
+    rotation: quat.fromValues(
+      dataView.getFloat32(dataView.byteLength - 44, true),
+      dataView.getFloat32(dataView.byteLength - 40, true),
+      dataView.getFloat32(dataView.byteLength - 36, true),
+      dataView.getFloat32(dataView.byteLength - 32, true),
+    ),
     indexCount:
       dataView.getUint32(dataView.byteLength - 12, true) /
       Uint16Array.BYTES_PER_ELEMENT,
@@ -365,7 +371,7 @@ icons.forEach(async (icon) => {
     gridSize * 0.5 * icon.size[2],
   );
   icon.radius = vec3.length(icon.scale);
-  icon.rotation = quat.create();
+  icon.rotation = geometry.rotation;
   icon.indexCount = geometry.indexCount;
 
   gl.bindVertexArray(icon.VAO);
