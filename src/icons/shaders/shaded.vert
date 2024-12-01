@@ -15,7 +15,7 @@ void main() {
   vec3 normal = mat3(uModel) * aNormal;
   normal = normalize(normal);
 
-  vMatcapUV = vec2(normal) * 0.5 + 0.5;
+  vMatcapUV = vec2(normal) * vec2(0.5, -0.5) + 0.5;
   
   float v = floor(aUV * 0.0625);
   float u = aUV - v * 16.0;

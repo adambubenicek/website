@@ -149,10 +149,10 @@ function updateProjectionView() {
     projectionView,
     width * -0.5,
     width * 0.5,
-    height * 0.5,
     height * -0.5,
-    1,
+    height * 0.5,
     -400,
+    1,
   );
 }
 
@@ -200,7 +200,8 @@ function handleAnimationFrame(renderTime) {
       const icon2 = loadedIcons[j];
       const distance = Math.max(
         1,
-        vec3.distance(icon2.translationCurrent, icon.translationCurrent) - 160,
+        vec3.distance(icon2.translationCurrent, icon.translationCurrent) -
+          gridSize,
       );
 
       vec3.subtract(
@@ -392,7 +393,7 @@ icons.forEach(async (icon) => {
 
 bodyElement.addEventListener("mousemove", (event) => {
   icons[0].translation[0] = event.pageX - width * 0.5;
-  icons[0].translation[1] = event.pageY - height * 0.5;
+  icons[0].translation[1] = -event.pageY + height * 0.5;
 });
 
 Promise.all([

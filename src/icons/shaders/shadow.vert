@@ -14,8 +14,9 @@ out vec4 vColor;
 void main() {
   vec4 position = vec4(aPosition * aIconRadius * 2.0, 1.0);
   position.x += aIconPosition.x + aIconPosition.x * -0.05;
-  position.y += aIconPosition.y + aIconPosition.z * -0.05 + aIconPosition.z;
+  position.y += aIconPosition.y + aIconPosition.y * -0.05 - aIconPosition.z;
 
   vColor = vec4(0.0, 0.0, 0.0, aUv * 0.00392156862745098 * 0.8);
+
   gl_Position = uProjectionView * position;
 }
