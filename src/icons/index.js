@@ -1,4 +1,4 @@
-import { vec3, quat, mat4 } from "gl-matrix";
+import { vec3, quat, mat4, vec2 } from "gl-matrix";
 import palette from "./textures/palette.png";
 import diffuse from "./textures/diffuse.png";
 import glossy from "./textures/glossy.png";
@@ -69,13 +69,16 @@ const model = mat4.create();
 const paletteTexture = gl.createTexture();
 const diffuseTexture = gl.createTexture();
 const glossyTexture = gl.createTexture();
+const lastMouse = vec2.create();
+const mouse = vec2.create();
+const mouseDelta = vec2.create();
 
 let width = 0;
 let height = 0;
 let cardWidth = 0;
 let cardHeight = 0;
 let gridSize = 0;
-let lastRenderTime = 0;
+let lastTime = 0;
 
 async function loadImage(url) {
   return new Promise((resolve) => {
@@ -177,82 +180,17 @@ function updateCanvas() {
   canvasElement.style.height = `${Math.round(height)}px`;
 }
 
-function handleAnimationFrame(renderTime) {
-  const delta = (renderTime - lastRenderTime) * 0.001;
-  lastRenderTime = renderTime;
+function handleAnimationFrame(time) {
+  const timeDelta = (time - lastTime) * 0.001;
+  lastTime = time;
 
   // Drop frame if delta is too high
-  if (delta > 1) {
+  if (timeDelta > 1) {
     return requestAnimationFrame(handleAnimationFrame);
   }
 
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
-
-    const springForce = vec3.create();
-    vec3.subtract(springForce, icon.translation, icon.translationCurrent);
-    vec3.normalize(springForce, springForce);
-    const distance = vec3.distance(icon.translation, icon.translationCurrent);
-    vec3.scaleAndAdd(
-      icon.translationForce,
-      icon.translationForce,
-      springForce,
-      500 * distance,
-    );
-
-    for (let j = i + 1; j < loadedIconsCount; j++) {
-      const repulsionForce = vec3.create();
-
-      const icon2 = loadedIcons[j];
-      const distance = Math.max(
-        1,
-        vec3.distance(icon2.translationCurrent, icon.translationCurrent) -
-          gridSize,
-      );
-
-      vec3.subtract(
-        repulsionForce,
-        icon.translationCurrent,
-        icon2.translationCurrent,
-      );
-      vec3.normalize(repulsionForce, repulsionForce);
-
-      vec3.scaleAndAdd(
-        icon.translationForce,
-        icon.translationForce,
-        repulsionForce,
-        500000 / distance,
-      );
-
-      vec3.scaleAndAdd(
-        icon2.translationForce,
-        icon2.translationForce,
-        repulsionForce,
-        -500000 / distance,
-      );
-    }
-
-    vec3.scaleAndAdd(
-      icon.translationVelocity,
-      icon.translationVelocity,
-      icon.translationForce,
-      delta,
-    );
-
-    vec3.set(icon.translationForce, 0, 0, 0);
-
-    vec3.scale(
-      icon.translationVelocity,
-      icon.translationVelocity,
-      1 - delta * 20,
-    );
-
-    vec3.scaleAndAdd(
-      icon.translationCurrent,
-      icon.translationCurrent,
-      icon.translationVelocity,
-      delta,
-    );
 
     reflectionShadowIconData[i * 7 + 0] = icon.translationCurrent[0];
     reflectionShadowIconData[i * 7 + 1] = icon.translationCurrent[1];
@@ -264,6 +202,8 @@ function handleAnimationFrame(renderTime) {
 
     reflectionShadowIconData[i * 7 + 6] = icon.radius;
   }
+
+  vec2.set(lastMouse, mouse[0], mouse[1]);
 
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -352,15 +292,23 @@ resizeObserver.observe(bodyElement);
 resizeObserver.observe(cardElement);
 resizeObserver.observe(gridElement);
 
+document.body.addEventListener("mousemove", (event) => {
+  vec2.set(mouse, event.clientX - width * 0.5, -event.clientY + height * 0.5);
+});
+
 icons.forEach(async (icon) => {
   const geometry = await loadGeometry(icon.geometryUrl);
 
   icon.VAO = gl.createVertexArray();
+
   icon.translation = vec3.fromValues(
     (Math.random() - 0.5) * width,
     (Math.random() - 0.5) * height,
     100,
   );
+  if (icon.geometryUrl === suzanne) {
+    icon.translation = vec3.fromValues(0, gridSize, 100);
+  }
   icon.translationVelocity = vec3.fromValues(0, 5, 0);
   icon.translationCurrent = vec3.clone(icon.translation);
   icon.translationForce = vec3.create();
@@ -395,11 +343,6 @@ icons.forEach(async (icon) => {
 
   loadedIcons.push(icon);
   loadedIconsCount = loadedIcons.length;
-});
-
-bodyElement.addEventListener("mousemove", (event) => {
-  icons[0].translation[0] = event.pageX - width * 0.5;
-  icons[0].translation[1] = -event.pageY + height * 0.5;
 });
 
 Promise.all([

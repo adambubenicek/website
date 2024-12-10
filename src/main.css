@@ -32,6 +32,7 @@ main {
  * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
 .card,
 .card-shadow {
+  display: none;
   grid-column: 2 / 3;
   grid-row: 2 / 3;
   justify-self: center;
