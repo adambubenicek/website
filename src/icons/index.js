@@ -8,6 +8,7 @@ import js from "./geometries/js.data?url";
 import blender from "./geometries/blender.data?url";
 import figma from "./geometries/figma.data?url";
 import aeropress from "./geometries/aeropress.data?url";
+import arch from "./geometries/arch.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -41,6 +42,10 @@ const icons = [
   },
   {
     geometryUrl: aeropress,
+    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+  },
+  {
+    geometryUrl: arch,
     color: vec3.fromValues(0.9177, 0.702, 0.0314),
   },
 ];
