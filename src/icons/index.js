@@ -3,9 +3,8 @@ import palette from "./textures/palette.png";
 import diffuse from "./textures/diffuse.png";
 import glossy from "./textures/glossy.png";
 import circle from "./geometries/circle.data?url";
-import suzanne from "./geometries/suzanne.data?url";
-import sphere from "./geometries/sphere.data?url";
-import cube from "./geometries/cube.data?url";
+import css from "./geometries/css.data?url";
+import js from "./geometries/js.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -22,16 +21,12 @@ const gl = canvasElement.getContext("webgl2");
 
 const icons = [
   {
-    geometryUrl: suzanne,
-    color: vec3.fromValues(0.086, 0.639, 0.29),
-  },
-  {
-    geometryUrl: cube,
+    geometryUrl: css,
     color: vec3.fromValues(0.98, 0.8, 0.082),
   },
   {
-    geometryUrl: sphere,
-    color: vec3.fromValues(0.078, 0.722, 0.651),
+    geometryUrl: js,
+    color: vec3.fromValues(0.98, 0.8, 0.082),
   },
 ];
 const loadedIcons = [];
@@ -244,11 +239,13 @@ function handleAnimationFrame(time) {
   gl.enable(gl.DEPTH_TEST);
   gl.useProgram(shadedProgram);
 
+  const rotation = quat.create();
+  quat.fromEuler(rotation, mouse[0], mouse[1], 0);
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
     mat4.fromRotationTranslationScale(
       model,
-      icon.rotation,
+      rotation,
       icon.translationCurrent,
       icon.scale,
     );
@@ -306,9 +303,6 @@ icons.forEach(async (icon) => {
     (Math.random() - 0.5) * height,
     100,
   );
-  if (icon.geometryUrl === suzanne) {
-    icon.translation = vec3.fromValues(0, gridSize, 100);
-  }
   icon.translationVelocity = vec3.fromValues(0, 5, 0);
   icon.translationCurrent = vec3.clone(icon.translation);
   icon.translationForce = vec3.create();
