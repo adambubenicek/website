@@ -43,7 +43,11 @@ for triangle in obj.data.loop_triangles:
         uv = (v * 16 + u)
         uvs[vertexIndex] = uv
 
-size = obj.matrix_world @ size
+
+size.x *= obj.scale.x
+size.y *= obj.scale.y
+size.z *= obj.scale.z
+rotation = obj.rotation_euler.to_quaternion()
 
 data = b''
 
@@ -59,6 +63,7 @@ data += struct.pack(f"<{len(normals)}b", *normals)
 uvsOffset = len(data)
 data += struct.pack(f"<{len(uvs)}B", *uvs)
 
+data += struct.pack(f"<4f", rotation.x, rotation.y, rotation.z, rotation.w)
 data += struct.pack(f"<3f", size.x, size.y, size.z)
 data += struct.pack(f"<1L", indicesOffset)
 data += struct.pack(f"<1L", coordsOffset)
