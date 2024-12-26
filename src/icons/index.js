@@ -22,11 +22,11 @@ const gl = canvasElement.getContext("webgl2");
 const icons = [
   {
     geometryUrl: css,
-    color: vec3.fromValues(0.98, 0.8, 0.082),
+    color: vec3.fromValues(0.3451, 0.1098, 0.5294),
   },
   {
     geometryUrl: js,
-    color: vec3.fromValues(0.98, 0.8, 0.082),
+    color: vec3.fromValues(0.9177, 0.702, 0.0314),
   },
 ];
 const loadedIcons = [];
