@@ -6,6 +6,7 @@ import circle from "./geometries/circle.data?url";
 import css from "./geometries/css.data?url";
 import js from "./geometries/js.data?url";
 import blender from "./geometries/blender.data?url";
+import figma from "./geometries/figma.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -31,6 +32,10 @@ const icons = [
   },
   {
     geometryUrl: blender,
+    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+  },
+  {
+    geometryUrl: figma,
     color: vec3.fromValues(0.9177, 0.702, 0.0314),
   },
 ];
