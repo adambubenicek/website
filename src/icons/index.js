@@ -9,6 +9,7 @@ import blender from "./geometries/blender.data?url";
 import figma from "./geometries/figma.data?url";
 import aeropress from "./geometries/aeropress.data?url";
 import arch from "./geometries/arch.data?url";
+import controller from "./geometries/controller.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -46,7 +47,11 @@ const icons = [
   },
   {
     geometryUrl: arch,
-    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+    color: vec3.fromValues(0.9882, 0.8275, 0.302),
+  },
+  {
+    geometryUrl: controller,
+    color: vec3.fromValues(0.9882, 0.8275, 0.302),
   },
 ];
 const loadedIcons = [];
