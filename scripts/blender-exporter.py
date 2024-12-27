@@ -5,9 +5,12 @@ import math
 import mathutils
 
 C = bpy.context
+D = bpy.data
 output_dir = C.scene.render.filepath
 obj = C.active_object
 uvlayer = obj.data.uv_layers.active
+
+paletteImage = D.images["palette.png"]
 
 boundingBoxMin= mathutils.Vector(obj.bound_box[0])
 boundingBoxMax = mathutils.Vector(obj.bound_box[6])
@@ -19,7 +22,7 @@ coords = [None] * len(obj.data.vertices) * 3
 normals = [None] * len(obj.data.vertices) * 3
 indices = [None] * len(obj.data.loop_triangles) * 3
 uvs = [None] * len(obj.data.vertices)
-uvFrequencies = [0] * 256
+uv_set = set()
 
 for vertex in obj.data.vertices:
   for dimension in [0, 1, 2]:
@@ -42,6 +45,17 @@ for triangle in obj.data.loop_triangles:
         v = math.floor((1 - uvlayer.data[loopIndex].uv.y) * 16)
         uv = (v * 16 + u)
         uvs[vertexIndex] = uv
+        
+        if not uv in uv_set:
+            uv_set.add(uv)
+            
+            pixel = (15 - v) * 16 + u
+            color = [
+                round(paletteImage.pixels[pixel * 4 + 0], 3),
+                round(paletteImage.pixels[pixel * 4 + 1], 3),
+                round(paletteImage.pixels[pixel * 4 + 2], 3),
+            ]
+            print("Color", color)
 
 
 size.x *= obj.scale.x
