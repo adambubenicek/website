@@ -11,6 +11,7 @@ import aeropress from "./geometries/aeropress.data?url";
 import arch from "./geometries/arch.data?url";
 import controller from "./geometries/controller.data?url";
 import keyboard from "./geometries/keyboard.data?url";
+import grinder from "./geometries/grinder.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -56,6 +57,10 @@ const icons = [
   },
   {
     geometryUrl: keyboard,
+    color: vec3.fromValues(0.039, 0.039, 0.039),
+  },
+  {
+    geometryUrl: grinder,
     color: vec3.fromValues(0.039, 0.039, 0.039),
   },
 ];
