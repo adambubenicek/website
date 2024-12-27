@@ -28,35 +28,35 @@ const gl = canvasElement.getContext("webgl2");
 const icons = [
   {
     geometryUrl: css,
-    color: vec3.fromValues(0.3451, 0.1098, 0.5294),
+    color: vec3.fromValues(0.345, 0.11, 0.529),
   },
   {
     geometryUrl: js,
-    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+    color: vec3.fromValues(0.918, 0.702, 0.031),
   },
   {
     geometryUrl: blender,
-    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+    color: vec3.fromValues(0.918, 0.345, 0.047),
   },
   {
     geometryUrl: figma,
-    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+    color: vec3.fromValues(0.659, 0.333, 0.969),
   },
   {
     geometryUrl: aeropress,
-    color: vec3.fromValues(0.9177, 0.702, 0.0314),
+    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: arch,
-    color: vec3.fromValues(0.9882, 0.8275, 0.302),
+    color: vec3.fromValues(0.008, 0.518, 0.78),
   },
   {
     geometryUrl: controller,
-    color: vec3.fromValues(0.9882, 0.8275, 0.302),
+    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: keyboard,
-    color: vec3.fromValues(0.9882, 0.8275, 0.302),
+    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
 ];
 const loadedIcons = [];
