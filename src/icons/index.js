@@ -10,6 +10,7 @@ import figma from "./geometries/figma.data?url";
 import aeropress from "./geometries/aeropress.data?url";
 import arch from "./geometries/arch.data?url";
 import controller from "./geometries/controller.data?url";
+import keyboard from "./geometries/keyboard.data?url";
 import shadedVertex from "./shaders/shaded.vert?raw";
 import shadedFragment from "./shaders/shaded.frag?raw";
 import shadowVertex from "./shaders/shadow.vert?raw";
@@ -51,6 +52,10 @@ const icons = [
   },
   {
     geometryUrl: controller,
+    color: vec3.fromValues(0.9882, 0.8275, 0.302),
+  },
+  {
+    geometryUrl: keyboard,
     color: vec3.fromValues(0.9882, 0.8275, 0.302),
   },
 ];
