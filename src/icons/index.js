@@ -222,9 +222,9 @@ function handleAnimationFrame(time) {
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
 
-    reflectionShadowIconData[i * 7 + 0] = icon.translationCurrent[0];
-    reflectionShadowIconData[i * 7 + 1] = icon.translationCurrent[1];
-    reflectionShadowIconData[i * 7 + 2] = icon.translationCurrent[2];
+    reflectionShadowIconData[i * 7 + 0] = icon.translation[0];
+    reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
+    reflectionShadowIconData[i * 7 + 2] = icon.translation[2];
 
     reflectionShadowIconData[i * 7 + 3] = icon.color[0];
     reflectionShadowIconData[i * 7 + 4] = icon.color[1];
@@ -281,7 +281,7 @@ function handleAnimationFrame(time) {
     mat4.fromRotationTranslationScale(
       model,
       rotation,
-      icon.translationCurrent,
+      icon.translation,
       icon.scale,
     );
     gl.bindVertexArray(icon.VAO);
@@ -296,29 +296,115 @@ function handleAnimationFrame(time) {
   requestAnimationFrame(handleAnimationFrame);
 }
 
+let gridWidth = 0;
+let gridHeight = 0;
+
+let gridCardWidth = 0;
+let gridCardHeight = 0;
+
+let gridCardX = 0;
+let gridCardY = 0;
+
 const resizeObserver = new ResizeObserver((entries) => {
+  const previousWidth = width;
+  const previousHeight = height;
+  const previousGridWidth = gridWidth;
+  const previousGridHeight = gridHeight;
+  const previousGridSize = gridSize;
+  const previousGridCardWidth = gridCardWidth;
+  const previousGridCardHeight = gridCardHeight;
+
   for (const entry of entries) {
     if (entry.target === bodyElement) {
       width = entry.contentBoxSize[0].inlineSize;
       height = entry.contentBoxSize[0].blockSize;
-      updateProjectionView();
-      updateCanvas();
     } else if (entry.target === cardElement) {
       cardWidth = entry.contentBoxSize[0].inlineSize;
       cardHeight = entry.contentBoxSize[0].blockSize;
     } else if (entry.target === gridElement) {
       gridSize = entry.contentBoxSize[0].inlineSize;
-      for (let i = 0; i < loadedIconsCount; i++) {
-        const icon = loadedIcons[i];
-        icon.scale = vec3.fromValues(
-          gridSize * 0.5 * icon.size[0],
-          gridSize * 0.5 * icon.size[1],
-          gridSize * 0.5 * icon.size[2],
-        );
+    }
+  }
+
+  gridCardWidth = Math.ceil(cardWidth / gridSize);
+  gridCardHeight = Math.ceil(cardHeight / gridSize);
+
+  gridWidth =
+    Math.floor((width + 4 - gridCardWidth * gridSize) / 2 / gridSize) * 2 +
+    gridCardWidth;
+  gridHeight =
+    Math.floor((height + 4 - gridCardHeight * gridSize) / 2 / gridSize) * 2 +
+    gridCardHeight;
+
+  gridCardX = (gridWidth - gridCardWidth) * 0.5;
+  gridCardY = (gridHeight - gridCardHeight) * 0.5;
+
+  if (previousWidth !== width || previousHeight !== height) {
+    updateProjectionView();
+    updateCanvas();
+  }
+
+  if (
+    previousGridHeight !== gridHeight ||
+    previousGridWidth !== gridWidth ||
+    previousGridSize !== gridSize ||
+    previousGridCardWidth !== gridCardWidth ||
+    previousGridCardHeight !== gridCardHeight
+  ) {
+    replaceIcons();
+    rescaleIcons();
+  }
+});
+
+function replaceIcons() {
+  const grid = [];
+  let availableCellCount = 0;
+
+  for (let gridY = 0; gridY < gridHeight; gridY++) {
+    grid[gridY] = [];
+
+    for (let gridX = 0; gridX < gridWidth; gridX++) {
+      if (
+        gridX >= gridCardX &&
+        gridX < gridCardX + gridCardWidth &&
+        gridY >= gridCardY &&
+        gridY < gridCardY + gridCardHeight
+      ) {
+        grid[gridY][gridX] = null;
+      } else {
+        grid[gridY][gridX] = true;
+        availableCellCount++;
       }
     }
   }
-});
+
+  for (let icon of icons) {
+    while (availableCellCount > 0) {
+      const x = Math.floor(Math.random() * gridWidth);
+      const y = Math.floor(Math.random() * gridHeight);
+
+      if (grid[y][x] === true) {
+        grid[y][x] = false;
+        availableCellCount--;
+
+        icon.translation = vec3.fromValues(
+          x * gridSize + gridSize * 0.5 - gridWidth * gridSize * 0.5,
+          y * gridSize + gridSize * 0.5 - gridHeight * gridSize * 0.5,
+          gridSize * 0.5,
+        );
+
+        break;
+      }
+    }
+  }
+}
+
+function rescaleIcons() {
+  for (let icon of loadedIcons) {
+    vec3.scale(icon.scale, icon.size, gridSize * 0.5);
+    icon.radius = vec3.length(icon.scale);
+  }
+}
 
 resizeObserver.observe(bodyElement);
 resizeObserver.observe(cardElement);
@@ -333,21 +419,12 @@ icons.forEach(async (icon) => {
 
   icon.VAO = gl.createVertexArray();
 
-  icon.translation = vec3.fromValues(
-    (Math.random() - 0.5) * width,
-    (Math.random() - 0.5) * height,
-    100,
-  );
-  icon.translationVelocity = vec3.fromValues(0, 5, 0);
-  icon.translationCurrent = vec3.clone(icon.translation);
-  icon.translationForce = vec3.create();
   icon.size = geometry.size;
-  icon.scale = vec3.fromValues(
-    gridSize * 0.5 * icon.size[0],
-    gridSize * 0.5 * icon.size[1],
-    gridSize * 0.5 * icon.size[2],
-  );
+  icon.scale = vec3.create();
+
+  vec3.scale(icon.scale, icon.size, gridSize * 0.5);
   icon.radius = vec3.length(icon.scale);
+
   icon.rotation = geometry.rotation;
   icon.indexCount = geometry.indexCount;
 
