@@ -401,7 +401,7 @@ function replaceIcons() {
 
 function rescaleIcons() {
   for (let icon of loadedIcons) {
-    vec3.scale(icon.scale, icon.size, gridSize * 0.5);
+    vec3.scale(icon.scale, icon.size, gridSize * 0.382);
     icon.radius = vec3.length(icon.scale);
   }
 }
@@ -422,7 +422,7 @@ icons.forEach(async (icon) => {
   icon.size = geometry.size;
   icon.scale = vec3.create();
 
-  vec3.scale(icon.scale, icon.size, gridSize * 0.5);
+  vec3.scale(icon.scale, icon.size, gridSize * 0.382);
   icon.radius = vec3.length(icon.scale);
 
   icon.rotation = geometry.rotation;
