@@ -99,9 +99,6 @@ const model = mat4.create();
 const paletteTexture = gl.createTexture();
 const diffuseTexture = gl.createTexture();
 const glossyTexture = gl.createTexture();
-const lastMouse = vec2.create();
-const mouse = vec2.create();
-const mouseDelta = vec2.create();
 
 let width = 0;
 let height = 0;
@@ -233,8 +230,6 @@ function handleAnimationFrame(time) {
     reflectionShadowIconData[i * 7 + 6] = icon.radius;
   }
 
-  vec2.set(lastMouse, mouse[0], mouse[1]);
-
   gl.clearColor(0, 0, 0, 0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -275,9 +270,19 @@ function handleAnimationFrame(time) {
   gl.useProgram(shadedProgram);
 
   const rotation = quat.create();
-  quat.fromEuler(rotation, mouse[0], mouse[1], 0);
+
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
+
+    quat.fromEuler(
+      rotation,
+      Math.sin(icon.rotationFrequency[0] * time) * 15,
+      Math.sin(icon.rotationFrequency[1] * time) * 15,
+      Math.sin(icon.rotationFrequency[2] * time) * 30,
+    );
+
+    quat.multiply(rotation, icon.rotation, rotation);
+
     mat4.fromRotationTranslationScale(
       model,
       rotation,
@@ -410,10 +415,6 @@ resizeObserver.observe(bodyElement);
 resizeObserver.observe(cardElement);
 resizeObserver.observe(gridElement);
 
-document.body.addEventListener("mousemove", (event) => {
-  vec2.set(mouse, event.clientX - width * 0.5, -event.clientY + height * 0.5);
-});
-
 icons.forEach(async (icon) => {
   const geometry = await loadGeometry(icon.geometryUrl);
 
@@ -426,6 +427,11 @@ icons.forEach(async (icon) => {
   icon.radius = vec3.length(icon.scale);
 
   icon.rotation = geometry.rotation;
+  icon.rotationFrequency = vec3.fromValues(
+    0.0001 * Math.random() * Math.PI * 2,
+    0.0001 * Math.random() * Math.PI * 2,
+    0.00005 * Math.random() * Math.PI * 2,
+  );
   icon.indexCount = geometry.indexCount;
 
   gl.bindVertexArray(icon.VAO);
