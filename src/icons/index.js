@@ -276,9 +276,9 @@ function handleAnimationFrame(time) {
 
     quat.fromEuler(
       rotation,
-      Math.sin(icon.rotationFrequency[0] * time) * 15,
-      Math.sin(icon.rotationFrequency[1] * time) * 15,
-      Math.sin(icon.rotationFrequency[2] * time) * 30,
+      Math.sin(icon.rotationFrequency[0] * time + icon.rotationOffset[0]) * 15,
+      Math.sin(icon.rotationFrequency[1] * time + icon.rotationOffset[1]) * 15,
+      Math.sin(icon.rotationFrequency[2] * time + icon.rotationOffset[2]) * 45,
     );
 
     quat.multiply(rotation, icon.rotation, rotation);
@@ -431,6 +431,11 @@ icons.forEach(async (icon) => {
     0.0001 * Math.random() * Math.PI * 2,
     0.0001 * Math.random() * Math.PI * 2,
     0.00005 * Math.random() * Math.PI * 2,
+  );
+  icon.rotationOffset = vec3.fromValues(
+    Math.random() * 1000,
+    Math.random() * 1000,
+    Math.random() * 1000,
   );
   icon.indexCount = geometry.indexCount;
 
