@@ -5,6 +5,7 @@ import glossy from "./textures/glossy.png";
 import circle from "./geometries/circle.data?url";
 import css from "./geometries/css.data?url";
 import js from "./geometries/js.data?url";
+import bash from "./geometries/bash.data?url";
 import blender from "./geometries/blender.data?url";
 import figma from "./geometries/figma.data?url";
 import aeropress from "./geometries/aeropress.data?url";
@@ -62,6 +63,10 @@ const icons = [
   {
     geometryUrl: grinder,
     color: vec3.fromValues(0.039, 0.039, 0.039),
+  },
+  {
+    geometryUrl: bash,
+    color: vec3.fromValues(0.086, 0.396, 0.204),
   },
 ];
 const loadedIcons = [];
