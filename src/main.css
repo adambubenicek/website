@@ -5,17 +5,24 @@
   padding: 0;
 }
 
+html {
+  height: 100svh;
+  width: 100vw;
+  overflow: hidden;
+}
+
 body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
   background: #0a0a0a;
   color: #fafafa;
-  height: 100svh;
-
-  --grid-size: round(min(16.667vw, 160px), 1px);
-
   display: grid;
   grid-template-columns: 1fr calc(var(--grid-size) * 6) 1fr;
   grid-template-rows: 1fr calc(var(--grid-size) * 4) 1fr;
   font-family: "Inter", sans-serif;
+
+  --grid-size: round(min(16.667vw, 160px), 1px);
 }
 
 main {
