@@ -7,7 +7,7 @@
 
 body {
   background: #0a0a0a;
-  color: #cccccc;
+  color: #fafafa;
   height: 100svh;
 
   --grid-size: round(min(16.667vw, 160px), 1px);
@@ -31,7 +31,8 @@ main {
  * rectangle with the size of 85.60mm x 53.98mm (ISO 7810) with equal
  * horizontal and vertical spacing has the size of 94.86mm x 63.24mm. */
 .card,
-.card-shadow {
+.card-shadow,
+.card-reflection {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
   justify-self: center;
@@ -39,27 +40,70 @@ main {
   height: 85.357%; /* 53.98mm / 63.24mm */
   width: 90.238%; /* 85.60mm / 94.86mm */
   border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
+  animation-duration: 1000ms;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  animation-fill-mode: forwards;
+  backface-visibility: hidden;
 }
 
 .card {
   z-index: 10;
-  background: #0e0e0e;
-  border: 1px solid #1e1e1e;
+  background: #171717;
+  border: 1px solid #262626;
   container-type: size;
+  animation-name: card;
+}
+
+.card-reflection {
+  pointer-events: none;
+  z-index: 20;
+  background-size: 100% 300%;
+  animation-name: card, card-reflection;
+  background-image: linear-gradient(
+    #00000080 33%,
+    #ffffff 50%,
+    #ffffff20 55%,
+    transparent 66%
+  );
+}
+
+@keyframes card {
+  from {
+    transform: scale3d(1.4, 1.4, 1) rotate3d(0.5, 0, 0.5, 90deg);
+  }
+  to {
+    transform: scale3d(1, 1, 1) rotate3d(0, 0, 1, 0deg);
+  }
+}
+
+@keyframes card-reflection {
+  from {
+    background-position: left top;
+  }
+  to {
+    background-position: left bottom;
+  }
+}
+
+@keyframes card-shadow {
+  from {
+    box-shadow: 0 calc(var(--grid-size) * 3) calc(var(--grid-size) * 3)
+      #00000000;
+  }
+  to {
+    box-shadow: 0 calc(var(--grid-size) * 0.5) calc(var(--grid-size) * 0.5)
+      #00000080;
+  }
 }
 
 .card-shadow {
-  box-shadow: 0 var(--grid-size) var(--grid-size) #00000080;
+  animation-name: card-shadow;
 }
+
 @media (min-width: 800px) {
   body {
     grid-template-columns: 1fr calc(var(--grid-size) * 3) 1fr;
     grid-template-rows: 1fr calc(var(--grid-size) * 2) 1fr;
-  }
-
-  .card-shadow {
-    box-shadow: 0 calc(var(--grid-size) * 0.5) calc(var(--grid-size) * 0.5)
-      #00000080;
   }
 }
 
