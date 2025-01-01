@@ -72,6 +72,8 @@ const icons = [
 const loadedIcons = [];
 let loadedIconsCount = 0;
 
+const appearDuration = 1000;
+
 const shadedProgram = createProgram(shadedVertex, shadedFragment);
 const shadedUniforms = {
   model: gl.getUniformLocation(shadedProgram, "uModel"),
@@ -232,7 +234,27 @@ function handleAnimationFrame(time) {
     reflectionShadowIconData[i * 7 + 4] = icon.color[1];
     reflectionShadowIconData[i * 7 + 5] = icon.color[2];
 
-    reflectionShadowIconData[i * 7 + 6] = icon.radius;
+    if (icon.appearFinished !== true) {
+      if (icon.appearTimeStart === null) {
+        icon.appearTimeStart = time;
+      }
+
+      const appearTimeDelta = time - icon.appearTimeStart;
+      let appearProgress = 0;
+      if (appearTimeDelta >= appearDuration) {
+        appearProgress = 1;
+
+        icon.appearFinished = true;
+      } else {
+        appearProgress = appearTimeDelta / appearDuration;
+      }
+
+      icon.appearProgress = 1 - Math.pow(1 - appearProgress, 4);
+
+      reflectionShadowIconData[i * 7 + 6] = icon.radius * icon.appearProgress;
+    } else {
+      reflectionShadowIconData[i * 7 + 6] = icon.radius;
+    }
   }
 
   gl.clearColor(0, 0, 0, 0);
@@ -275,6 +297,7 @@ function handleAnimationFrame(time) {
   gl.useProgram(shadedProgram);
 
   const rotation = quat.create();
+  const scale = vec3.create();
 
   for (let i = 0; i < loadedIconsCount; i++) {
     const icon = loadedIcons[i];
@@ -288,12 +311,13 @@ function handleAnimationFrame(time) {
 
     quat.multiply(rotation, icon.rotation, rotation);
 
-    mat4.fromRotationTranslationScale(
-      model,
-      rotation,
-      icon.translation,
-      icon.scale,
-    );
+    if (icon.appearFinished === true) {
+      vec3.set(scale, icon.scale[0], icon.scale[1], icon.scale[2]);
+    } else {
+      vec3.scale(scale, icon.scale, icon.appearProgress);
+    }
+
+    mat4.fromRotationTranslationScale(model, rotation, icon.translation, scale);
     gl.bindVertexArray(icon.VAO);
     gl.uniformMatrix4fv(shadedUniforms.model, false, model);
     gl.uniformMatrix4fv(shadedUniforms.projectionView, false, projectionView);
@@ -424,6 +448,9 @@ icons.forEach(async (icon) => {
   const geometry = await loadGeometry(icon.geometryUrl);
 
   icon.VAO = gl.createVertexArray();
+
+  icon.appearTimeStart = null;
+  icon.appearFinished = false;
 
   icon.size = geometry.size;
   icon.scale = vec3.create();
