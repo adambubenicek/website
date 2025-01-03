@@ -30,12 +30,18 @@ obj.id_properties_ui("reflection_color").update(subtype="COLOR_GAMMA", min=0, ma
 reflection_color = obj["reflection_color"]
 
 for vertex in obj.data.vertices:
+  normal = vertex.normal.copy()
+  normal.x /= size.x
+  normal.y /= size.y
+  normal.z /= size.z
+  normal.normalize()
+
   for dimension in [0, 1, 2]:
     coords[vertex.index * 3 + dimension] = round(
       (vertex.co[dimension] + origin[dimension]) / size[dimension] * 255
-    ) - 128 if size[dimension] > 0 else 0
+    ) - 128
 
-    normals[vertex.index * 3 + dimension] = round(vertex.normal[dimension] * 127)
+    normals[vertex.index * 3 + dimension] = round(normal[dimension] * 127)
 
 
 for triangle in obj.data.loop_triangles:
@@ -59,6 +65,9 @@ rotation = obj.rotation_euler.to_quaternion()
 
 data = b''
 
+
+print(normals)
+
 indicesOffset = len(data)
 data += struct.pack(f"<{len(indices)}H", *indices)
 
@@ -70,6 +79,7 @@ data += struct.pack(f"<{len(normals)}b", *normals)
 
 uvsOffset = len(data)
 data += struct.pack(f"<{len(uvs)}B", *uvs)
+
 
 data += struct.pack(f"<3f", reflection_color[0], reflection_color[1], reflection_color[2])
 data += struct.pack(f"<4f", rotation.x, rotation.y, rotation.z, rotation.w)
