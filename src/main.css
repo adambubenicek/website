@@ -23,6 +23,7 @@ body {
   font-family: "Inter", sans-serif;
 
   --grid-size: round(min(16.667vw, 160px), 1px);
+  --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 main {
@@ -48,7 +49,7 @@ main {
   width: 90.238%; /* 85.60mm / 94.86mm */
   border-radius: 3.505% / 5.558%; /* (3mm / 85.60mm) / (3mm / 53.98mm) */
   animation-duration: 1000ms;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+  animation-timing-function: var(--ease-out);
   animation-fill-mode: forwards;
   backface-visibility: hidden;
 }
@@ -74,6 +75,15 @@ main {
   );
 }
 
+.card-content {
+  position: absolute;
+  inset: 2.618em;
+  font-size: 3.6cqw;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
 @keyframes card {
   from {
     transform: scale3d(1.4, 1.4, 1) rotate3d(0.5, 0, 0.5, 90deg);
@@ -94,17 +104,19 @@ main {
 
 @keyframes card-shadow {
   from {
-    box-shadow: 0 calc(var(--grid-size) * 3) calc(var(--grid-size) * 3)
-      #00000000;
+    opacity: 0;
+    box-shadow: calc(var(--grid-size) * 2) calc(var(--grid-size) * 2)
+      calc(var(--grid-size) * 0.5) #000000;
   }
   to {
+    opacity: 0.6;
     box-shadow: 0 calc(var(--grid-size) * 0.5) calc(var(--grid-size) * 0.5)
-      #00000080;
+      #000000;
   }
 }
 
 .card-shadow {
-  animation-name: card-shadow;
+  animation-name: card, card-shadow;
 }
 
 @media (min-width: 800px) {
