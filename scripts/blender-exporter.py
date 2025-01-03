@@ -22,7 +22,12 @@ coords = [None] * len(obj.data.vertices) * 3
 normals = [None] * len(obj.data.vertices) * 3
 indices = [None] * len(obj.data.loop_triangles) * 3
 uvs = [None] * len(obj.data.vertices)
-uv_set = set()
+
+if not "reflection_color" in obj:
+  obj["reflection_color"] = (1.0, 0.0, 0.0, 1.0)
+  
+obj.id_properties_ui("reflection_color").update(subtype="COLOR_GAMMA", min=0, max=1)
+reflection_color = obj["reflection_color"]
 
 for vertex in obj.data.vertices:
   for dimension in [0, 1, 2]:
@@ -45,17 +50,6 @@ for triangle in obj.data.loop_triangles:
         v = math.floor((1 - uvlayer.data[loopIndex].uv.y) * 16)
         uv = (v * 16 + u)
         uvs[vertexIndex] = uv
-        
-        if not uv in uv_set:
-            uv_set.add(uv)
-            
-            pixel = (15 - v) * 16 + u
-            color = [
-                round(paletteImage.pixels[pixel * 4 + 0], 3),
-                round(paletteImage.pixels[pixel * 4 + 1], 3),
-                round(paletteImage.pixels[pixel * 4 + 2], 3),
-            ]
-            print("Color", color)
 
 
 size.x *= obj.scale.x
@@ -77,6 +71,7 @@ data += struct.pack(f"<{len(normals)}b", *normals)
 uvsOffset = len(data)
 data += struct.pack(f"<{len(uvs)}B", *uvs)
 
+data += struct.pack(f"<3f", reflection_color[0], reflection_color[1], reflection_color[2])
 data += struct.pack(f"<4f", rotation.x, rotation.y, rotation.z, rotation.w)
 data += struct.pack(f"<3f", size.x, size.y, size.z)
 data += struct.pack(f"<1L", indicesOffset)

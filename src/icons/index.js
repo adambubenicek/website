@@ -30,43 +30,33 @@ const gl = canvasElement.getContext("webgl2");
 const icons = [
   {
     geometryUrl: css,
-    color: vec3.fromValues(0.345, 0.11, 0.529),
   },
   {
     geometryUrl: js,
-    color: vec3.fromValues(0.918, 0.702, 0.031),
   },
   {
     geometryUrl: blender,
-    color: vec3.fromValues(0.918, 0.345, 0.047),
   },
   {
     geometryUrl: figma,
-    color: vec3.fromValues(0.659, 0.333, 0.969),
   },
   {
     geometryUrl: aeropress,
-    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: arch,
-    color: vec3.fromValues(0.008, 0.518, 0.78),
   },
   {
     geometryUrl: controller,
-    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: keyboard,
-    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: grinder,
-    color: vec3.fromValues(0.039, 0.039, 0.039),
   },
   {
     geometryUrl: bash,
-    color: vec3.fromValues(0.086, 0.396, 0.204),
   },
 ];
 const loadedIcons = [];
@@ -140,16 +130,21 @@ async function loadGeometry(url) {
     coordsOffset: dataView.getUint32(dataView.byteLength - 12, true),
     normalsOffset: dataView.getUint32(dataView.byteLength - 8, true),
     uvsOffset: dataView.getUint32(dataView.byteLength - 4, true),
-    size: vec3.fromValues(
-      dataView.getFloat32(dataView.byteLength - 28, true) / 255,
-      dataView.getFloat32(dataView.byteLength - 24, true) / 255,
-      dataView.getFloat32(dataView.byteLength - 20, true) / 255,
+    reflectionColor: vec3.fromValues(
+      dataView.getFloat32(dataView.byteLength - 56, true),
+      dataView.getFloat32(dataView.byteLength - 52, true),
+      dataView.getFloat32(dataView.byteLength - 48, true),
     ),
     rotation: quat.fromValues(
       dataView.getFloat32(dataView.byteLength - 44, true),
       dataView.getFloat32(dataView.byteLength - 40, true),
       dataView.getFloat32(dataView.byteLength - 36, true),
       dataView.getFloat32(dataView.byteLength - 32, true),
+    ),
+    size: vec3.fromValues(
+      dataView.getFloat32(dataView.byteLength - 28, true) / 255,
+      dataView.getFloat32(dataView.byteLength - 24, true) / 255,
+      dataView.getFloat32(dataView.byteLength - 20, true) / 255,
     ),
     indexCount:
       dataView.getUint32(dataView.byteLength - 12, true) /
@@ -230,9 +225,9 @@ function handleAnimationFrame(time) {
     reflectionShadowIconData[i * 7 + 1] = icon.translation[1];
     reflectionShadowIconData[i * 7 + 2] = icon.translation[2];
 
-    reflectionShadowIconData[i * 7 + 3] = icon.color[0];
-    reflectionShadowIconData[i * 7 + 4] = icon.color[1];
-    reflectionShadowIconData[i * 7 + 5] = icon.color[2];
+    reflectionShadowIconData[i * 7 + 3] = icon.reflectionColor[0];
+    reflectionShadowIconData[i * 7 + 4] = icon.reflectionColor[1];
+    reflectionShadowIconData[i * 7 + 5] = icon.reflectionColor[2];
 
     if (icon.appearFinished !== true) {
       if (icon.appearTimeStart === null) {
@@ -457,6 +452,8 @@ icons.forEach(async (icon) => {
 
   vec3.scale(icon.scale, icon.size, gridSize * 0.382);
   icon.radius = vec3.length(icon.scale);
+
+  icon.reflectionColor = geometry.reflectionColor;
 
   icon.rotation = geometry.rotation;
   icon.rotationFrequency = vec3.fromValues(
